@@ -5,7 +5,7 @@ import { authenticate, authorizeCompany } from "../middleware/auth";
 const router = Router();
 const applicationController = new ApplicationController();
 
-router.post("/:jobId/apply", authenticate, applicationController.apply);
+router.post("/:jobId/apply", authenticate, applicationController.applyJob);
 router.get(
   "/job/:jobId",
   authenticate,

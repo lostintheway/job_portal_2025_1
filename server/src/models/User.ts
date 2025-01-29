@@ -11,13 +11,13 @@ export class User {
       RETURNING *
     `;
     const values = [user.email, user.password, user.fullName, user.role];
-    const result = await pool.query(query, values);
+    const result: any = pool.query(query, values);
     return result.rows[0];
   }
 
   async findByEmail(email: string): Promise<IUser | null> {
     const query = `SELECT * FROM ${this.tableName} WHERE email = $1`;
-    const result = await pool.query(query, [email]);
+    const result: any = pool.query(query, [email]);
     return result.rows[0] || null;
   }
 }

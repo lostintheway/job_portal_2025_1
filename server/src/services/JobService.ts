@@ -74,7 +74,11 @@ export class JobService {
       ORDER BY created_at DESC 
       LIMIT $2 OFFSET $3
     `;
-    const result = await this.jobModel.query(query, [companyId, limit, offset]);
+    const result: any = await this.jobModel.query(query, [
+      companyId,
+      limit,
+      offset,
+    ]);
     return result.rows;
   }
 

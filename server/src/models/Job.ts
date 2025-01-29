@@ -4,7 +4,7 @@ import { IJob } from "../interfaces/IJob";
 export class Job {
   private tableName = "jobs";
 
-  async create(job: IJob): Promise<IJob> {
+  create(job: IJob): Promise<IJob> {
     const query = `
       INSERT INTO ${this.tableName} 
       (title, description, requirements, salary_range, location, company_id, job_type, experience_level, status)
@@ -22,11 +22,11 @@ export class Job {
       job.experience_level,
       job.status,
     ];
-    const result = await pool.query(query, values);
+    const result: any = pool.query(query, values);
     return result.rows[0];
   }
 
-  async findAll(
+  findAll(
     page: number = 1,
     limit: number = 10
   ): Promise<{ jobs: IJob[]; total: number }> {
@@ -39,10 +39,10 @@ export class Job {
     `;
     const countQuery = `SELECT COUNT(*) FROM ${this.tableName} WHERE status = 'active'`;
 
-    const [jobsResult, countResult] = await Promise.all([
-      pool.query(query, [limit, offset]),
-      pool.query(countQuery),
-    ]);
+    const jobsResult = pool.query(query, [limit, offset]);
+    const countResult = pool.query(countQuery);
+    // const [jobsResult, countResult] =  Promise.all([
+    // ]);
 
     return {
       jobs: jobsResult.rows,
@@ -50,13 +50,13 @@ export class Job {
     };
   }
 
-  async findById(id: number): Promise<IJob | null> {
+  findById(id: number): Promise<IJob | null> {
     const query = `SELECT * FROM ${this.tableName} WHERE id = $1`;
-    const result = await pool.query(query, [id]);
+    const result: any = pool.query(query, [id]);
     return result.rows[0] || null;
   }
 
-  async update(id: number, job: Partial<IJob>): Promise<IJob | null> {
+  update(id: number, job: Partial<IJob>): Promise<IJob | null> {
     const keys = Object.keys(job);
     const values = Object.values(job);
 
@@ -71,7 +71,7 @@ export class Job {
       RETURNING *
     `;
 
-    const result = await pool.query(query, [...values, id]);
+    const result: any = pool.query(query, [...values, id]);
     return result.rows[0] || null;
   }
 }

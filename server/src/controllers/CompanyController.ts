@@ -12,7 +12,7 @@ export class CompanyController {
     try {
       const company = await this.companyService.createCompany({
         ...req.body,
-        user_id: (req as any).user!.id,
+        user_id: req.user!.id,
       });
       res.status(201).json(company);
     } catch (error) {
@@ -23,7 +23,7 @@ export class CompanyController {
   getCompanyProfile = async (req: Request, res: Response): Promise<void> => {
     try {
       const company = await this.companyService.getCompanyByUserId(
-        (req as any).user!.id ?? 0
+        req.user!.id ?? 0
       );
       if (!company) {
         res.status(404).json({ message: "Company profile not found" });

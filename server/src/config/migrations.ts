@@ -1,9 +1,10 @@
 import { pool } from "./db";
 
-export function createTables() {
+export async function createTables() {
   try {
+    console.log("at createTables test");
     // Users Table
-    pool.query(`
+    await pool.query(`
       CREATE TABLE IF NOT EXISTS users (
         id SERIAL PRIMARY KEY,
         email VARCHAR(255) UNIQUE NOT NULL,
@@ -16,7 +17,7 @@ export function createTables() {
     `);
 
     // Companies Table
-    pool.query(`
+    await pool.query(`
       CREATE TABLE IF NOT EXISTS companies (
         id SERIAL PRIMARY KEY,
         name VARCHAR(255) NOT NULL,
@@ -33,7 +34,7 @@ export function createTables() {
     `);
 
     // Jobs Table
-    pool.query(`
+    await pool.query(`
       CREATE TABLE IF NOT EXISTS jobs (
         id SERIAL PRIMARY KEY,
         title VARCHAR(255) NOT NULL,
@@ -51,7 +52,7 @@ export function createTables() {
     `);
 
     // Applications Table
-    pool.query(`
+    await pool.query(`
       CREATE TABLE IF NOT EXISTS applications (
         id SERIAL PRIMARY KEY,
         job_id INTEGER REFERENCES jobs(id),
@@ -65,26 +66,26 @@ export function createTables() {
     `);
 
     // Add triggers for updated_at
-    pool.query(`
-      CREATE OR REPLACE FUNCTION update_updated_at_column()
-      RETURNS TRIGGER AS $$
-      BEGIN
-        NEW.updated_at = CURRENT_TIMESTAMP;
-        RETURN NEW;
-      END;
-      $$ language 'plpgsql';
-    `);
+    //await pool.query(`
+    //   CREATE OR REPLACE FUNCTION update_updated_at_column()
+    //   RETURNS TRIGGER AS $$
+    //   BEGIN
+    //     NEW.updated_at = CURRENT_TIMESTAMP;
+    //     RETURN NEW;
+    //   END;
+    //   $$ language 'plpgsql';
+    // `);
 
-    const tables = ["users", "companies", "jobs", "applications"];
-    for (const table of tables) {
-      pool.query(`
-        DROP TRIGGER IF EXISTS update_${table}_updated_at ON ${table};
-        CREATE TRIGGER update_${table}_updated_at
-        BEFORE UPDATE ON ${table}
-        FOR EACH ROW
-        EXECUTE FUNCTION update_updated_at_column();
-      `);
-    }
+    // const tables = ["users", "companies", "jobs", "applications"];
+    // for (const table of tables) {
+    //  await pool.query(`
+    //     DROP TRIGGER IF EXISTS update_${table}_updated_at ON ${table};
+    //     CREATE TRIGGER update_${table}_updated_at
+    //     BEFORE UPDATE ON ${table}
+    //     FOR EACH ROW
+    //     EXECUTE FUNCTION update_updated_at_column();
+    //   `);
+    // }
 
     console.log("All tables created successfully");
   } catch (error) {

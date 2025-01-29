@@ -1,4 +1,4 @@
-import { pool } from "../config/db";
+import { db } from "../config/db";
 import { IApplication } from "../interfaces/IApplication";
 
 export class Application {
@@ -18,7 +18,7 @@ export class Application {
       application.resume_url,
       application.cover_letter,
     ];
-    const result: any = pool.query(query, values);
+    const result: any = db.query(query, values);
     return result.rows[0];
   }
 

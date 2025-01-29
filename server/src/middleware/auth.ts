@@ -14,12 +14,13 @@ export const authenticate = (
   req: Request,
   res: Response,
   next: NextFunction
-) => {
+): void => {
   try {
     const token = req.headers.authorization?.split(" ")[1];
 
     if (!token) {
-      return res.status(401).json({ message: "Authentication required" });
+      res.status(401).json({ message: "You need Authentication" });
+      return;
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET!) as IUser;
@@ -27,6 +28,7 @@ export const authenticate = (
     next();
   } catch (error) {
     res.status(401).json({ message: "Invalid token" });
+    return;
   }
 };
 
@@ -34,9 +36,10 @@ export const authorizeCompany = (
   req: Request,
   res: Response,
   next: NextFunction
-) => {
+): void => {
   if (req.user?.role !== "company") {
-    return res.status(403).json({ message: "Access denied" });
+    res.status(403).json({ message: "Access denied" });
+    return;
   }
   next();
 };

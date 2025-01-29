@@ -8,11 +8,11 @@ export class ApplicationController {
     this.applicationService = new ApplicationService();
   }
 
-  apply = async (req: Request, res: Response): Promise<void> => {
+  applyJob = async (req: Request, res: Response): Promise<void> => {
     try {
       const application = await this.applicationService.createApplication({
         ...req.body,
-        user_id: (req as any).user?.id ?? 0,
+        user_id: req.user?.id ?? 0,
         status: "pending",
       });
       res.status(201).json(application);
@@ -36,7 +36,7 @@ export class ApplicationController {
     try {
       const applications =
         await this.applicationService.getApplicationsByUserId(
-          (req as any).user!.id ?? 0
+          req.user!.id ?? 0
         );
       res.status(200).json(applications);
     } catch (error) {
