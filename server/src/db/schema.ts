@@ -5,6 +5,7 @@ import {
   text,
   timestamp,
   int,
+  mysqlEnum,
 } from "drizzle-orm/mysql-core";
 
 export const users = mysqlTable("users", {
@@ -12,7 +13,7 @@ export const users = mysqlTable("users", {
   email: varchar("email", { length: 255 }).unique().notNull(),
   password: varchar("password", { length: 255 }).notNull(),
   fullName: varchar("full_name", { length: 255 }).notNull(),
-  role: varchar("role", { length: 50 }).notNull(),
+  role: mysqlEnum("role", ["jobseeker", "company", "admin"]).notNull(),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow().onUpdateNow(),
 });
@@ -20,11 +21,13 @@ export const users = mysqlTable("users", {
 export const companies = mysqlTable("companies", {
   id: serial("id").primaryKey(),
   name: varchar("name", { length: 255 }).notNull(),
-  description: text("description"),
+  description: text("description").notNull(),
   location: varchar("location", { length: 255 }).notNull(),
-  website: varchar("website", { length: 255 }),
-  logoUrl: varchar("logo_url", { length: 255 }),
-  userId: int("user_id").references(() => users.id),
+  website: varchar("website", { length: 255 }).notNull(),
+  logoUrl: varchar("logo_url", { length: 255 }).notNull(),
+  userId: int("user_id")
+    .references(() => users.id)
+    .notNull(),
   industry: varchar("industry", { length: 255 }).notNull(),
   size: varchar("size", { length: 50 }).notNull(),
   createdAt: timestamp("created_at").defaultNow(),
@@ -48,11 +51,23 @@ export const jobs = mysqlTable("jobs", {
 
 export const applications = mysqlTable("applications", {
   id: serial("id").primaryKey(),
-  jobId: int("job_id").references(() => jobs.id),
-  userId: int("user_id").references(() => users.id),
-  status: varchar("status", { length: 50 }).default("pending"),
+  jobId: int("job_id")
+    .references(() => jobs.id)
+    .notNull(),
+  userId: int("user_id")
+    .references(() => users.id)
+    .notNull(),
+  status: mysqlEnum("status", [
+    "pending",
+    "reviewed",
+    "shortlisted",
+    "rejected",
+    "accepted",
+  ])
+    .default("pending")
+    .notNull(),
   resumeUrl: varchar("resume_url", { length: 255 }).notNull(),
-  coverLetter: text("cover_letter"),
+  coverLetter: text("cover_letter").notNull(),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow().onUpdateNow(),
 });

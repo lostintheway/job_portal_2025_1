@@ -5,10 +5,10 @@ export interface IJob extends ICommon {
   title: string;
   description: string;
   requirements: string;
-  salary_range: string;
+  salaryRange: string;
   location: string;
-  company_id: number;
-  job_type: "full-time" | "part-time" | "contract" | "internship";
-  experience_level: string;
+  companyId: number;
+  jobType: "full-time" | "part-time" | "contract" | "internship";
+  experienceLevel: string;
   status: "active" | "closed";
 }

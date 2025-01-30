@@ -10,6 +10,7 @@ const poolConnection = mysql.createPool({
   user: process.env.DB_USER,
   database: process.env.DB_NAME,
 });
+
 export const db = drizzle({ client: poolConnection });
 
 // or if you need client connection

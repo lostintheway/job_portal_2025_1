@@ -1,9 +1,6 @@
-import { pool } from "../config/db";
 import { IJob } from "../interfaces/IJob";
 
 export class Job {
-  private tableName = "jobs";
-
   create(job: IJob): Promise<IJob> {
     const query = `
       INSERT INTO ${this.tableName} 

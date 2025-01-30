@@ -1,60 +1,54 @@
+import { desc, eq } from "drizzle-orm";
 import { db } from "../config/db";
+import { applications, users } from "../db/schema";
 import { IApplication } from "../interfaces/IApplication";
 
 export class Application {
-  private tableName = "applications";
+  async create(application: IApplication): Promise<IApplication> {
+    const result = await db
+      .insert(applications)
+      .values(application)
+      .$returningId();
+    const fullRecord = await db
+      .select()
+      .from(applications)
+      .where(eq(applications.id, result[0].id));
 
-  create(application: IApplication): Promise<IApplication> {
-    const query = `
-      INSERT INTO ${this.tableName} 
-      (job_id, user_id, status, resume_url, cover_letter)
-      VALUES ($1, $2, $3, $4, $5)
-      RETURNING *
-    `;
-    const values = [
-      application.job_id,
-      application.user_id,
-      application.status,
-      application.resume_url,
-      application.cover_letter,
-    ];
-    const result: any = db.query(query, values);
-    return result.rows[0];
+    return fullRecord[0];
   }
 
-  findByJobId(jobId: number): Promise<IApplication[]> {
-    const query = `
-      SELECT a.*, u.full_name, u.email 
-      FROM ${this.tableName} a
-      JOIN users u ON a.user_id = u.id
-      WHERE a.job_id = $1
-      ORDER BY a.created_at DESC
-    `;
-    const result: any = pool.query(query, [jobId]);
-    return result.rows;
-  }
+  async findByJobId(jobId: number): Promise<IApplication[]> {
+    const result = await db.select().from(applications);
+    // .join(users, applications.userId, users.id)
+    // .where(eq(applications.jobId, jobId))
+    // .orderBy(applications.createdAt, desc);
 
-  findByUserId(userId: number): Promise<IApplication[]> {
-    const query = `
-      SELECT a.*, j.title as job_title, c.name as company_name
-      FROM ${this.tableName} a
-      JOIN jobs j ON a.job_id = j.id
-      JOIN companies c ON j.company_id = c.id
-      WHERE a.user_id = $1
-      ORDER BY a.created_at DESC
-    `;
-    const result: any = pool.query(query, [userId]);
-    return result.rows;
-  }
-
-  updateStatus(id: number, status: string): Promise<IApplication | null> {
-    const query = `
-      UPDATE ${this.tableName}
-      SET status = $1
-      WHERE id = $2
-      RETURNING *
-    `;
-    const result: any = pool.query(query, [status, id]);
-    return result.rows[0] || null;
+    return result;
   }
 }
+
+// async findByUserId(userId: number): Promise<IApplication[]> {
+//   const result = await db
+//     .select()
+//     .from(applications)
+//     .join("jobs", "applications.job_id", "jobs.id")
+//     .join("companies", "jobs.company_id", "companies.id")
+//     .where(eq("applications.user_id", userId))
+//     .orderBy("applications.created_at", "desc");
+
+//   return result;
+// }
+
+// async updateStatus(id: number, status: string): Promise<IApplication | null> {
+//   await db
+//     .update(applications)
+//     .set({ status })
+//     .where(eq("applications.id, id));
+
+//   const result = await db
+//     .select()
+//     .from(applications)
+//     .where(eq("applications.id, id));
+
+//   return result[0] || null;
+// }

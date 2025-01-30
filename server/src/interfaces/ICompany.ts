@@ -5,9 +5,9 @@ export interface ICompany extends ICommon {
   name: string;
   description: string;
   location: string;
-  website?: string;
-  logo_url?: string;
-  user_id: number;
+  website: string;
+  logoUrl: string;
+  userId: number;
   industry: string;
   size: string;
 }
