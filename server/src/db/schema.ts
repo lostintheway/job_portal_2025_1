@@ -41,10 +41,20 @@ export const jobs = mysqlTable("jobs", {
   requirements: text("requirements").notNull(),
   salaryRange: varchar("salary_range", { length: 100 }).notNull(),
   location: varchar("location", { length: 255 }).notNull(),
-  companyId: int("company_id").references(() => companies.id),
-  jobType: varchar("job_type", { length: 50 }).notNull(),
+  companyId: int("company_id")
+    .references(() => companies.id)
+    .notNull(),
+  jobType: mysqlEnum("job_type", [
+    "full-time",
+    "part-time",
+    "remote",
+    "internship",
+    "contract",
+  ])
+    .default("full-time")
+    .notNull(),
   experienceLevel: varchar("experience_level", { length: 100 }).notNull(),
-  status: varchar("status", { length: 50 }).default("active"),
+  status: mysqlEnum("status", ["active", "closed"]).default("active").notNull(),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow().onUpdateNow(),
 });

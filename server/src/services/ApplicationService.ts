@@ -14,7 +14,7 @@ export class ApplicationService {
   async createApplication(
     applicationData: IApplication
   ): Promise<IApplication> {
-    const job = await this.jobModel.findById(applicationData.job_id);
+    const job = await this.jobModel.findById(applicationData.jobId);
     if (!job) {
       throw new Error("Job not found");
     }
@@ -34,7 +34,7 @@ export class ApplicationService {
 
   async updateApplicationStatus(
     id: number,
-    status: string
+    status: "pending" | "reviewed" | "shortlisted" | "rejected" | "accepted"
   ): Promise<IApplication | null> {
     if (
       !["pending", "reviewed", "shortlisted", "rejected", "accepted"].includes(

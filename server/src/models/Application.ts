@@ -1,6 +1,6 @@
 import { desc, eq } from "drizzle-orm";
 import { db } from "../config/db";
-import { applications, users } from "../db/schema";
+import { applications, companies, jobs, users } from "../db/schema";
 import { IApplication } from "../interfaces/IApplication";
 
 export class Application {
@@ -18,37 +18,39 @@ export class Application {
   }
 
   async findByJobId(jobId: number): Promise<IApplication[]> {
-    const result = await db.select().from(applications);
-    // .join(users, applications.userId, users.id)
-    // .where(eq(applications.jobId, jobId))
-    // .orderBy(applications.createdAt, desc);
+    const result = await db
+      .select()
+      .from(applications)
+      // .innerJoin(users, applications.userId, users.id)
+      .where(eq(applications.jobId, jobId))
+      .orderBy(desc(applications.createdAt));
 
     return result;
   }
+  async updateStatus(
+    id: number,
+    status: "pending" | "reviewed" | "shortlisted" | "rejected" | "accepted"
+  ): Promise<IApplication | null> {
+    await db
+      .update(applications)
+      .set({ status })
+      .where(eq(applications.id, id));
+
+    const result = await db
+      .select()
+      .from(applications)
+      .where(eq(applications.id, id));
+
+    return result[0] || null;
+  }
+  async findByUserId(userId: number): Promise<IApplication[]> {
+    const result = await db
+      .select()
+      .from(applications)
+      // .innerJoin(jobs, eq(applications.jobId, jobs.id))
+      // .innerJoin(companies, eq(jobs.companyId, companies.id))
+      .where(eq(applications.userId, userId))
+      .orderBy(desc(applications.createdAt));
+    return result;
+  }
 }
-
-// async findByUserId(userId: number): Promise<IApplication[]> {
-//   const result = await db
-//     .select()
-//     .from(applications)
-//     .join("jobs", "applications.job_id", "jobs.id")
-//     .join("companies", "jobs.company_id", "companies.id")
-//     .where(eq("applications.user_id", userId))
-//     .orderBy("applications.created_at", "desc");
-
-//   return result;
-// }
-
-// async updateStatus(id: number, status: string): Promise<IApplication | null> {
-//   await db
-//     .update(applications)
-//     .set({ status })
-//     .where(eq("applications.id, id));
-
-//   const result = await db
-//     .select()
-//     .from(applications)
-//     .where(eq("applications.id, id));
-
-//   return result[0] || null;
-// }

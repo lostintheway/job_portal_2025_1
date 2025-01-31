@@ -8,7 +8,7 @@ export interface IJob extends ICommon {
   salaryRange: string;
   location: string;
   companyId: number;
-  jobType: "full-time" | "part-time" | "contract" | "internship";
+  jobType: "full-time" | "part-time" | "contract" | "internship" | "remote";
   experienceLevel: string;
   status: "active" | "closed";
 }

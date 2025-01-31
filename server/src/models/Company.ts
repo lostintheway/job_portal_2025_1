@@ -4,8 +4,6 @@ import { companies } from "../db/schema";
 import { ICompany } from "../interfaces/ICompany";
 
 export class Company {
-  // private tableName = "companies";
-
   async create(company: ICompany): Promise<ICompany> {
     const result = await db.insert(companies).values(company).$returningId();
     const fullRecord = await db
