@@ -11,22 +11,32 @@ export default function Sidebar({ sidebarOpen }: { sidebarOpen: boolean }) {
       <nav>
         <ul className="space-y-2">
           <li>
-            <Link to="/admin/gallery">
+            <Link to="/admin/company">
               <Button
                 variant="ghost"
                 className="w-full justify-start hover:bg-purple-100 dark:hover:bg-purple-900"
               >
-                Gallery
+                Company
               </Button>
             </Link>
           </li>
           <li>
-            <Link to="/admin/portfolio">
+            <Link to="/admin/job">
               <Button
                 variant="ghost"
                 className="w-full justify-start hover:bg-purple-100 dark:hover:bg-purple-900"
               >
-                Portfolio
+                Job
+              </Button>
+            </Link>
+          </li>
+          <li>
+            <Link to="/admin/application">
+              <Button
+                variant="ghost"
+                className="w-full justify-start hover:bg-purple-100 dark:hover:bg-purple-900"
+              >
+                Application
               </Button>
             </Link>
           </li>

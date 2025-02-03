@@ -13,7 +13,9 @@ export class JobController {
       const job = await this.jobService.createJob(req.body, req.body.id);
       res.status(201).json(job);
     } catch (error) {
-      res.status(400).json({ message: error.message });
+      res.status(400).json({
+        message: error instanceof Error ? error.message : "Unknown Error",
+      });
     }
   };
 
@@ -24,7 +26,11 @@ export class JobController {
       const jobs = await this.jobService.getJobs(page, limit);
       res.status(200).json(jobs);
     } catch (error) {
-      res.status(500).json({ message: error.message });
+      res
+        .status(500)
+        .json({
+          message: error instanceof Error ? error.message : "Unknown Error",
+        });
     }
   };
 
@@ -37,7 +43,11 @@ export class JobController {
       }
       res.status(200).json(job);
     } catch (error) {
-      res.status(500).json({ message: error.message });
+      res
+        .status(500)
+        .json({
+          message: error instanceof Error ? error.message : "Unknown Error",
+        });
     }
   };
 
@@ -54,7 +64,11 @@ export class JobController {
       }
       res.status(200).json(job);
     } catch (error) {
-      res.status(400).json({ message: error.message });
+      res
+        .status(400)
+        .json({
+          message: error instanceof Error ? error.message : "Unknown Error",
+        });
     }
   };
 }

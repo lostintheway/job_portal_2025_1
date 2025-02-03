@@ -17,7 +17,11 @@ export class ApplicationController {
       });
       res.status(201).json(application);
     } catch (error) {
-      res.status(400).json({ message: error.message });
+      res
+        .status(400)
+        .json({
+          message: error instanceof Error ? error.message : "Unknown Error",
+        });
     }
   };
 
@@ -28,7 +32,11 @@ export class ApplicationController {
       );
       res.status(200).json(applications);
     } catch (error) {
-      res.status(500).json({ message: error.message });
+      res
+        .status(500)
+        .json({
+          message: error instanceof Error ? error.message : "Unknown Error",
+        });
     }
   };
 
@@ -40,7 +48,11 @@ export class ApplicationController {
         );
       res.status(200).json(applications);
     } catch (error) {
-      res.status(500).json({ message: error.message });
+      res
+        .status(500)
+        .json({
+          message: error instanceof Error ? error.message : "Unknown Error",
+        });
     }
   };
 
@@ -59,7 +71,11 @@ export class ApplicationController {
       }
       res.status(200).json(application);
     } catch (error) {
-      res.status(400).json({ message: error.message });
+      res
+        .status(400)
+        .json({
+          message: error instanceof Error ? error.message : "Unknown Error",
+        });
     }
   };
 }

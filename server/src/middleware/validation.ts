@@ -32,7 +32,7 @@ export const validateJob = (
   req: Request,
   res: Response,
   next: NextFunction
-) => {
+): Promise<void> => {
   const { title, description, requirements, salary_range, location, job_type } =
     req.body;
 

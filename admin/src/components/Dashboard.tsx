@@ -14,7 +14,7 @@ const Dashboard = () => {
   return (
     <div className="h-screen flex flex-col bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-50">
       {/* Navbar */}
-      <nav className="bg-purple-500 text-white p-4 flex justify-between items-center">
+      <nav className="text-white p-4 flex justify-between items-center shadow z-50">
         <div className="flex items-center space-x-4">
           <Button
             variant="ghost"

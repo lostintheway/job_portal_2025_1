@@ -43,12 +43,12 @@ const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="flex items-center justify-center h-screen bg-gray-300">
-      <Card className="w-full max-w-md p-6 bg-gray-200 shadow-md">
+    <div className="flex items-center justify-center h-screen bg-gray-500">
+      <Card className="w-full max-w-md p-6 bg-gray-200 shadow-md bg-slate-800">
         <CardHeader className="text-center mb-6">
           <h2 className="text-2xl font-semibold">Login</h2>
         </CardHeader>
-        <div>
+        <div className="">
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="mb-4">
               <Label htmlFor="email">Email</Label>
@@ -80,7 +80,7 @@ const LoginPage: React.FC = () => {
                 </p>
               )}
             </div>
-            <Button className="w-full" type="submit">
+            <Button className="w-full bg-green-600" type="submit">
               Sign In
             </Button>
           </form>

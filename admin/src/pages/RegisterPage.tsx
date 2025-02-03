@@ -42,8 +42,8 @@ const RegisterPage: React.FC = () => {
   };
 
   return (
-    <div className="flex items-center justify-center h-screen bg-gray-300">
-      <Card className="w-full max-w-md p-6 bg-gray-200 shadow-md">
+    <div className="flex items-center justify-center h-screen bg-gray-500">
+      <Card className="w-full max-w-md p-6 bg-slate-700 shadow-md">
         <CardHeader className="text-center mb-6">
           <h2 className="text-2xl font-semibold">Register</h2>
         </CardHeader>
@@ -54,7 +54,7 @@ const RegisterPage: React.FC = () => {
               <Input
                 id="name"
                 type="text"
-                className="mt-1 w-full"
+                className="mt-1 w-full bg-white text-black"
                 placeholder="Enter your name"
                 {...register("name")}
               />
