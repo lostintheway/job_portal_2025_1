@@ -6,9 +6,11 @@ import categoryRoutes from "./routes/category.routes";
 import jobDescriptionRoutes from "./routes/jobDescription.routes";
 import applicationRoutes from "./routes/application.routes";
 import bookmarkRoutes from "./routes/bookmark.routes";
+import cors from "cors";
 
 const app: Application = express();
-const PORT = process.env.PORT || 3000;
+
+const PORT = process.env.PORT || 5222;
 
 const allowedDomains = ["http://localhost:3000", "http://localhost:3005"]; // Replace with your domains
 
@@ -16,6 +18,7 @@ const allowedDomains = ["http://localhost:3000", "http://localhost:3005"]; // Re
 app.use(
   cors({
     origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps or curl requests)
       if (!origin || allowedDomains.indexOf(origin) !== -1) {
         callback(null, true);
       } else {
