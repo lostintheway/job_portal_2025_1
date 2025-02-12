@@ -48,138 +48,8 @@ class UserModel {
 }
 
 export default UserModel;
-Note: You need to adjust the import path for users from '../../../../schema/schema' to the correct location of your schema definition file. Let's assume you'll create a schema directory in the root of your project and put your table definitions there in a file named schema.ts.
 
-Create schema/schema.ts in the root directory of your project:
-
-Copy your initial table definitions into schema/schema.ts:
-
-TypeScript
-
-// schema/schema.ts
-import { mysqlTable, mysqlSchema, MySqlSchema, int, varchar, timestamp, boolean, mysqlEnum, text, datetime } from 'drizzle-orm/mysql-core';
-
-const commonFields = {
-  createdBy: int("created_by").notNull(),
-  createdDate: timestamp("created_date").notNull().defaultNow(),
-  updatedBy: int("updated_by"),
-  updatedDate: timestamp("updated_date").onUpdateNow(),
-  deletedBy: int("deleted_by"),
-  deletedDate: timestamp("deleted_date"),
-  isDeleted: boolean("is_deleted").notNull().default(false),
-};
-
-// Users table
-export const users = mysqlTable("users", {
-  userId: int("user_id").primaryKey().autoincrement(),
-  email: varchar("email", { length: 255 }).notNull().unique(),
-  password: varchar("password", { length: 255 }).notNull(),
-  fullName: varchar("full_name", { length: 255 }).notNull(),
-  contactNumber: varchar("contact_number", { length: 20 }).notNull(),
-  address: varchar("address", { length: 255 }).notNull(),
-  role: mysqlEnum("role", ["jobseeker", "vendor", "admin"]).notNull(),
-  profileImage: varchar("profile_image", { length: 255 }),
-  ...commonFields,
-});
-
-// Profiles table
-export const profiles = mysqlTable("profiles", {
-  profileId: int("profile_id").primaryKey().autoincrement(),
-  userId: int("user_id")
-    .notNull()
-    .references(() => users.userId),
-  headline: varchar("headline", { length: 255 }).notNull(),
-  summary: text("summary"),
-  experience: varchar("experience", { length: 2000 }).notNull(),
-  education: varchar("education", { length: 2000 }).notNull(),
-  skills: varchar("skills", { length: 2000 }).notNull(),
-  languages: varchar("languages", { length: 2000 }).notNull(),
-  isPublic: boolean("is_public").notNull().default(true),
-  ...commonFields,
-});
-
-// Vendor Organizations table
-export const vendorOrganizations = mysqlTable("vendor_organizations", {
-  vendorOrgId: int("vendor_org_id").primaryKey().autoincrement(),
-  vendorOrgName: varchar("vendor_org_name", { length: 255 }).notNull(),
-  vendorOrgAddress: varchar("vendor_org_address", { length: 255 }).notNull(),
-  vendorOrgContact: varchar("vendor_org_contact", { length: 20 }).notNull(),
-  vendorOrgEmail: varchar("vendor_org_email", { length: 255 }).notNull(),
-  vendorOrgImage: varchar("vendor_org_image", { length: 255 }),
-  ...commonFields,
-});
-
-// Categories table
-export const categories = mysqlTable("categories", {
-  categoryId: int("category_id").primaryKey().autoincrement(),
-  categoryName: varchar("category_name", { length: 255 }).notNull(),
-  ...commonFields,
-});
-
-// Job Descriptions table
-export const jobDescriptions = mysqlTable("job_descriptions", {
-  jobDescriptionId: int("job_description_id").primaryKey().autoincrement(),
-  vendorOrgId: int("vendor_org_id")
-    .notNull()
-    .references(() => vendorOrganizations.vendorOrgId),
-  categoryId: int("category_id")
-    .notNull()
-    .references(() => categories.categoryId),
-  jobType: varchar("job_type", { length: 50 }).notNull(),
-  level: varchar("level", { length: 50 }).notNull(),
-  vacancyNo: int("vacancy_no").notNull(),
-  employeeType: varchar("employee_type", { length: 50 }).notNull(),
-  jobLocation: varchar("job_location", { length: 255 }).notNull(),
-  offeredSalary: varchar("offered_salary", { length: 100 }).notNull(),
-  deadLine: datetime("deadline").notNull(),
-  educationLevel: varchar("education_level", { length: 100 }).notNull(),
-  experienceRequired: varchar("experience_required", { length: 100 }).notNull(),
-  otherSpecification: text("other_specification"),
-  jobWorkDescription: text("job_work_description").notNull(),
-  ...commonFields,
-});
-
-// Applications table
-export const applications = mysqlTable("applications", {
-  applicationId: int("application_id").primaryKey().autoincrement(),
-  jobDescriptionId: int("job_description_id")
-    .notNull()
-    .references(() => jobDescriptions.jobDescriptionId),
-  userId: int("user_id")
-    .notNull()
-    .references(() => users.userId),
-  status: mysqlEnum("status", [
-    "pending",
-    "shortlisted",
-    "interviewed",
-    "rejected",
-    "accepted",
-  ])
-    .notNull()
-    .default("pending"),
-  resumeUrl: varchar("resume_url", { length: 255 }).notNull(),
-  coverLetter: text("cover_letter"),
-  expectedSalary: varchar("expected_salary", { length: 100 }),
-  ...commonFields,
-});
-
-// Bookmarks table
-export const bookmarks = mysqlTable("bookmarks", {
-  bookmarkId: int("bookmark_id").primaryKey().autoincrement(),
-  userId: int("user_id")
-    .notNull()
-    .references(() => users.userId),
-  jobDescriptionId: int("job_description_id")
-    .notNull()
-    .references(() => jobDescriptions.jobDescriptionId),
-  notes: text("notes"),
-  reminderDate: datetime("reminder_date"),
-  status: mysqlEnum("status", ["saved", "applied", "archived"])
-    .notNull()
-    .default("saved"),
-  ...commonFields,
-});
-models/profile.model.ts:
+// models/profile.model.ts:
 TypeScript
 
 // models/profile.model.ts
@@ -233,7 +103,7 @@ class ProfileModel {
 }
 
 export default ProfileModel;
-models/vendorOrganization.model.ts:
+// models/vendorOrganization.model.ts:
 TypeScript
 
 // models/vendorOrganization.model.ts
@@ -284,7 +154,7 @@ class VendorOrganizationModel {
 }
 
 export default VendorOrganizationModel;
-models/category.model.ts:
+// models/category.model.ts:
 TypeScript
 
 // models/category.model.ts
@@ -331,7 +201,7 @@ class CategoryModel {
 }
 
 export default CategoryModel;
-models/jobDescription.model.ts:
+// models/jobDescription.model.ts:
 TypeScript
 
 // models/jobDescription.model.ts
@@ -390,7 +260,7 @@ class JobDescriptionModel {
 }
 
 export default JobDescriptionModel;
-models/application.model.ts:
+// models/application.model.ts:
 TypeScript
 
 // models/application.model.ts
@@ -442,7 +312,7 @@ class ApplicationModel {
 }
 
 export default ApplicationModel;
-models/bookmark.model.ts:
+// models/bookmark.model.ts:
 TypeScript
 
 // models/bookmark.model.ts
@@ -498,7 +368,7 @@ Services (in services directory):
 
 Add types to service methods.
 
-services/user.service.ts:
+// services/user.service.ts:
 TypeScript
 
 // services/user.service.ts
@@ -546,7 +416,7 @@ class UserService {
 }
 
 export default UserService;
-services/profile.service.ts:
+// services/profile.service.ts:
 TypeScript
 
 // services/profile.service.ts
@@ -596,7 +466,7 @@ class ProfileService {
 }
 
 export default ProfileService;
-services/vendorOrganization.service.ts:
+// services/vendorOrganization.service.ts:
 TypeScript
 
 // services/vendorOrganization.service.ts
@@ -642,7 +512,7 @@ class VendorOrganizationService {
 }
 
 export default VendorOrganizationService;
-services/category.service.ts:
+// services/category.service.ts:
 TypeScript
 
 // services/category.service.ts
@@ -685,7 +555,7 @@ class CategoryService {
 }
 
 export default CategoryService;
-services/jobDescription.service.ts:
+// services/jobDescription.service.ts:
 TypeScript
 
 // services/jobDescription.service.ts
@@ -739,7 +609,7 @@ class JobDescriptionService {
 }
 
 export default JobDescriptionService;
-services/application.service.ts:
+// services/application.service.ts:
 TypeScript
 
 // services/application.service.ts
@@ -787,7 +657,7 @@ class ApplicationService {
 }
 
 export default ApplicationService;
-services/bookmark.service.ts:
+// services/bookmark.service.ts:
 TypeScript
 
 // services/bookmark.service.ts
@@ -838,7 +708,7 @@ export default BookmarkService;
 
 Add types for request, response, and controller methods.
 
-controllers/user.controller.ts:
+// controllers/user.controller.ts:
 TypeScript
 
 // controllers/user.controller.ts
@@ -923,7 +793,7 @@ class UserController {
 }
 
 export default UserController;
-controllers/profile.controller.ts:1   
+// controllers/profile.controller.ts:1   
 1.
 github.com
 github.com
@@ -1012,7 +882,7 @@ class ProfileController {
 }
 
 export default ProfileController;
-controllers/vendorOrganization.controller.ts:
+// controllers/vendorOrganization.controller.ts:
 TypeScript
 
 // controllers/vendorOrganization.controller.ts
@@ -1095,7 +965,7 @@ class VendorOrganizationController {
 }
 
 export default VendorOrganizationController;
-controllers/category.controller.ts:
+// controllers/category.controller.ts:
 TypeScript
 
 // controllers/category.controller.ts
@@ -1174,7 +1044,7 @@ class CategoryController {
 }
 
 export default CategoryController;
-controllers/jobDescription.controller.ts:
+// controllers/jobDescription.controller.ts:
 TypeScript
 
 // controllers/jobDescription.controller.ts
@@ -1265,7 +1135,7 @@ class JobDescriptionController {
 }
 
 export default JobDescriptionController;
-controllers/application.controller.ts:
+// controllers/application.controller.ts:
 TypeScript
 
 // controllers/application.controller.ts
@@ -1349,7 +1219,7 @@ class ApplicationController {
 }
 
 export default ApplicationController;
-controllers/bookmark.controller.ts:
+// controllers/bookmark.controller.ts:
 TypeScript
 
 // controllers/bookmark.controller.ts
@@ -1436,7 +1306,7 @@ export default BookmarkController;
 
 Update imports in route files.
 
-routes/user.routes.ts:
+// routes/user.routes.ts:
 TypeScript
 
 // routes/user.routes.ts
@@ -1452,7 +1322,7 @@ router.put('/:userId', UserController.updateUser);
 router.delete('/:userId', UserController.deleteUser);
 
 export default router;
-routes/profile.routes.ts:
+// routes/profile.routes.ts:
 TypeScript
 
 // routes/profile.routes.ts
@@ -1468,8 +1338,8 @@ router.put('/:profileId', ProfileController.updateProfile);
 router.delete('/:profileId', ProfileController.deleteProfile);
 
 export default router;
-routes/vendorOrganization.routes.ts:
-Code snippet
+// routes/vendorOrganization.routes.ts:
+// Code snippet
 
 // routes/vendorOrganization.routes.ts
 import express from 'express';
@@ -1484,7 +1354,7 @@ router.put('/:vendorOrgId', VendorOrganizationController.updateVendorOrganizatio
 router.delete('/:vendorOrgId', VendorOrganizationController.deleteVendorOrganization);
 
 export default router;
-routes/category.routes.ts:
+// routes/category.routes.ts:
 TypeScript
 
 // routes/category.routes.ts
@@ -1500,8 +1370,8 @@ router.put('/:categoryId', CategoryController.updateCategory);
 router.delete('/:categoryId', CategoryController.deleteCategory);
 
 export default router;
-routes/jobDescription.routes.ts:
-TypeScript
+// routes/jobDescription.routes.ts:
+// TypeScript
 
 // routes/jobDescription.routes.ts
 import express from 'express';
@@ -1516,8 +1386,8 @@ router.put('/:jobDescriptionId', JobDescriptionController.updateJobDescription);
 router.delete('/:jobDescriptionId', JobDescriptionController.deleteJobDescription);
 
 export default router;
-routes/application.routes.ts:
-TypeScript
+// routes/application.routes.ts:
+// TypeScript
 
 // routes/application.routes.ts
 import express from 'express';
@@ -1532,8 +1402,8 @@ router.put('/:applicationId', ApplicationController.updateApplication);
 router.delete('/:applicationId', ApplicationController.deleteApplication);
 
 export default router;
-routes/bookmark.routes.ts:
-TypeScript
+// routes/bookmark.routes.ts:
+// TypeScript
 
 // routes/bookmark.routes.ts
 import express from 'express';
@@ -1548,9 +1418,9 @@ router.put('/:bookmarkId', BookmarkController.updateBookmark);
 router.delete('/:bookmarkId', BookmarkController.deleteBookmark);
 
 export default router;
-7. index.ts (App Entry Point):
+// 7. index.ts (App Entry Point):
 
-TypeScript
+// TypeScript
 
 // index.ts
 import express, { Application, Request, Response } from 'express';
