@@ -1,10 +1,10 @@
 import { eq } from "drizzle-orm";
 import { db } from "../config/db";
 import { companies } from "../db/schema";
-import { ICompany } from "../interfaces/ICompany";
+import { IOrganization } from "../interfaces/IOrganization";
 
-export class Company {
-  async create(company: ICompany): Promise<ICompany> {
+export class Organization {
+  async create(company: IOrganization): Promise<IOrganization> {
     const result = await db.insert(companies).values(company).$returningId();
     const fullRecord = await db
       .select()
@@ -14,7 +14,7 @@ export class Company {
     return fullRecord[0];
   }
 
-  async findById(id: number): Promise<ICompany | null> {
+  async findById(id: number): Promise<IOrganization | null> {
     const result = await db
       .select()
       .from(companies)
@@ -23,7 +23,7 @@ export class Company {
     return result[0] || null;
   }
 
-  async findByUserId(userId: number): Promise<ICompany | null> {
+  async findByUserId(userId: number): Promise<IOrganization | null> {
     const result = await db
       .select()
       .from(companies)
@@ -34,8 +34,8 @@ export class Company {
 
   async update(
     id: number,
-    company: Partial<ICompany>
-  ): Promise<ICompany | null> {
+    company: Partial<IOrganization>
+  ): Promise<IOrganization | null> {
     await db.update(companies).set(company).where(eq(companies.id, id));
 
     const result = await db
@@ -47,24 +47,3 @@ export class Company {
   }
 }
 
-// await db.select().from(companies);
-// }
-
-// Update
-// async update(id: number, company: ICompany): Promise<ICompany> {
-//   await db.update(companies)
-//     .set(company)
-//     .where(eq(companies.id, id));
-
-//   const result = await db.select()
-//     .from(companies)
-//     .where(eq(companies.id, id));
-
-//   return result[0];
-// }
-
-// // Delete
-// async delete(id: number): Promise<void> {
-//   await db.delete(companies)
-//     .where(eq(companies.id, id));
-// }

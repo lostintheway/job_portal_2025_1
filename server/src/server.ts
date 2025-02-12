@@ -22,7 +22,7 @@ const outputFile = "./swagger-output.json";
 const endpointsFiles = [
   "./routes/applicationRoutes.ts",
   "./routes/authRoutes.ts",
-  "./routes/companyRoutes.ts",
+  "./routes/organizationRoutes.ts",
   "./routes/jobRoutes.ts",
   "./routes/userRoutes.ts",
 ]; // or point to your routes files

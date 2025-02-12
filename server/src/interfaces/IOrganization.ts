@@ -1,6 +1,6 @@
 import { ICommon } from "./ICommon";
 
-export interface ICompany extends ICommon {
+export interface IOrganization extends ICommon {
   id?: number;
   name: string;
   description: string;

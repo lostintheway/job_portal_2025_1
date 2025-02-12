@@ -32,12 +32,12 @@ export const authenticate = (
   }
 };
 
-export const authorizeCompany = (
+export const authorizeOrganization = (
   req: Request,
   res: Response,
   next: NextFunction
 ): void => {
-  if (req.user?.role !== "company") {
+  if (req.user?.role !== "organization") {
     res.status(403).json({ message: "Access denied" });
     return;
   }

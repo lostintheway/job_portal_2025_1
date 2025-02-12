@@ -6,9 +6,9 @@ import { authenticate } from "../middleware/auth";
 const router = Router();
 const jobController = new JobController();
 
-router.get("/", jobController.getJobs);
-router.get("/:id", jobController.getJobById);
-router.post("/", authenticate, jobController.createJob);
-router.put("/:id", authenticate, jobController.updateJob);
+router.get("/job/", jobController.getJobs);
+router.get("/job/:id", jobController.getJobById);
+router.post("/job/", authenticate, jobController.createJob);
+router.put("/job/:id", authenticate, jobController.updateJob);
 
 export default router;

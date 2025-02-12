@@ -1,14 +1,14 @@
 import { IJob } from "../interfaces/IJob";
 import { Job } from "../models/Job";
-import { Company } from "../models/Company";
+import { Organization } from "../models/Organization";
 
 export class JobService {
   private jobModel: Job;
-  private companyModel: Company;
+  private companyModel: Organization;
 
   constructor() {
     this.jobModel = new Job();
-    this.companyModel = new Company();
+    this.companyModel = new Organization();
   }
 
   async createJob(jobData: IJob, userId: number): Promise<IJob> {

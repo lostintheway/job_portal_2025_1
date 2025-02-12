@@ -5,5 +5,5 @@ export interface IUser extends ICommon {
   email: string;
   password: string;
   fullName: string;
-  role: "jobseeker" | "company" | "admin";
+  role: "jobseeker" | "organization" | "admin";
 }
