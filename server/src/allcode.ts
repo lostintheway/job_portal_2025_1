@@ -1,8 +1,6 @@
 // models/user.model.ts
-import db from '../config/db.config';
-import { users } from '../../../../schema/schema'; // Assuming your schema file is in 'schema/schema.ts' at project root level
-import { eq } from 'drizzle-orm';
-import { Omit } from 'utility-types';
+
+ 
 
 interface User {
   userId: number;
@@ -56,7 +54,7 @@ TypeScript
 import db from '../config/db.config';
 import { profiles, users } from '../../../../schema/schema'; // Adjust path as needed
 import { eq } from 'drizzle-orm';
-import { Omit } from 'utility-types';
+ 
 
 interface Profile {
   profileId: number;
@@ -110,7 +108,7 @@ TypeScript
 import db from '../config/db.config';
 import { vendorOrganizations } from '../../../../schema/schema'; // Adjust path as needed
 import { eq } from 'drizzle-orm';
-import { Omit } from 'utility-types';
+ 
 
 interface VendorOrganization {
   vendorOrgId: number;
@@ -161,7 +159,7 @@ TypeScript
 import db from '../config/db.config';
 import { categories } from '../../../../schema/schema'; // Adjust path as needed
 import { eq } from 'drizzle-orm';
-import { Omit } from 'utility-types';
+ 
 
 interface Category {
   categoryId: number;
@@ -208,7 +206,7 @@ TypeScript
 import db from '../config/db.config';
 import { jobDescriptions } from '../../../../schema/schema'; // Adjust path as needed
 import { eq } from 'drizzle-orm';
-import { Omit } from 'utility-types';
+ 
 
 interface JobDescription {
   jobDescriptionId: number;
@@ -267,7 +265,7 @@ TypeScript
 import db from '../config/db.config';
 import { applications } from '../../../../schema/schema'; // Adjust path as needed
 import { eq } from 'drizzle-orm';
-import { Omit } from 'utility-types';
+ 
 
 interface Application {
   applicationId: number;
@@ -319,7 +317,7 @@ TypeScript
 import db from '../config/db.config';
 import { bookmarks } from '../../../../schema/schema'; // Adjust path as needed
 import { eq } from 'drizzle-orm';
-import { Omit } from 'utility-types';
+ 
 
 interface Bookmark {
   bookmarkId: number;
@@ -373,7 +371,7 @@ TypeScript
 
 // services/user.service.ts
 import UserModel from '../models/user.model';
-import { Omit } from 'utility-types';
+ 
 
 interface User {
   userId: number;
@@ -421,7 +419,7 @@ TypeScript
 
 // services/profile.service.ts
 import ProfileModel from '../models/profile.model';
-import { Omit } from 'utility-types';
+ 
 
 interface Profile {
   profileId: number;
@@ -471,7 +469,7 @@ TypeScript
 
 // services/vendorOrganization.service.ts
 import VendorOrganizationModel from '../models/vendorOrganization.model';
-import { Omit } from 'utility-types';
+ 
 
 interface VendorOrganization {
   vendorOrgId: number;
@@ -517,7 +515,7 @@ TypeScript
 
 // services/category.service.ts
 import CategoryModel from '../models/category.model';
-import { Omit } from 'utility-types';
+ 
 
 interface Category {
   categoryId: number;
@@ -560,7 +558,7 @@ TypeScript
 
 // services/jobDescription.service.ts
 import JobDescriptionModel from '../models/jobDescription.model';
-import { Omit } from 'utility-types';
+ 
 
 interface JobDescription {
   jobDescriptionId: number;
@@ -614,7 +612,7 @@ TypeScript
 
 // services/application.service.ts
 import ApplicationModel from '../models/application.model';
-import { Omit } from 'utility-types';
+ 
 
 interface Application {
   applicationId: number;
@@ -662,7 +660,7 @@ TypeScript
 
 // services/bookmark.service.ts
 import BookmarkModel from '../models/bookmark.model';
-import { Omit } from 'utility-types';
+ 
 
 interface Bookmark {
   bookmarkId: number;
@@ -714,7 +712,7 @@ TypeScript
 // controllers/user.controller.ts
 import { Request, Response } from 'express';
 import UserService from '../services/user.service';
-import { Omit } from 'utility-types';
+ 
 
 interface User {
   userId: number;
@@ -802,7 +800,7 @@ TypeScript
 // controllers/profile.controller.ts
 import { Request, Response } from 'express';
 import ProfileService from '../services/profile.service';
-import { Omit } from 'utility-types';
+ 
 
 interface Profile {
   profileId: number;
@@ -888,7 +886,7 @@ TypeScript
 // controllers/vendorOrganization.controller.ts
 import { Request, Response } from 'express';
 import VendorOrganizationService from '../services/vendorOrganization.service';
-import { Omit } from 'utility-types';
+ 
 
 interface VendorOrganization {
   vendorOrgId: number;
@@ -971,7 +969,7 @@ TypeScript
 // controllers/category.controller.ts
 import { Request, Response } from 'express';
 import CategoryService from '../services/category.service';
-import { Omit } from 'utility-types';
+ 
 
 interface Category {
   categoryId: number;
@@ -1050,7 +1048,7 @@ TypeScript
 // controllers/jobDescription.controller.ts
 import { Request, Response } from 'express';
 import JobDescriptionService from '../services/jobDescription.service';
-import { Omit } from 'utility-types';
+ 
 
 interface JobDescription {
   jobDescriptionId: number;
@@ -1141,7 +1139,7 @@ TypeScript
 // controllers/application.controller.ts
 import { Request, Response } from 'express';
 import ApplicationService from '../services/application.service';
-import { Omit } from 'utility-types';
+ 
 
 interface Application {
   applicationId: number;
@@ -1225,7 +1223,7 @@ TypeScript
 // controllers/bookmark.controller.ts
 import { Request, Response } from 'express';
 import BookmarkService from '../services/bookmark.service';
-import { Omit } from 'utility-types';
+ 
 
 interface Bookmark {
   bookmarkId: number;

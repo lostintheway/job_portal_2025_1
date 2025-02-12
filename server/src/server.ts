@@ -1,43 +1,15 @@
-import dotenv from "dotenv";
+import express, { Application, Request, Response } from "express";
+import userRoutes from "./routes/user.routes";
+import profileRoutes from "./routes/profile.routes";
+import vendorOrganizationRoutes from "./routes/vendorOrganization.routes";
+import categoryRoutes from "./routes/category.routes";
+import jobDescriptionRoutes from "./routes/jobDescription.routes";
+import applicationRoutes from "./routes/application.routes";
+import bookmarkRoutes from "./routes/bookmark.routes";
 
-dotenv.config();
+const app: Application = express();
+const PORT = process.env.PORT || 3000;
 
-import express from "express";
-import cors from "cors";
-import swaggerAutogen from "swagger-autogen";
-
-const app = express();
-
-const doc = {
-  info: {
-    title: "Express API",
-    description: "Auto-generated Swagger documentation",
-  },
-  host: "localhost:3000", // update if needed
-  schemes: ["http"],
-  // You can add security definitions, servers, etc.
-};
-
-const outputFile = "./swagger-output.json";
-const endpointsFiles = [
-  "./routes/applicationRoutes.ts",
-  "./routes/authRoutes.ts",
-  "./routes/organizationRoutes.ts",
-  "./routes/jobRoutes.ts",
-  "./routes/userRoutes.ts",
-]; // or point to your routes files
-
-// swaggerAutogen()(outputFile, endpointsFiles, doc).then(() => {
-//   console.log("Swagger documentation has been generated.");
-// });
-
-if (process.env.NODE_ENV !== "production") {
-  const swaggerUi = require("swagger-ui-express");
-  const swaggerFile = require("./swagger-output.json");
-  app.use("/swagger", swaggerUi.serve, swaggerUi.setup(swaggerFile));
-}
-
-// Define allowed domains
 const allowedDomains = ["http://localhost:3000", "http://localhost:3005"]; // Replace with your domains
 
 // Configure CORS middleware
@@ -52,15 +24,21 @@ app.use(
     },
   })
 );
+app.use(express.json()); // for parsing application/json
 
-app.use(express.json());
+// Use routes
+app.use("/users", userRoutes);
+app.use("/profiles", profileRoutes);
+app.use("/vendor-organizations", vendorOrganizationRoutes);
+app.use("/categories", categoryRoutes);
+app.use("/job-descriptions", jobDescriptionRoutes);
+app.use("/applications", applicationRoutes);
+app.use("/bookmarks", bookmarkRoutes);
 
-app.get("/", (req, res) => {
-  res.send("Hello World!");
+app.get("/", (req: Request, res: Response) => {
+  res.send("Job Application System API is running!");
 });
 
-const PORT = process.env.PORT;
-
 app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`Server is running on port ${PORT}`);
 });
