@@ -30,7 +30,7 @@ const jobSchema = z.object({
   requirements: z.string().min(1, "Requirements are required"),
   salaryRange: z.string().min(1, "Salary range is required"),
   location: z.string().min(1, "Location is required"),
-  companyId: z.number(),
+  organizationId: z.number(),
   jobType: z.enum(
     ["full-time", "part-time", "contract", "internship", "remote"],
     {
@@ -56,7 +56,7 @@ const JobPage: React.FC = () => {
   } = useForm<Job>({
     resolver: zodResolver(jobSchema),
     defaultValues: {
-      companyId: 1, // Set your default company ID here
+      organizationId: 1, // Set your default organization ID here
       status: "active",
     },
   });

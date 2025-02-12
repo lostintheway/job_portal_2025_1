@@ -6,7 +6,7 @@ import PortfolioPage from "./pages/PortfolioPage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import JobPage from "./pages/JobPage";
-import CompanyPage from "./pages/CompanyPage";
+import OrganizationPage from "./pages/OrganizationPage";
 import ApplicationPage from "./pages/ApplicationPage";
 
 function App() {
@@ -17,7 +17,7 @@ function App() {
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/admin" element={<Dashboard />}>
           <Route path="application" element={<ApplicationPage />} />
-          <Route path="company" element={<CompanyPage />} />
+          <Route path="organization" element={<OrganizationPage />} />
           <Route path="gallery" element={<GalleryPage />} />
           <Route path="job" element={<JobPage />} />
           <Route path="portfolio" element={<PortfolioPage />} />

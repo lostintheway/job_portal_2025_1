@@ -21,7 +21,7 @@ export const validateRegistration = (
       .json({ message: "Password must be at least 6 characters" });
   }
 
-  if (!["jobseeker", "company", "admin"].includes(role)) {
+  if (!["jobseeker", "organization", "admin"].includes(role)) {
     return res.status(400).json({ message: "Invalid role" });
   }
 

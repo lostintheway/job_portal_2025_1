@@ -11,12 +11,12 @@ export default function Sidebar({ sidebarOpen }: { sidebarOpen: boolean }) {
       <nav>
         <ul className="space-y-2">
           <li>
-            <Link to="/admin/company">
+            <Link to="/admin/organization">
               <Button
                 variant="ghost"
                 className="w-full justify-start hover:bg-purple-100 dark:hover:bg-purple-900"
               >
-                Company
+                Organization
               </Button>
             </Link>
           </li>

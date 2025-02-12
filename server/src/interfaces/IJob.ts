@@ -7,7 +7,7 @@ export interface IJob extends ICommon {
   requirements: string;
   salaryRange: string;
   location: string;
-  companyId: number;
+  organizationId: number;
   jobType: "full-time" | "part-time" | "contract" | "internship" | "remote";
   experienceLevel: string;
   status: "active" | "closed";

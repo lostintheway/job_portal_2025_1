@@ -4,24 +4,24 @@ import { Organization } from "../models/Organization";
 
 export class JobService {
   private jobModel: Job;
-  private companyModel: Organization;
+  private organizationModel: Organization;
 
   constructor() {
     this.jobModel = new Job();
-    this.companyModel = new Organization();
+    this.organizationModel = new Organization();
   }
 
   async createJob(jobData: IJob, userId: number): Promise<IJob> {
-    // Verify the company belongs to the user
-    const company = await this.companyModel.findByUserId(userId);
-    if (!company) {
-      throw new Error("Company profile not found");
+    // Verify the organization belongs to the user
+    const organization = await this.organizationModel.findByUserId(userId);
+    if (!organization) {
+      throw new Error("Organization profile not found");
     }
 
-    // Set the company_id from the verified company
+    // Set the organization_id from the verified organization
     const job = {
       ...jobData,
-      company_id: company.id,
+      organization_id: organization.id,
       status: "active",
     };
 
@@ -44,10 +44,10 @@ export class JobService {
     jobData: Partial<IJob>,
     userId: number
   ): Promise<IJob | null> {
-    // Verify the job belongs to the user's company
-    const company = await this.companyModel.findByUserId(userId);
-    if (!company) {
-      throw new Error("Company profile not found");
+    // Verify the job belongs to the user's organization
+    const organization = await this.organizationModel.findByUserId(userId);
+    if (!organization) {
+      throw new Error("Organization profile not found");
     }
 
     const existingJob = await this.jobModel.findById(id);
@@ -55,27 +55,27 @@ export class JobService {
       throw new Error("Job not found");
     }
 
-    if (existingJob.company_id !== company.id) {
+    if (existingJob.organization_id !== organization.id) {
       throw new Error("Unauthorized to update this job");
     }
 
     return this.jobModel.update(id, jobData);
   }
 
-  async getJobsByCompany(
-    companyId: number,
+  async getJobsByOrganization(
+    organizationId: number,
     page: number = 1,
     limit: number = 10
   ): Promise<IJob[]> {
     const offset = (page - 1) * limit;
     const query = `
       SELECT * FROM jobs 
-      WHERE company_id = $1 
+      WHERE organization_id = $1 
       ORDER BY created_at DESC 
       LIMIT $2 OFFSET $3
     `;
     const result: any = await this.jobModel.query(query, [
-      companyId,
+      organizationId,
       limit,
       offset,
     ]);
@@ -149,9 +149,9 @@ export class JobService {
   }
 
   async closeJob(id: number, userId: number): Promise<IJob | null> {
-    const company = await this.companyModel.findByUserId(userId);
-    if (!company) {
-      throw new Error("Company profile not found");
+    const organization = await this.organizationModel.findByUserId(userId);
+    if (!organization) {
+      throw new Error("Organization profile not found");
     }
 
     const existingJob = await this.jobModel.findById(id);
@@ -159,7 +159,7 @@ export class JobService {
       throw new Error("Job not found");
     }
 
-    if (existingJob.company_id !== company.id) {
+    if (existingJob.organization_id !== organization.id) {
       throw new Error("Unauthorized to close this job");
     }
 

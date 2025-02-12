@@ -13,7 +13,7 @@ export const users = mysqlTable("users", {
   email: varchar("email", { length: 255 }).unique().notNull(),
   password: varchar("password", { length: 255 }).notNull(),
   fullName: varchar("full_name", { length: 255 }).notNull(),
-  role: mysqlEnum("role", ["jobseeker", "company", "admin"]).notNull(),
+  role: mysqlEnum("role", ["jobseeker", "organization", "admin"]).notNull(),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow().onUpdateNow(),
 });
@@ -41,7 +41,7 @@ export const jobs = mysqlTable("jobs", {
   requirements: text("requirements").notNull(),
   salaryRange: varchar("salary_range", { length: 100 }).notNull(),
   location: varchar("location", { length: 255 }).notNull(),
-  companyId: int("company_id")
+  organizationId: int("organization_id")
     .references(() => companies.id)
     .notNull(),
   jobType: mysqlEnum("job_type", [
