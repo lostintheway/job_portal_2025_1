@@ -10,9 +10,15 @@ import { BASE_URL } from "@/api/api";
 import { useNavigate } from "react-router-dom";
 
 const registerSchema = z.object({
-  name: z.string().min(1, "Name is required"),
   email: z.string().email("Email is invalid").min(1, "Email is required"),
   password: z.string().min(8, "Password must be at least 8 characters"),
+  fullName: z.string().min(1, "Full name is required"),
+  contactNumber: z.string().min(1, "Contact number is required"),
+  address: z.string().min(1, "Address is required"),
+  role: z.enum(["jobseeker", "vendor", "admin"], {
+    required_error: "Please select a role",
+  }),
+  profileImage: z.string().optional()
 });
 
 type Register = z.infer<typeof registerSchema>;
@@ -50,17 +56,65 @@ const RegisterPage: React.FC = () => {
         <div>
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="mb-4">
-              <Label htmlFor="name">Name</Label>
+              <Label htmlFor="fullName">Full Name</Label>
               <Input
-                id="name"
+                id="fullName"
                 type="text"
                 className="mt-1 w-full bg-white text-black"
-                placeholder="Enter your name"
-                {...register("name")}
+                placeholder="Enter your full name"
+                {...register("fullName")}
               />
-              {errors.name && (
+              {errors.fullName && (
                 <p className="text-red-500 text-sm mt-1">
-                  {errors.name.message}
+                  {errors.fullName.message}
+                </p>
+              )}
+            </div>
+            <div className="mb-4">
+              <Label htmlFor="contactNumber">Contact Number</Label>
+              <Input
+                id="contactNumber"
+                type="tel"
+                className="mt-1 w-full bg-white text-black"
+                placeholder="Enter your contact number"
+                {...register("contactNumber")}
+              />
+              {errors.contactNumber && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.contactNumber.message}
+                </p>
+              )}
+            </div>
+            <div className="mb-4">
+              <Label htmlFor="address">Address</Label>
+              <Input
+                id="address"
+                type="text"
+                className="mt-1 w-full bg-white text-black"
+                placeholder="Enter your address"
+                {...register("address")}
+              />
+              {errors.address && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.address.message}
+                </p>
+              )}
+            </div>
+            <div className="mb-4">
+              <Label htmlFor="role">Role</Label>
+              <Select onValueChange={(value) => setValue("role", value as "jobseeker" | "vendor" | "admin")}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select your role" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="jobseeker">Job Seeker</SelectItem>
+                  <SelectItem value="vendor">Vendor</SelectItem>
+                  <SelectItem value="admin">Admin</SelectItem>
+                </SelectContent>
+              </Select>
+              {errors.role && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.role.message}
                 </p>
               )}
             </div>

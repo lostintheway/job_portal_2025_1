@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -15,24 +15,21 @@ import {
 } from "@/components/ui/table";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Upload } from "lucide-react";
-import axiosInstance, { BASE_URL } from "@/api/api";
+import axiosInstance, { BASE_URL, api } from "@/api/api";
 
-const companySchema = z.object({
-  id: z.number().optional(),
-  name: z.string().min(1, "Company name is required"),
-  description: z.string().min(1, "Description is required"),
-  location: z.string().min(1, "Location is required"),
-  website: z.string().url("Must be a valid URL"),
-  logoUrl: z.string().min(1, "Logo is required"),
-  userId: z.number(),
-  industry: z.string().min(1, "Industry is required"),
-  size: z.string().min(1, "Company size is required"),
+const vendorOrgSchema = z.object({
+  vendorOrgId: z.number().optional(),
+  vendorOrgName: z.string().min(1, "Organization name is required"),
+  vendorOrgAddress: z.string().min(1, "Address is required"),
+  vendorOrgContact: z.string().min(1, "Contact is required"),
+  vendorOrgEmail: z.string().email("Must be a valid email"),
+  vendorOrgImage: z.string().optional(),
 });
 
-type Company = z.infer<typeof companySchema>;
+type VendorOrg = z.infer<typeof vendorOrgSchema>;
 
 const CompanyPage: React.FC = () => {
-  const [companies, setCompanies] = useState<Company[]>([]);
+  const [organizations, setOrganizations] = useState<VendorOrg[]>([]);
   const [uploading, setUploading] = useState(false);
   const {
     register,
@@ -41,47 +38,45 @@ const CompanyPage: React.FC = () => {
     reset,
     setValue,
     watch,
-  } = useForm<Company>({
-    resolver: zodResolver(companySchema),
-    defaultValues: {
-      userId: 1, // Set your default user ID here
-    },
+  } = useForm<VendorOrg>({
+    resolver: zodResolver(vendorOrgSchema),
+    defaultValues: {},
   });
 
-  React.useEffect(() => {
-    const fetchCompanies = async () => {
+  useEffect(() => {
+    const fetchOrganizations = async () => {
       try {
-        const response = await axiosInstance.get("/api/companies");
-        setCompanies(response.data);
+        const response = await api.getVendorOrganizations();
+        setOrganizations(response.data);
       } catch (error) {
-        console.error("Error fetching companies:", error);
+        console.error("Error fetching organizations:", error);
       }
     };
-    fetchCompanies();
+    fetchOrganizations();
   }, []);
 
   const logoUrl = watch("logoUrl")
     ? `${BASE_URL}/${watch("logoUrl")}`
     : undefined;
 
-  const onSubmit: SubmitHandler<Company> = async (data) => {
+  const onSubmit: SubmitHandler<VendorOrg> = async (data) => {
     try {
-      await axiosInstance.post("/api/companies", data);
-      setCompanies([...companies, data]);
+      const response = await api.createVendorOrganization(data);
+      setOrganizations([...organizations, response.data]);
       reset();
-      alert("Company added successfully");
+      alert("Organization added successfully");
     } catch (error) {
-      console.error("Error adding company:", error);
+      console.error("Error adding organization:", error);
     }
   };
 
   const onDelete = async (id: number) => {
     try {
-      await axiosInstance.delete(`/api/companies/${id}`);
-      setCompanies(companies.filter((company) => company.id !== id));
-      alert("Company deleted successfully");
+      await api.deleteVendorOrganization(id);
+      setOrganizations(organizations.filter((org) => org.vendorOrgId !== id));
+      alert("Organization deleted successfully");
     } catch (error) {
-      console.error("Error deleting company:", error);
+      console.error("Error deleting organization:", error);
     }
   };
 
@@ -96,9 +91,7 @@ const CompanyPage: React.FC = () => {
     formData.append("logo", file);
 
     try {
-      const response = await axiosInstance.post("/api/upload", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      const response = await api.uploadFile(file);
       setValue("logoUrl", response.data.url);
     } catch (error) {
       console.error("Error uploading logo:", error);
@@ -121,25 +114,25 @@ const CompanyPage: React.FC = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Input
-                    {...register("name")}
+                    {...register("vendorOrgName")}
                     placeholder="Company Name"
                     className="w-full px-3 py-2 bg-gray-100 dark:bg-gray-700 rounded-md"
                   />
-                  {errors.name && (
+                  {errors.vendorOrgName && (
                     <p className="text-red-500 text-sm mt-1">
-                      {errors.name.message}
+                      {errors.vendorOrgName.message}
                     </p>
                   )}
                 </div>
                 <div>
                   <Input
-                    {...register("location")}
+                    {...register("vendorOrgAddress")}
                     placeholder="Location"
                     className="w-full px-3 py-2 bg-gray-100 dark:bg-gray-700 rounded-md"
                   />
-                  {errors.location && (
+                  {errors.vendorOrgAddress && (
                     <p className="text-red-500 text-sm mt-1">
-                      {errors.location.message}
+                      {errors.vendorOrgAddress.message}
                     </p>
                   )}
                 </div>
@@ -148,54 +141,28 @@ const CompanyPage: React.FC = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Input
-                    {...register("website")}
-                    placeholder="Website URL"
+                    {...register("vendorOrgEmail")}
+                    placeholder="Email"
                     className="w-full px-3 py-2 bg-gray-100 dark:bg-gray-700 rounded-md"
                   />
-                  {errors.website && (
+                  {errors.vendorOrgEmail && (
                     <p className="text-red-500 text-sm mt-1">
-                      {errors.website.message}
+                      {errors.vendorOrgEmail.message}
                     </p>
                   )}
                 </div>
                 <div>
                   <Input
-                    {...register("industry")}
-                    placeholder="Industry"
+                    {...register("vendorOrgContact")}
+                    placeholder="Contact"
                     className="w-full px-3 py-2 bg-gray-100 dark:bg-gray-700 rounded-md"
                   />
-                  {errors.industry && (
+                  {errors.vendorOrgContact && (
                     <p className="text-red-500 text-sm mt-1">
-                      {errors.industry.message}
+                      {errors.vendorOrgContact.message}
                     </p>
                   )}
                 </div>
-              </div>
-
-              <div>
-                <Input
-                  {...register("size")}
-                  placeholder="Company Size (e.g., 1-10, 11-50, 51-200)"
-                  className="w-full px-3 py-2 bg-gray-100 dark:bg-gray-700 rounded-md"
-                />
-                {errors.size && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {errors.size.message}
-                  </p>
-                )}
-              </div>
-
-              <div>
-                <Textarea
-                  {...register("description")}
-                  placeholder="Company Description"
-                  className="w-full px-3 py-2 bg-gray-100 dark:bg-gray-700 rounded-md"
-                />
-                {errors.description && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {errors.description.message}
-                  </p>
-                )}
               </div>
 
               <div>
@@ -212,9 +179,9 @@ const CompanyPage: React.FC = () => {
                     className="mt-2 max-w-full h-32 object-contain rounded-md"
                   />
                 )}
-                {errors.logoUrl && (
+                {errors.vendorOrgImage && (
                   <p className="text-red-500 text-sm mt-1">
-                    {errors.logoUrl.message}
+                    {errors.vendorOrgImage.message}
                   </p>
                 )}
               </div>
@@ -248,32 +215,34 @@ const CompanyPage: React.FC = () => {
                   <TableHead className="font-bold">Logo</TableHead>
                   <TableHead className="font-bold">Name</TableHead>
                   <TableHead className="font-bold">Location</TableHead>
-                  <TableHead className="font-bold">Industry</TableHead>
-                  <TableHead className="font-bold">Size</TableHead>
+                  <TableHead className="font-bold">Email</TableHead>
+                  <TableHead className="font-bold">Contact</TableHead>
                   <TableHead className="font-bold">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {companies.map((company) => (
+                {organizations.map((company) => (
                   <TableRow
-                    key={company.id}
+                    key={company.vendorOrgId}
                     className="hover:bg-gray-100 dark:hover:bg-gray-700"
                   >
                     <TableCell>
                       <img
-                        src={`${BASE_URL}/${company.logoUrl}`}
-                        alt={company.name}
+                        src={`${BASE_URL}/${company.vendorOrgImage}`}
+                        alt={company.vendorOrgName}
                         className="w-10 h-10 object-contain rounded-md"
                       />
                     </TableCell>
-                    <TableCell>{company.name}</TableCell>
-                    <TableCell>{company.location}</TableCell>
-                    <TableCell>{company.industry}</TableCell>
-                    <TableCell>{company.size}</TableCell>
+                    <TableCell>{company.vendorOrgName}</TableCell>
+                    <TableCell>{company.vendorOrgAddress}</TableCell>
+                    <TableCell>{company.vendorOrgEmail}</TableCell>
+                    <TableCell>{company.vendorOrgContact}</TableCell>
                     <TableCell>
                       <Button
                         variant="destructive"
-                        onClick={() => company.id && onDelete(company.id)}
+                        onClick={() =>
+                          company.vendorOrgId && onDelete(company.vendorOrgId)
+                        }
                         className="bg-red-500 hover:bg-red-600 text-white"
                       >
                         Delete

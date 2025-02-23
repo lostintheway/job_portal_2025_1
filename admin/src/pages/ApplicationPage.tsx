@@ -22,20 +22,25 @@ import {
 } from "@/components/ui/table";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Upload } from "lucide-react";
-import axiosInstance, { BASE_URL } from "@/api/api";
+import { api, BASE_URL } from "@/api/api";
 
 const applicationSchema = z.object({
-  id: z.number().optional(),
-  jobId: z.number(),
+  applicationId: z.number().optional(),
+  jobDescriptionId: z.number(),
   userId: z.number(),
-  status: z.enum(
-    ["pending", "reviewed", "shortlisted", "rejected", "accepted"],
-    {
-      required_error: "Please select a status",
-    }
-  ),
+  status: z.enum([
+    "pending",
+    "shortlisted",
+    "interviewed",
+    "rejected",
+    "accepted",
+  ]),
   resumeUrl: z.string().min(1, "Resume is required"),
-  coverLetter: z.string().min(1, "Cover letter is required"),
+  coverLetter: z.string().optional(),
+  expectedSalary: z.string().optional(),
+  createdBy: z.number().optional(),
+  updatedBy: z.number().optional(),
+  isDeleted: z.boolean().optional(),
 });
 
 type Application = z.infer<typeof applicationSchema>;
@@ -71,9 +76,9 @@ const ApplicationPage: React.FC = () => {
     const fetchData = async () => {
       try {
         const [applicationsRes, jobsRes, usersRes] = await Promise.all([
-          axiosInstance.get("/api/applications"),
-          axiosInstance.get("/api/jobs"),
-          axiosInstance.get("/api/users"),
+          api.getApplications(),
+          api.getJobDescriptions(),
+          api.getUsers(),
         ]);
         setApplications(applicationsRes.data);
         setJobs(jobsRes.data);
@@ -91,8 +96,8 @@ const ApplicationPage: React.FC = () => {
 
   const onSubmit: SubmitHandler<Application> = async (data) => {
     try {
-      await axiosInstance.post("/api/applications", data);
-      setApplications([...applications, data]);
+      const response = await api.createApplication(data);
+      setApplications([...applications, response.data]);
       reset();
       alert("Application added successfully");
     } catch (error) {
@@ -102,8 +107,8 @@ const ApplicationPage: React.FC = () => {
 
   const onDelete = async (id: number) => {
     try {
-      await axiosInstance.delete(`/api/applications/${id}`);
-      setApplications(applications.filter((app) => app.id !== id));
+      await api.deleteApplication(id);
+      setApplications(applications.filter((app) => app.applicationId !== id));
       alert("Application deleted successfully");
     } catch (error) {
       console.error("Error deleting application:", error);
@@ -121,9 +126,7 @@ const ApplicationPage: React.FC = () => {
     formData.append("resume", file);
 
     try {
-      const response = await axiosInstance.post("/api/upload", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      const response = await api.uploadFile(file);
       setValue("resumeUrl", response.data.url);
     } catch (error) {
       console.error("Error uploading resume:", error);
@@ -155,7 +158,7 @@ const ApplicationPage: React.FC = () => {
                 <div>
                   <Select
                     onValueChange={(value) =>
-                      setValue("jobId", parseInt(value))
+                      setValue("jobDescriptionId", parseInt(value))
                     }
                   >
                     <SelectTrigger className="w-full">
@@ -169,9 +172,9 @@ const ApplicationPage: React.FC = () => {
                       ))}
                     </SelectContent>
                   </Select>
-                  {errors.jobId && (
+                  {errors.jobDescriptionId && (
                     <p className="text-red-500 text-sm mt-1">
-                      {errors.jobId.message}
+                      {errors.jobDescriptionId.message}
                     </p>
                   )}
                 </div>
@@ -297,10 +300,12 @@ const ApplicationPage: React.FC = () => {
               <TableBody>
                 {applications.map((application) => (
                   <TableRow
-                    key={application.id}
+                    key={application.applicationId}
                     className="hover:bg-gray-100 dark:hover:bg-gray-700"
                   >
-                    <TableCell>{getJobTitle(application.jobId)}</TableCell>
+                    <TableCell>
+                      {getJobTitle(application.jobDescriptionId)}
+                    </TableCell>
                     <TableCell>{getUserName(application.userId)}</TableCell>
                     <TableCell className="capitalize">
                       {application.status}
@@ -319,7 +324,8 @@ const ApplicationPage: React.FC = () => {
                       <Button
                         variant="destructive"
                         onClick={() =>
-                          application.id && onDelete(application.id)
+                          application.applicationId &&
+                          onDelete(application.applicationId)
                         }
                         className="bg-red-500 hover:bg-red-600 text-white"
                       >

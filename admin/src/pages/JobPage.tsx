@@ -24,29 +24,32 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import axiosInstance from "@/api/api";
 
 const jobSchema = z.object({
-  id: z.number().optional(),
-  title: z.string().min(1, "Title is required"),
-  description: z.string().min(1, "Description is required"),
-  requirements: z.string().min(1, "Requirements are required"),
-  salaryRange: z.string().min(1, "Salary range is required"),
-  location: z.string().min(1, "Location is required"),
-  organizationId: z.number(),
-  jobType: z.enum(
-    ["full-time", "part-time", "contract", "internship", "remote"],
-    {
-      required_error: "Please select a job type",
-    }
-  ),
-  experienceLevel: z.string().min(1, "Experience level is required"),
-  status: z.enum(["active", "closed"], {
-    required_error: "Please select a status",
-  }),
+  jobDescriptionId: z.number().optional(),
+  vendorOrgId: z.number(),
+  categoryId: z.number(),
+  jobType: z.string().min(1, "Job type is required"),
+  level: z.string().min(1, "Level is required"),
+  vacancyNo: z.number().min(1, "Number of vacancies is required"),
+  employeeType: z.string().min(1, "Employee type is required"),
+  jobLocation: z.string().min(1, "Location is required"),
+  offeredSalary: z.string().min(1, "Salary is required"),
+  deadLine: z.string().min(1, "Deadline is required"),
+  educationLevel: z.string().min(1, "Education level is required"),
+  experienceRequired: z.string().min(1, "Experience requirement is required"),
+  otherSpecification: z.string().optional(),
+  jobWorkDescription: z.string().min(1, "Job description is required"),
 });
 
 type Job = z.infer<typeof jobSchema>;
 
 const JobPage: React.FC = () => {
   const [jobs, setJobs] = useState<Job[]>([]);
+  const [organizations, setOrganizations] = useState<
+    { id: number; name: string }[]
+  >([]);
+  const [categories, setCategories] = useState<{ id: number; name: string }[]>(
+    []
+  );
   const {
     register,
     handleSubmit,
@@ -56,27 +59,34 @@ const JobPage: React.FC = () => {
   } = useForm<Job>({
     resolver: zodResolver(jobSchema),
     defaultValues: {
-      organizationId: 1, // Set your default organization ID here
-      status: "active",
+      vendorOrgId: 1,
+      categoryId: 1,
+      vacancyNo: 1,
     },
   });
 
   React.useEffect(() => {
-    const fetchJobs = async () => {
+    const fetchData = async () => {
       try {
-        const response = await axiosInstance.get("/api/jobs");
-        setJobs(response.data);
+        const [jobsRes, orgsRes, catsRes] = await Promise.all([
+          axiosInstance.get("/api/job-descriptions"),
+          axiosInstance.get("/api/vendor-organizations"),
+          axiosInstance.get("/api/categories"),
+        ]);
+        setJobs(jobsRes.data);
+        setOrganizations(orgsRes.data);
+        setCategories(catsRes.data);
       } catch (error) {
-        console.error("Error fetching jobs:", error);
+        console.error("Error fetching data:", error);
       }
     };
-    fetchJobs();
+    fetchData();
   }, []);
 
   const onSubmit: SubmitHandler<Job> = async (data) => {
     try {
-      await axiosInstance.post("/api/jobs", data);
-      setJobs([...jobs, data]);
+      const response = await axiosInstance.post("/api/jobs", data);
+      setJobs([...jobs, response.data]);
       reset();
       alert("Job posted successfully");
     } catch (error) {
@@ -87,7 +97,7 @@ const JobPage: React.FC = () => {
   const onDelete = async (id: number) => {
     try {
       await axiosInstance.delete(`/api/jobs/${id}`);
-      setJobs(jobs.filter((job) => job.id !== id));
+      setJobs(jobs.filter((job) => job.jobDescriptionId !== id));
       alert("Job deleted successfully");
     } catch (error) {
       console.error("Error deleting job:", error);
@@ -134,40 +144,50 @@ const JobPage: React.FC = () => {
                 <div>
                   <Select
                     onValueChange={(value) =>
-                      setValue("jobType", value as Job["jobType"])
+                      setValue("vendorOrgId", parseInt(value))
                     }
                   >
                     <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select job type" />
+                      <SelectValue placeholder="Select organization" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="full-time">Full Time</SelectItem>
-                      <SelectItem value="part-time">Part Time</SelectItem>
-                      <SelectItem value="contract">Contract</SelectItem>
-                      <SelectItem value="internship">Internship</SelectItem>
-                      <SelectItem value="remote">Remote</SelectItem>
+                      {organizations.map((org) => (
+                        <SelectItem key={org.id} value={org.id.toString()}>
+                          {org.name}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
-                  {errors.jobType && (
+                  {errors.vendorOrgId && (
                     <p className="text-red-500 text-sm mt-1">
-                      {errors.jobType.message}
+                      {errors.vendorOrgId.message}
                     </p>
                   )}
                 </div>
                 <div>
-                  <Input
-                    {...register("salaryRange")}
-                    placeholder="Salary Range"
-                    className="w-full px-3 py-2 bg-gray-100 dark:bg-gray-700 rounded-md"
-                  />
-                  {errors.salaryRange && (
+                  <Select
+                    onValueChange={(value) =>
+                      setValue("categoryId", parseInt(value))
+                    }
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {categories.map((cat) => (
+                        <SelectItem key={cat.id} value={cat.id.toString()}>
+                          {cat.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {errors.categoryId && (
                     <p className="text-red-500 text-sm mt-1">
-                      {errors.salaryRange.message}
+                      {errors.categoryId.message}
                     </p>
                   )}
                 </div>
               </div>
-
               <div>
                 <Textarea
                   {...register("description")}
