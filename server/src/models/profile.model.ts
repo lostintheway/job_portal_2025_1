@@ -1,24 +1,18 @@
-import db from "../config/db.config";
-import { profiles } from "../../../../schema/schema";
 import { eq } from "drizzle-orm";
+import { db } from "../config/db";
+import { profiles } from "../db/schema";
+import { CommonFields } from "../interfaces/CommonFields";
 
-export interface Profile {
+export interface Profile extends CommonFields {
   profileId: number;
   userId: number;
   headline: string;
-  summary?: string;
+  summary: string | null;
   experience: string;
   education: string;
   skills: string;
   languages: string;
   isPublic: boolean;
-  createdBy: number;
-  createdDate: Date;
-  updatedBy?: number;
-  updatedDate?: Date;
-  deletedBy?: number;
-  deletedDate?: Date;
-  isDeleted: boolean;
 }
 
 class ProfileModel {

@@ -1,21 +1,15 @@
-import db from "../config/db.config";
-import { vendorOrganizations } from "../../../../schema/schema";
 import { eq } from "drizzle-orm";
+import { db } from "../config/db";
+import { vendorOrganizations } from "../db/schema";
+import { CommonFields } from "../interfaces/CommonFields";
 
-export interface VendorOrganization {
+export interface VendorOrganization extends CommonFields {
   vendorOrgId: number;
   vendorOrgName: string;
   vendorOrgAddress: string;
   vendorOrgContact: string;
   vendorOrgEmail: string;
   vendorOrgImage?: string;
-  createdBy: number;
-  createdDate: Date;
-  updatedBy?: number;
-  updatedDate?: Date;
-  deletedBy?: number;
-  deletedDate?: Date;
-  isDeleted: boolean;
 }
 
 class VendorOrganizationModel {

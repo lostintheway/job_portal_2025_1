@@ -14,12 +14,14 @@ class ApplicationController {
   static async getApplicationById(req: Request, res: Response) {
     try {
       const applicationId = parseInt(req.params.applicationId);
-      const application = await ApplicationService.getApplicationById(applicationId);
-      
+      const application = await ApplicationService.getApplicationById(
+        applicationId
+      );
+
       if (!application) {
         return res.status(404).json({ error: "Application not found" });
       }
-      
+
       return res.status(200).json(application);
     } catch (error) {
       return res.status(500).json({ error: "Failed to get application" });
@@ -29,7 +31,9 @@ class ApplicationController {
   static async createApplication(req: Request, res: Response) {
     try {
       const applicationData = req.body;
-      const newApplication = await ApplicationService.createApplication(applicationData);
+      const newApplication = await ApplicationService.createApplication(
+        applicationData
+      );
       return res.status(201).json(newApplication);
     } catch (error) {
       return res.status(500).json({ error: "Failed to create application" });
@@ -58,7 +62,10 @@ class ApplicationController {
   static async deleteApplication(req: Request, res: Response) {
     try {
       const applicationId = parseInt(req.params.applicationId);
-      const success = await ApplicationService.deleteApplication(applicationId);
+      const success = await ApplicationService.deleteApplication(
+        applicationId,
+        req.user.userId
+      );
 
       if (!success) {
         return res.status(404).json({ error: "Application not found" });

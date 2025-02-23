@@ -1,21 +1,15 @@
 import { eq } from "drizzle-orm";
 import { db } from "../config/db";
 import { bookmarks } from "../db/schema";
+import { CommonFields } from "../interfaces/CommonFields";
 
-export interface Bookmark {
+export interface Bookmark extends CommonFields {
   bookmarkId: number;
   userId: number;
   jobDescriptionId: number;
   notes?: string;
   reminderDate?: Date;
   status: "saved" | "applied" | "archived";
-  createdBy: number;
-  createdDate: Date;
-  updatedBy?: number;
-  updatedDate?: Date;
-  deletedBy?: number;
-  deletedDate?: Date;
-  isDeleted: boolean;
 }
 
 class BookmarkModel {

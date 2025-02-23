@@ -1,8 +1,9 @@
 import { eq } from "drizzle-orm";
 import { db } from "../config/db";
 import { applications } from "../db/schema";
+import { CommonFields } from "../interfaces/CommonFields";
 
-export interface Application {
+export interface Application extends CommonFields {
   applicationId: number;
   jobDescriptionId: number;
   userId: number;
@@ -10,13 +11,6 @@ export interface Application {
   resumeUrl: string;
   coverLetter?: string;
   expectedSalary?: string;
-  createdBy: number;
-  createdDate: Date;
-  updatedBy?: number;
-  updatedDate?: Date;
-  deletedBy?: number;
-  deletedDate?: Date;
-  isDeleted: boolean;
 }
 
 class ApplicationModel {

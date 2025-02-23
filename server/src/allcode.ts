@@ -11,13 +11,7 @@ interface User {
   address: string;
   role: 'jobseeker' | 'vendor' | 'admin';
   profileImage?: string;
-  createdBy: number;
-  createdDate: Date;
-  updatedBy?: number;
-  updatedDate?: Date;
-  deletedBy?: number;
-  deletedDate?: Date;
-  isDeleted: boolean;
+ 
 }
 
 class UserModel {
@@ -66,13 +60,7 @@ interface Profile {
   skills: string;
   languages: string;
   isPublic: boolean;
-  createdBy: number;
-  createdDate: Date;
-  updatedBy?: number;
-  updatedDate?: Date;
-  deletedBy?: number;
-  deletedDate?: Date;
-  isDeleted: boolean;
+ 
 }
 
 class ProfileModel {
@@ -117,13 +105,7 @@ interface VendorOrganization {
   vendorOrgContact: string;
   vendorOrgEmail: string;
   vendorOrgImage?: string;
-  createdBy: number;
-  createdDate: Date;
-  updatedBy?: number;
-  updatedDate?: Date;
-  deletedBy?: number;
-  deletedDate?: Date;
-  isDeleted: boolean;
+ 
 }
 
 class VendorOrganizationModel {
@@ -164,13 +146,7 @@ import { eq } from 'drizzle-orm';
 interface Category {
   categoryId: number;
   categoryName: string;
-  createdBy: number;
-  createdDate: Date;
-  updatedBy?: number;
-  updatedDate?: Date;
-  deletedBy?: number;
-  deletedDate?: Date;
-  isDeleted: boolean;
+ 
 }
 
 class CategoryModel {
@@ -223,13 +199,7 @@ interface JobDescription {
   experienceRequired: string;
   otherSpecification?: string;
   jobWorkDescription: string;
-  createdBy: number;
-  createdDate: Date;
-  updatedBy?: number;
-  updatedDate?: Date;
-  deletedBy?: number;
-  deletedDate?: Date;
-  isDeleted: boolean;
+ 
 }
 
 class JobDescriptionModel {
@@ -275,13 +245,7 @@ interface Application {
   resumeUrl: string;
   coverLetter?: string;
   expectedSalary?: string;
-  createdBy: number;
-  createdDate: Date;
-  updatedBy?: number;
-  updatedDate?: Date;
-  deletedBy?: number;
-  deletedDate?: Date;
-  isDeleted: boolean;
+ 
 }
 
 class ApplicationModel {
@@ -326,13 +290,7 @@ interface Bookmark {
   notes?: string;
   reminderDate?: Date;
   status: 'saved' | 'applied' | 'archived';
-  createdBy: number;
-  createdDate: Date;
-  updatedBy?: number;
-  updatedDate?: Date;
-  deletedBy?: number;
-  deletedDate?: Date;
-  isDeleted: boolean;
+ 
 }
 
 class BookmarkModel {
@@ -382,13 +340,7 @@ interface User {
   address: string;
   role: 'jobseeker' | 'vendor' | 'admin';
   profileImage?: string;
-  createdBy: number;
-  createdDate: Date;
-  updatedBy?: number;
-  updatedDate?: Date;
-  deletedBy?: number;
-  deletedDate?: Date;
-  isDeleted: boolean;
+ 
 }
 
 class UserService {
@@ -431,13 +383,7 @@ interface Profile {
   skills: string;
   languages: string;
   isPublic: boolean;
-  createdBy: number;
-  createdDate: Date;
-  updatedBy?: number;
-  updatedDate?: Date;
-  deletedBy?: number;
-  deletedDate?: Date;
-  isDeleted: boolean;
+ 
 }
 
 
@@ -478,13 +424,7 @@ interface VendorOrganization {
   vendorOrgContact: string;
   vendorOrgEmail: string;
   vendorOrgImage?: string;
-  createdBy: number;
-  createdDate: Date;
-  updatedBy?: number;
-  updatedDate?: Date;
-  deletedBy?: number;
-  deletedDate?: Date;
-  isDeleted: boolean;
+ 
 }
 
 class VendorOrganizationService {
@@ -520,13 +460,7 @@ import CategoryModel from '../models/category.model';
 interface Category {
   categoryId: number;
   categoryName: string;
-  createdBy: number;
-  createdDate: Date;
-  updatedBy?: number;
-  updatedDate?: Date;
-  deletedBy?: number;
-  deletedDate?: Date;
-  isDeleted: boolean;
+ 
 }
 
 
@@ -575,13 +509,7 @@ interface JobDescription {
   experienceRequired: string;
   otherSpecification?: string;
   jobWorkDescription: string;
-  createdBy: number;
-  createdDate: Date;
-  updatedBy?: number;
-  updatedDate?: Date;
-  deletedBy?: number;
-  deletedDate?: Date;
-  isDeleted: boolean;
+ 
 }
 
 class JobDescriptionService {
@@ -622,13 +550,7 @@ interface Application {
   resumeUrl: string;
   coverLetter?: string;
   expectedSalary?: string;
-  createdBy: number;
-  createdDate: Date;
-  updatedBy?: number;
-  updatedDate?: Date;
-  deletedBy?: number;
-  deletedDate?: Date;
-  isDeleted: boolean;
+ 
 }
 
 
@@ -669,13 +591,7 @@ interface Bookmark {
   notes?: string;
   reminderDate?: Date;
   status: 'saved' | 'applied' | 'archived';
-  createdBy: number;
-  createdDate: Date;
-  updatedBy?: number;
-  updatedDate?: Date;
-  deletedBy?: number;
-  deletedDate?: Date;
-  isDeleted: boolean;
+ 
 }
 
 
@@ -723,13 +639,7 @@ interface User {
   address: string;
   role: 'jobseeker' | 'vendor' | 'admin';
   profileImage?: string;
-  createdBy: number;
-  createdDate: Date;
-  updatedBy?: number;
-  updatedDate?: Date;
-  deletedBy?: number;
-  deletedDate?: Date;
-  isDeleted: boolean;
+ 
 }
 
 
@@ -812,13 +722,7 @@ interface Profile {
   skills: string;
   languages: string;
   isPublic: boolean;
-  createdBy: number;
-  createdDate: Date;
-  updatedBy?: number;
-  updatedDate?: Date;
-  deletedBy?: number;
-  deletedDate?: Date;
-  isDeleted: boolean;
+ 
 }
 
 
@@ -895,13 +799,7 @@ interface VendorOrganization {
   vendorOrgContact: string;
   vendorOrgEmail: string;
   vendorOrgImage?: string;
-  createdBy: number;
-  createdDate: Date;
-  updatedBy?: number;
-  updatedDate?: Date;
-  deletedBy?: number;
-  deletedDate?: Date;
-  isDeleted: boolean;
+ 
 }
 
 
@@ -974,13 +872,7 @@ import CategoryService from '../services/category.service';
 interface Category {
   categoryId: number;
   categoryName: string;
-  createdBy: number;
-  createdDate: Date;
-  updatedBy?: number;
-  updatedDate?: Date;
-  deletedBy?: number;
-  deletedDate?: Date;
-  isDeleted: boolean;
+ 
 }
 
 
@@ -1065,13 +957,7 @@ interface JobDescription {
   experienceRequired: string;
   otherSpecification?: string;
   jobWorkDescription: string;
-  createdBy: number;
-  createdDate: Date;
-  updatedBy?: number;
-  updatedDate?: Date;
-  deletedBy?: number;
-  deletedDate?: Date;
-  isDeleted: boolean;
+ 
 }
 
 
@@ -1149,13 +1035,7 @@ interface Application {
   resumeUrl: string;
   coverLetter?: string;
   expectedSalary?: string;
-  createdBy: number;
-  createdDate: Date;
-  updatedBy?: number;
-  updatedDate?: Date;
-  deletedBy?: number;
-  deletedDate?: Date;
-  isDeleted: boolean;
+ 
 }
 
 
@@ -1232,13 +1112,7 @@ interface Bookmark {
   notes?: string;
   reminderDate?: Date;
   status: 'saved' | 'applied' | 'archived';
-  createdBy: number;
-  createdDate: Date;
-  updatedBy?: number;
-  updatedDate?: Date;
-  deletedBy?: number;
-  deletedDate?: Date;
-  isDeleted: boolean;
+ 
 }
 
 

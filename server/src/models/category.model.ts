@@ -1,17 +1,11 @@
 import { eq } from "drizzle-orm";
 import { categories } from "../db/schema";
 import { db } from "../config/db";
+import { CommonFields } from "../interfaces/CommonFields";
 
-export interface Category {
+export interface Category extends CommonFields {
   categoryId: number;
   categoryName: string;
-  createdBy: number;
-  createdDate: Date;
-  updatedBy?: number;
-  updatedDate?: Date;
-  deletedBy?: number;
-  deletedDate?: Date;
-  isDeleted: boolean;
 }
 
 class CategoryModel {

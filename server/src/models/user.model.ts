@@ -1,23 +1,17 @@
 import { eq } from "drizzle-orm";
 import { users } from "../db/schema";
 import { db } from "../config/db";
+import { CommonFields } from "../interfaces/CommonFields";
 
-export interface User {
+export interface User extends CommonFields {
   userId: number;
   email: string;
-  password?: string;
+  password: string;
   fullName: string;
   contactNumber: string;
   address: string;
   role: "jobseeker" | "vendor" | "admin";
   profileImage?: string;
-  createdBy: number;
-  createdDate: Date;
-  updatedBy?: number;
-  updatedDate?: Date;
-  deletedBy?: number;
-  deletedDate?: Date;
-  isDeleted: boolean;
 }
 
 class UserModel {

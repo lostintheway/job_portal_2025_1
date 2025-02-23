@@ -1,8 +1,9 @@
 import { eq } from "drizzle-orm";
 import { db } from "../config/db";
 import { jobDescriptions } from "../db/schema";
+import { CommonFields } from "../interfaces/CommonFields";
 
-export interface JobDescription {
+export interface JobDescription extends CommonFields {
   jobDescriptionId: number;
   vendorOrgId: number;
   categoryId: number;
@@ -17,13 +18,6 @@ export interface JobDescription {
   experienceRequired: string;
   otherSpecification?: string;
   jobWorkDescription: string;
-  createdBy: number;
-  createdDate: Date;
-  updatedBy?: number;
-  updatedDate?: Date;
-  deletedBy?: number;
-  deletedDate?: Date;
-  isDeleted: boolean;
 }
 
 class JobDescriptionModel {
