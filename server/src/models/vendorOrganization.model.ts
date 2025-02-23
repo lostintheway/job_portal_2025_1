@@ -9,7 +9,7 @@ export interface VendorOrganization extends CommonFields {
   vendorOrgAddress: string;
   vendorOrgContact: string;
   vendorOrgEmail: string;
-  vendorOrgImage?: string;
+  vendorOrgImage: string | null;
 }
 
 class VendorOrganizationModel {
@@ -18,7 +18,7 @@ class VendorOrganizationModel {
   }
 
   static async getVendorOrganizationById(
-    vendorOrgId: number
+    vendorOrgId: number,
   ): Promise<VendorOrganization | undefined> {
     return db
       .select()
@@ -36,7 +36,7 @@ class VendorOrganizationModel {
       | "updatedDate"
       | "deletedDate"
       | "isDeleted"
-    >
+    >,
   ): Promise<number> {
     const [result] = await db.insert(vendorOrganizations).values(vendorOrgData);
     return result.insertId;
@@ -53,7 +53,7 @@ class VendorOrganizationModel {
         | "deletedDate"
         | "isDeleted"
       >
-    >
+    >,
   ): Promise<boolean> {
     await db
       .update(vendorOrganizations)
@@ -64,7 +64,7 @@ class VendorOrganizationModel {
 
   static async deleteVendorOrganization(
     vendorOrgId: number,
-    deletedBy: number
+    deletedBy: number,
   ): Promise<boolean> {
     await db
       .update(vendorOrganizations)

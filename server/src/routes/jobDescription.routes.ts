@@ -1,21 +1,27 @@
-import express from 'express';
-import JobDescriptionController from '../controllers/jobDescription.controller';
+import express from "express";
+import JobDescriptionController from "../controllers/jobDescription.controller";
 
-const router = express.Router();
+const router: express.Router = express.Router();
 
 // GET /api/job-descriptions - Get all job descriptions
-router.get('/', JobDescriptionController.getAllJobDescriptions);
+router.get("/", JobDescriptionController.getAllJobDescriptions);
 
 // GET /api/job-descriptions/:jobDescriptionId - Get job description by ID
-router.get('/:jobDescriptionId', JobDescriptionController.getJobDescriptionById);
+router.get(
+  "/:jobDescriptionId",
+  JobDescriptionController.getJobDescriptionById
+);
 
 // POST /api/job-descriptions - Create a new job description
-router.post('/', JobDescriptionController.createJobDescription);
+router.post("/", JobDescriptionController.createJobDescription);
 
 // PUT /api/job-descriptions/:jobDescriptionId - Update a job description
-router.put('/:jobDescriptionId', JobDescriptionController.updateJobDescription);
+router.put("/:jobDescriptionId", JobDescriptionController.updateJobDescription);
 
 // DELETE /api/job-descriptions/:jobDescriptionId - Delete a job description
-router.delete('/:jobDescriptionId', JobDescriptionController.deleteJobDescription);
+router.delete(
+  "/:jobDescriptionId",
+  JobDescriptionController.deleteJobDescription
+);
 
 export default router;

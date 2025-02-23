@@ -1,7 +1,7 @@
 import express from "express";
 import ApplicationController from "../controllers/application.controller";
 
-const router = express.Router();
+const router: express.Router = express.Router();
 
 // GET /api/applications - Get all applications
 router.get("/", ApplicationController.getAllApplications);

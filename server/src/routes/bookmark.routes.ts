@@ -1,7 +1,7 @@
 import express from "express";
 import BookmarkController from "../controllers/bookmark.controller";
 
-const router = express.Router();
+const router: express.Router = express.Router();
 
 // GET /api/bookmarks - Get all bookmarks
 router.get("/", BookmarkController.getAllBookmarks);
