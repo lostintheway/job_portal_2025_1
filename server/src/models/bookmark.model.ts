@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import { db } from "../config/db";
 import { bookmarks } from "../db/schema";
 import { CommonFields } from "../interfaces/CommonFields";
@@ -6,7 +6,7 @@ import { CommonFields } from "../interfaces/CommonFields";
 export interface Bookmark extends CommonFields {
   bookmarkId: number;
   userId: number;
-  jobDescriptionId: number;
+  jobId: number;
   notes?: string;
   reminderDate?: Date;
   status: "saved" | "applied" | "archived";
@@ -14,20 +14,47 @@ export interface Bookmark extends CommonFields {
 
 class BookmarkModel {
   static async getAllBookmarks(): Promise<Bookmark[]> {
-    const result: any = db.select().from(bookmarks);
-    return result;
+    return db.select().from(bookmarks).where(eq(bookmarks.isDeleted, false));
   }
 
   static async getBookmarkById(
     bookmarkId: number
   ): Promise<Bookmark | undefined> {
-    const result: any = db
+    return db
       .select()
       .from(bookmarks)
       .where(eq(bookmarks.bookmarkId, bookmarkId))
+      .where(eq(bookmarks.isDeleted, false))
       .limit(1)
       .then((rows) => rows[0]);
-    return result;
+  }
+
+  static async getBookmarksByUserId(userId: number): Promise<Bookmark[]> {
+    return db
+      .select()
+      .from(bookmarks)
+      .where(eq(bookmarks.userId, userId))
+      .where(eq(bookmarks.isDeleted, false));
+  }
+
+  static async isJobBookmarkedByUser(
+    userId: number,
+    jobId: number
+  ): Promise<boolean> {
+    const bookmark = await db
+      .select()
+      .from(bookmarks)
+      .where(
+        and(
+          eq(bookmarks.userId, userId),
+          eq(bookmarks.jobId, jobId),
+          eq(bookmarks.isDeleted, false)
+        )
+      )
+      .limit(1)
+      .then((rows) => rows[0]);
+
+    return !!bookmark;
   }
 
   static async createBookmark(
@@ -55,7 +82,7 @@ class BookmarkModel {
   ): Promise<boolean> {
     await db
       .update(bookmarks)
-      .set(bookmarkData)
+      .set({ ...bookmarkData, updatedDate: new Date() })
       .where(eq(bookmarks.bookmarkId, bookmarkId));
     return true;
   }

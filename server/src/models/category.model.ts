@@ -10,20 +10,19 @@ export interface Category extends CommonFields {
 
 class CategoryModel {
   static async getAllCategories(): Promise<Category[]> {
-    const result: any = db.select().from(categories);
-    return result;
+    return db.select().from(categories).where(eq(categories.isDeleted, false));
   }
 
   static async getCategoryById(
     categoryId: number
   ): Promise<Category | undefined> {
-    const result: any = db
+    return db
       .select()
       .from(categories)
       .where(eq(categories.categoryId, categoryId))
+      .where(eq(categories.isDeleted, false))
       .limit(1)
       .then((rows) => rows[0]);
-    return result;
   }
 
   static async createCategory(
@@ -51,7 +50,7 @@ class CategoryModel {
   ): Promise<boolean> {
     await db
       .update(categories)
-      .set(categoryData)
+      .set({ ...categoryData, updatedDate: new Date() })
       .where(eq(categories.categoryId, categoryId));
     return true;
   }

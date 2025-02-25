@@ -1,21 +1,29 @@
-import express from 'express';
-import UserController from '../controllers/user.controller';
+import express from "express";
+import UserController from "../controllers/user.controller";
+import { authenticate } from "../middleware/auth";
+import { isAdmin, isAdminOrOwner } from "../middleware/roleAuth";
 
 const router = express.Router();
 
-// GET /api/users - Get all users
-router.get('/', UserController.getAllUsers);
+// Public routes
+router.post("/register", UserController.register);
+router.post("/login", UserController.login);
 
-// GET /api/users/:userId - Get user by ID
-router.get('/:userId', UserController.getUserById);
-
-// POST /api/users - Create a new user
-router.post('/', UserController.createUser);
-
-// PUT /api/users/:userId - Update a user
-router.put('/:userId', UserController.updateUser);
-
-// DELETE /api/users/:userId - Delete a user
-router.delete('/:userId', UserController.deleteUser);
+// Protected routes
+router.get("/", authenticate, isAdmin, UserController.getAllUsers);
+router.get("/profile", authenticate, UserController.getCurrentUser);
+router.get(
+  "/:userId",
+  authenticate,
+  isAdminOrOwner("userId"),
+  UserController.getUserById
+);
+router.put(
+  "/:userId",
+  authenticate,
+  isAdminOrOwner("userId"),
+  UserController.updateUser
+);
+router.delete("/:userId", authenticate, isAdmin, UserController.deleteUser);
 
 export default router;

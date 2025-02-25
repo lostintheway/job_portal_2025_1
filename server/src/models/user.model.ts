@@ -10,24 +10,33 @@ export interface User extends CommonFields {
   fullName: string;
   contactNumber: string;
   address: string;
-  role: "jobseeker" | "vendor" | "admin";
+  role: "jobseeker" | "employer" | "admin";
   profileImage?: string;
 }
 
 class UserModel {
   static async getAllUsers(): Promise<User[]> {
-    const result: any = db.select().from(users);
-    return result;
+    return db.select().from(users).where(eq(users.isDeleted, false));
   }
 
   static async getUserById(userId: number): Promise<User | undefined> {
-    const result: any = db
+    return db
       .select()
       .from(users)
       .where(eq(users.userId, userId))
+      .where(eq(users.isDeleted, false))
       .limit(1)
       .then((rows) => rows[0]);
-    return result;
+  }
+
+  static async getUserByEmail(email: string): Promise<User | undefined> {
+    return db
+      .select()
+      .from(users)
+      .where(eq(users.email, email))
+      .where(eq(users.isDeleted, false))
+      .limit(1)
+      .then((rows) => rows[0]);
   }
 
   static async createUser(
@@ -49,7 +58,10 @@ class UserModel {
       >
     >
   ): Promise<boolean> {
-    await db.update(users).set(userData).where(eq(users.userId, userId));
+    await db
+      .update(users)
+      .set({ ...userData, updatedDate: new Date() })
+      .where(eq(users.userId, userId));
     return true;
   }
 

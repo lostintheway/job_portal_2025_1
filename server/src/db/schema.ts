@@ -7,7 +7,9 @@ import {
   mysqlEnum,
   boolean,
   text,
+  date,
 } from "drizzle-orm/mysql-core";
+import { sql } from "drizzle-orm";
 
 // Common fields for most tables
 const commonFields = {
@@ -28,35 +30,43 @@ export const users = mysqlTable("users", {
   fullName: varchar("full_name", { length: 255 }).notNull(),
   contactNumber: varchar("contact_number", { length: 20 }).notNull(),
   address: varchar("address", { length: 255 }).notNull(),
-  role: mysqlEnum("role", ["jobseeker", "vendor", "admin"]).notNull(),
+  role: mysqlEnum("role", ["jobseeker", "employer", "admin"]).notNull(),
   profileImage: varchar("profile_image", { length: 255 }),
   ...commonFields,
 });
 
-// Profiles table
-export const profiles = mysqlTable("profiles", {
+// JobSeeker Profiles table
+export const jobseekerProfiles = mysqlTable("jobseeker_profiles", {
   profileId: int("profile_id").primaryKey().autoincrement(),
   userId: int("user_id")
     .notNull()
     .references(() => users.userId),
   headline: varchar("headline", { length: 255 }).notNull(),
   summary: text("summary"),
-  experience: varchar("experience", { length: 2000 }).notNull(),
-  education: varchar("education", { length: 2000 }).notNull(),
-  skills: varchar("skills", { length: 2000 }).notNull(),
-  languages: varchar("languages", { length: 2000 }).notNull(),
+  experience: varchar("experience", { length: 2000 }),
+  education: varchar("education", { length: 2000 }),
+  skills: varchar("skills", { length: 2000 }),
+  languages: varchar("languages", { length: 500 }),
   isPublic: boolean("is_public").notNull().default(true),
   ...commonFields,
 });
 
-// Vendor Organizations table
-export const vendorOrganizations = mysqlTable("vendor_organizations", {
-  vendorOrgId: int("vendor_org_id").primaryKey().autoincrement(),
-  vendorOrgName: varchar("vendor_org_name", { length: 255 }).notNull(),
-  vendorOrgAddress: varchar("vendor_org_address", { length: 255 }).notNull(),
-  vendorOrgContact: varchar("vendor_org_contact", { length: 20 }).notNull(),
-  vendorOrgEmail: varchar("vendor_org_email", { length: 255 }).notNull(),
-  vendorOrgImage: varchar("vendor_org_image", { length: 255 }),
+// Employer Profiles table
+export const employerProfiles = mysqlTable("employer_profiles", {
+  employerId: int("employer_id").primaryKey().autoincrement(),
+  userId: int("user_id")
+    .notNull()
+    .references(() => users.userId),
+  companyName: varchar("company_name", { length: 255 }).notNull(),
+  companyAddress: varchar("company_address", { length: 255 }).notNull(),
+  companyContact: varchar("company_contact", { length: 20 }).notNull(),
+  companyEmail: varchar("company_email", { length: 255 }).notNull(),
+  companyLogo: varchar("company_logo", { length: 255 }),
+  companyDescription: text("company_description"),
+  industryType: varchar("industry_type", { length: 100 }),
+  establishedDate: date("established_date"),
+  companySize: varchar("company_size", { length: 50 }),
+  companyWebsite: varchar("company_website", { length: 255 }),
   ...commonFields,
 });
 
@@ -67,35 +77,47 @@ export const categories = mysqlTable("categories", {
   ...commonFields,
 });
 
-// Job Descriptions table
-export const jobDescriptions = mysqlTable("job_descriptions", {
-  jobDescriptionId: int("job_description_id").primaryKey().autoincrement(),
-  vendorOrgId: int("vendor_org_id")
+// Job Listings table
+export const jobListings = mysqlTable("job_listings", {
+  jobId: int("job_id").primaryKey().autoincrement(),
+  employerId: int("employer_id")
     .notNull()
-    .references(() => vendorOrganizations.vendorOrgId),
+    .references(() => employerProfiles.employerId),
   categoryId: int("category_id")
     .notNull()
     .references(() => categories.categoryId),
-  jobType: varchar("job_type", { length: 50 }).notNull(),
+  title: varchar("title", { length: 255 }).notNull(),
+  jobType: mysqlEnum("job_type", [
+    "full-time",
+    "part-time",
+    "contract",
+    "internship",
+    "remote",
+  ]).notNull(),
   level: varchar("level", { length: 50 }).notNull(),
-  vacancyNo: int("vacancy_no").notNull(),
-  employeeType: varchar("employee_type", { length: 50 }).notNull(),
+  vacancies: int("vacancies").notNull(),
+  employmentType: varchar("employment_type", { length: 50 }).notNull(),
   jobLocation: varchar("job_location", { length: 255 }).notNull(),
-  offeredSalary: varchar("offered_salary", { length: 100 }).notNull(),
+  offeredSalary: varchar("offered_salary", { length: 100 }),
   deadLine: datetime("deadline").notNull(),
-  educationLevel: varchar("education_level", { length: 100 }).notNull(),
-  experienceRequired: varchar("experience_required", { length: 100 }).notNull(),
+  educationLevel: varchar("education_level", { length: 100 }),
+  experienceRequired: varchar("experience_required", { length: 100 }),
   otherSpecification: text("other_specification"),
-  jobWorkDescription: text("job_work_description").notNull(),
+  jobDescription: text("job_description").notNull(),
+  responsibilities: text("responsibilities"),
+  benefits: text("benefits"),
+  isPremium: boolean("is_premium").notNull().default(false),
+  isActive: boolean("is_active").notNull().default(true),
+  viewCount: int("view_count").notNull().default(0),
   ...commonFields,
 });
 
 // Applications table
 export const applications = mysqlTable("applications", {
   applicationId: int("application_id").primaryKey().autoincrement(),
-  jobDescriptionId: int("job_description_id")
+  jobId: int("job_id")
     .notNull()
-    .references(() => jobDescriptions.jobDescriptionId),
+    .references(() => jobListings.jobId),
   userId: int("user_id")
     .notNull()
     .references(() => users.userId),
@@ -111,6 +133,12 @@ export const applications = mysqlTable("applications", {
   resumeUrl: varchar("resume_url", { length: 255 }).notNull(),
   coverLetter: text("cover_letter"),
   expectedSalary: varchar("expected_salary", { length: 100 }),
+  applicationDate: datetime("application_date")
+    .notNull()
+    .default(sql`CURRENT_TIMESTAMP`),
+  interviewDate: datetime("interview_date"),
+  interviewNotes: text("interview_notes"),
+  rejectionReason: text("rejection_reason"),
   ...commonFields,
 });
 
@@ -120,9 +148,9 @@ export const bookmarks = mysqlTable("bookmarks", {
   userId: int("user_id")
     .notNull()
     .references(() => users.userId),
-  jobDescriptionId: int("job_description_id")
+  jobId: int("job_id")
     .notNull()
-    .references(() => jobDescriptions.jobDescriptionId),
+    .references(() => jobListings.jobId),
   notes: text("notes"),
   reminderDate: datetime("reminder_date"),
   status: mysqlEnum("status", ["saved", "applied", "archived"])
@@ -131,35 +159,37 @@ export const bookmarks = mysqlTable("bookmarks", {
   ...commonFields,
 });
 
+// Type definitions for TypeScript
 export type UserSelect = typeof users.$inferSelect;
-export type ProfileSelect = typeof profiles.$inferSelect;
-export type VendorOrganizationSelect = typeof vendorOrganizations.$inferSelect;
 export type CategorySelect = typeof categories.$inferSelect;
-export type JobDescriptionSelect = typeof jobDescriptions.$inferSelect;
 export type ApplicationSelect = typeof applications.$inferSelect;
 export type BookmarkSelect = typeof bookmarks.$inferSelect;
+export type JobListingSelect = typeof jobListings.$inferSelect;
+export type EmployerProfileSelect = typeof employerProfiles.$inferSelect;
+export type JobSeekerProfileSelect = typeof jobseekerProfiles.$inferSelect;
 
 export type UserInsert = typeof users.$inferInsert;
-export type ProfileInsert = typeof profiles.$inferInsert;
-export type VendorOrganizationInsert = typeof vendorOrganizations.$inferInsert;
 export type CategoryInsert = typeof categories.$inferInsert;
-export type JobDescriptionInsert = typeof jobDescriptions.$inferInsert;
 export type ApplicationInsert = typeof applications.$inferInsert;
 export type BookmarkInsert = typeof bookmarks.$inferInsert;
+export type JobListingInsert = typeof jobListings.$inferInsert;
+export type EmployerProfileInsert = typeof employerProfiles.$inferInsert;
+export type JobSeekerProfileInsert = typeof jobseekerProfiles.$inferInsert;
 
 // Indexes
-// export const jobDescriptionsIndexes = {
-//   vendorOrgIdIdx: sql`CREATE INDEX vendor_org_id_idx ON job_descriptions (vendor_org_id)`,
-//   categoryIdIdx: sql`CREATE INDEX category_id_idx ON job_descriptions (category_id)`,
-//   deadlineIdx: sql`CREATE INDEX deadline_idx ON job_descriptions (deadline)`,
-// };
+export const jobListingsIndexes = {
+  employerIdIdx: sql`CREATE INDEX employer_id_idx ON job_listings (employer_id)`,
+  categoryIdIdx: sql`CREATE INDEX category_id_idx ON job_listings (category_id)`,
+  deadlineIdx: sql`CREATE INDEX deadline_idx ON job_listings (deadline)`,
+  isActiveIdx: sql`CREATE INDEX is_active_idx ON job_listings (is_active)`,
+};
 
-// export const applicationsIndexes = {
-//   jobDescriptionIdIdx: sql`CREATE INDEX job_description_id_idx ON applications (job_description_id)`,
-//   userIdIdx: sql`CREATE INDEX user_id_idx ON applications (user_id)`,
-//   statusIdx: sql`CREATE INDEX status_idx ON applications (status)`,
-// };
+export const applicationsIndexes = {
+  jobIdIdx: sql`CREATE INDEX job_id_idx ON applications (job_id)`,
+  userIdIdx: sql`CREATE INDEX user_id_idx ON applications (user_id)`,
+  statusIdx: sql`CREATE INDEX status_idx ON applications (status)`,
+};
 
-// export const bookmarksIndexes = {
-//   userJobIdx: sql`CREATE INDEX user_job_idx ON bookmarks (user_id, job_description_id)`,
-// };
+export const bookmarksIndexes = {
+  userJobIdx: sql`CREATE INDEX user_job_idx ON bookmarks (user_id, job_id)`,
+};

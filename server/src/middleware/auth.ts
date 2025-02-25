@@ -1,34 +1,59 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
-import { IUser } from "../interfaces/IUser";
+import { db } from "../config/db";
+import { users } from "../db/schema";
+import { eq } from "drizzle-orm";
 
-declare global {
-  namespace Express {
-    interface Request {
-      user?: IUser;
-    }
-  }
+interface JwtPayload {
+  userId: number;
 }
 
-export const authenticate = (
+export const authenticate = async (
   req: Request,
   res: Response,
   next: NextFunction
-): void => {
+): Promise<void> => {
   try {
-    const token = req.headers.authorization?.split(" ")[1];
-
-    if (!token) {
-      res.status(401).json({ message: "You need Authentication" });
+    // Get token from Authorization header
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      res
+        .status(401)
+        .json({ success: false, message: "Authentication required" });
       return;
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as IUser;
-    req.user = decoded;
+    const token = authHeader.split(" ")[1];
+
+    // Verify token
+    const decoded = jwt.verify(
+      token,
+      process.env.JWT_SECRET || "your-secret-key"
+    ) as JwtPayload;
+
+    // Get user from database
+    const user = await db
+      .select()
+      .from(users)
+      .where(eq(users.userId, decoded.userId))
+      .where(eq(users.isDeleted, false))
+      .limit(1)
+      .then((rows) => rows[0]);
+
+    if (!user) {
+      res
+        .status(401)
+        .json({ success: false, message: "User not found or deactivated" });
+      return;
+    }
+
+    // Attach user to request object
+    req.user = user;
     next();
   } catch (error) {
-    res.status(401).json({ message: "Invalid token" });
-    return;
+    res
+      .status(401)
+      .json({ success: false, message: "Invalid or expired token" });
   }
 };
 

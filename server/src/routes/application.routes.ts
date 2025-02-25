@@ -1,21 +1,56 @@
 import express from "express";
 import ApplicationController from "../controllers/application.controller";
+import { authenticate } from "../middleware/auth";
+import { isAdmin, isJobSeeker, isEmployer } from "../middleware/roleAuth";
 
-const router: express.Router = express.Router();
+const router = express.Router();
 
-// GET /api/applications - Get all applications
-router.get("/", ApplicationController.getAllApplications);
+// JobSeeker routes
+router.post(
+  "/",
+  authenticate,
+  isJobSeeker,
+  ApplicationController.createApplication
+);
+router.get(
+  "/my-applications",
+  authenticate,
+  isJobSeeker,
+  ApplicationController.getMyApplications
+);
 
-// GET /api/applications/:applicationId - Get application by ID
-router.get("/:applicationId", ApplicationController.getApplicationById);
+// Employer routes
+router.get(
+  "/job/:jobId",
+  authenticate,
+  isEmployer,
+  ApplicationController.getApplicationsByJob
+);
+router.put(
+  "/:applicationId/status",
+  authenticate,
+  isEmployer,
+  ApplicationController.updateApplicationStatus
+);
 
-// POST /api/applications - Create a new application
-router.post("/", ApplicationController.createApplication);
-
-// PUT /api/applications/:applicationId - Update an application
-router.put("/:applicationId", ApplicationController.updateApplication);
-
-// DELETE /api/applications/:applicationId - Delete an application
-router.delete("/:applicationId", ApplicationController.deleteApplication);
+// Admin routes
+router.get(
+  "/",
+  authenticate,
+  isAdmin,
+  ApplicationController.getAllApplications
+);
+router.get(
+  "/:applicationId",
+  authenticate,
+  isAdmin,
+  ApplicationController.getApplicationById
+);
+router.delete(
+  "/:applicationId",
+  authenticate,
+  isAdmin,
+  ApplicationController.deleteApplication
+);
 
 export default router;
