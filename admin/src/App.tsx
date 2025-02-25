@@ -1,13 +1,15 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import "./App.css";
 import Dashboard from "./components/Dashboard";
-import GalleryPage from "./pages/GalleryPage";
-import PortfolioPage from "./pages/PortfolioPage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
-import JobPage from "./pages/JobPage";
-import OrganizationPage from "./pages/OrganizationPage";
-import ApplicationPage from "./pages/ApplicationPage";
+import ApplicationsPage from "./pages/ApplicationsPage";
+import VendorOrganizationsPage from "./pages/VendorOrganizationsPage";
+import CategoriesPage from "./pages/CategoriesPage";
+import JobDescriptionsPage from "./pages/JobDescriptionsPage";
+import BookmarksPage from "./pages/BookmarksPage";
+import ProfilesPage from "./pages/ProfilesPage";
+// import GalleryPage from "./pages/GalleryPage";Page";
 
 function App() {
   return (
@@ -16,11 +18,15 @@ function App() {
         <Route path="/" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/admin" element={<Dashboard />}>
-          <Route path="application" element={<ApplicationPage />} />
-          <Route path="organization" element={<OrganizationPage />} />
-          <Route path="gallery" element={<GalleryPage />} />
-          <Route path="job" element={<JobPage />} />
-          <Route path="portfolio" element={<PortfolioPage />} />
+          <Route path="application" element={<ApplicationsPage />} />
+          <Route
+            path="vendor-organization"
+            element={<VendorOrganizationsPage />}
+          />
+          <Route path="category" element={<CategoriesPage />} />
+          <Route path="job-description" element={<JobDescriptionsPage />} />
+          <Route path="bookmarks" element={<BookmarksPage />} />
+          <Route path="profile" element={<ProfilesPage />} />
         </Route>
 
         <Route path="*" element={<LoginPage />} />

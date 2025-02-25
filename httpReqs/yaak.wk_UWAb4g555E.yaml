@@ -1,0 +1,10 @@
+type: workspace
+model: workspace
+id: wk_UWAb4g555E
+createdAt: 2025-02-20T05:44:43.046657791
+updatedAt: 2025-02-24T04:30:21
+name: JobPortal
+description: ''
+settingValidateCertificates: true
+settingFollowRedirects: true
+settingRequestTimeout: 0
