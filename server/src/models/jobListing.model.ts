@@ -1,67 +1,50 @@
 import { eq, and, desc, like, or } from "drizzle-orm";
 import { db } from "../config/db";
-import { jobListings, employerProfiles } from "../db/schema";
+import { jobListings, employerProfiles, JobListingSelect } from "../db/schema";
 import { CommonFields } from "../interfaces/CommonFields";
 
-export interface JobListing extends CommonFields {
-  jobId: number;
-  employerId: number;
-  categoryId: number;
-  title: string;
-  jobType: "full-time" | "part-time" | "contract" | "internship" | "remote";
-  level: string;
-  vacancies: number;
-  employmentType: string;
-  jobLocation: string;
-  offeredSalary?: string;
-  deadLine: Date;
-  educationLevel?: string;
-  experienceRequired?: string;
-  otherSpecification?: string;
-  jobDescription: string;
-  responsibilities?: string;
-  benefits?: string;
-  isPremium: boolean;
-  isActive: boolean;
-  viewCount: number;
-}
-
 class JobListingModel {
-  static async getAllJobListings(): Promise<JobListing[]> {
+  static async getAllJobListings(): Promise<JobListingSelect[]> {
     return db
       .select()
       .from(jobListings)
-      .where(eq(jobListings.isDeleted, false))
-      .where(eq(jobListings.isActive, true))
+      .where(
+        and(eq(jobListings.isDeleted, false), eq(jobListings.isActive, true))
+      )
       .orderBy(desc(jobListings.createdDate));
   }
 
   static async getJobListingById(
     jobId: number
-  ): Promise<JobListing | undefined> {
+  ): Promise<JobListingSelect | undefined> {
     return db
       .select()
       .from(jobListings)
-      .where(eq(jobListings.jobId, jobId))
-      .where(eq(jobListings.isDeleted, false))
+      .where(
+        and(eq(jobListings.jobId, jobId), eq(jobListings.isDeleted, false))
+      )
       .limit(1)
       .then((rows) => rows[0]);
   }
 
   static async getJobListingsByEmployerId(
     employerId: number
-  ): Promise<JobListing[]> {
+  ): Promise<JobListingSelect[]> {
     return db
       .select()
       .from(jobListings)
-      .where(eq(jobListings.employerId, employerId))
-      .where(eq(jobListings.isDeleted, false))
+      .where(
+        and(
+          eq(jobListings.employerId, employerId),
+          eq(jobListings.isDeleted, false)
+        )
+      )
       .orderBy(desc(jobListings.createdDate));
   }
 
   static async getJobListingsByEmployerUserId(
     userId: number
-  ): Promise<JobListing[]> {
+  ): Promise<JobListingSelect[]> {
     const employerProfile = await db
       .select()
       .from(employerProfiles)
@@ -76,24 +59,33 @@ class JobListingModel {
     return db
       .select()
       .from(jobListings)
-      .where(eq(jobListings.employerId, employerProfile.employerId))
-      .where(eq(jobListings.isDeleted, false))
+      .where(
+        and(
+          eq(jobListings.employerId, employerProfile.employerId),
+          eq(jobListings.isDeleted, false)
+        )
+      )
       .orderBy(desc(jobListings.createdDate));
   }
 
   static async getJobListingsByCategory(
     categoryId: number
-  ): Promise<JobListing[]> {
+  ): Promise<JobListingSelect[]> {
     return db
       .select()
       .from(jobListings)
-      .where(eq(jobListings.categoryId, categoryId))
-      .where(eq(jobListings.isDeleted, false))
-      .where(eq(jobListings.isActive, true))
+      .where(
+        and(
+          eq(jobListings.categoryId, categoryId),
+          eq(jobListings.isDeleted, false)
+        )
+      )
       .orderBy(desc(jobListings.createdDate));
   }
 
-  static async searchJobListings(searchTerm: string): Promise<JobListing[]> {
+  static async searchJobListings(
+    searchTerm: string
+  ): Promise<JobListingSelect[]> {
     return db
       .select()
       .from(jobListings)
@@ -124,7 +116,7 @@ class JobListingModel {
 
   static async createJobListing(
     jobData: Omit<
-      JobListing,
+      JobListingSelect,
       | "jobId"
       | "createdDate"
       | "updatedDate"
@@ -144,7 +136,7 @@ class JobListingModel {
     jobId: number,
     jobData: Partial<
       Omit<
-        JobListing,
+        JobListingSelect,
         "jobId" | "createdDate" | "updatedDate" | "deletedDate" | "isDeleted"
       >
     >

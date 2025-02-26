@@ -1,22 +1,10 @@
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import { db } from "../config/db";
-import { jobseekerProfiles } from "../db/schema";
+import { jobseekerProfiles, JobSeekerProfileSelect } from "../db/schema";
 import { CommonFields } from "../interfaces/CommonFields";
 
-export interface JobSeekerProfile extends CommonFields {
-  profileId: number;
-  userId: number;
-  headline: string;
-  summary: string | null;
-  experience: string;
-  education: string;
-  skills: string;
-  languages: string;
-  isPublic: boolean;
-}
-
 class JobSeekerProfileModel {
-  static async getAllProfiles(): Promise<JobSeekerProfile[]> {
+  static async getAllProfiles(): Promise<JobSeekerProfileSelect[]> {
     return db
       .select()
       .from(jobseekerProfiles)
@@ -25,31 +13,39 @@ class JobSeekerProfileModel {
 
   static async getProfileById(
     profileId: number
-  ): Promise<JobSeekerProfile | undefined> {
+  ): Promise<JobSeekerProfileSelect | undefined> {
     return db
       .select()
       .from(jobseekerProfiles)
-      .where(eq(jobseekerProfiles.profileId, profileId))
-      .where(eq(jobseekerProfiles.isDeleted, false))
+      .where(
+        and(
+          eq(jobseekerProfiles.profileId, profileId),
+          eq(jobseekerProfiles.isDeleted, false)
+        )
+      )
       .limit(1)
       .then((rows) => rows[0]);
   }
 
   static async getProfileByUserId(
     userId: number
-  ): Promise<JobSeekerProfile | undefined> {
+  ): Promise<JobSeekerProfileSelect | undefined> {
     return db
       .select()
       .from(jobseekerProfiles)
-      .where(eq(jobseekerProfiles.userId, userId))
-      .where(eq(jobseekerProfiles.isDeleted, false))
+      .where(
+        and(
+          eq(jobseekerProfiles.userId, userId),
+          eq(jobseekerProfiles.isDeleted, false)
+        )
+      )
       .limit(1)
       .then((rows) => rows[0]);
   }
 
   static async createProfile(
     profileData: Omit<
-      JobSeekerProfile,
+      JobSeekerProfileSelect,
       "profileId" | "createdDate" | "updatedDate" | "deletedDate" | "isDeleted"
     >
   ): Promise<number> {
@@ -61,7 +57,7 @@ class JobSeekerProfileModel {
     profileId: number,
     profileData: Partial<
       Omit<
-        JobSeekerProfile,
+        JobSeekerProfileSelect,
         | "profileId"
         | "createdDate"
         | "updatedDate"

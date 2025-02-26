@@ -1,19 +1,19 @@
-import CategoryModel, { Category } from "../models/category.model";
+import CategoryModel, { CategorySelect } from "../models/category.model";
 
 class CategoryService {
-  static async getAllCategories(): Promise<Category[]> {
+  static async getAllCategories(): Promise<CategorySelect[]> {
     return CategoryModel.getAllCategories();
   }
 
   static async getCategoryById(
     categoryId: number
-  ): Promise<Category | undefined> {
+  ): Promise<CategorySelect | undefined> {
     return CategoryModel.getCategoryById(categoryId);
   }
 
   static async createCategory(
     categoryData: Omit<
-      Category,
+      CategorySelect,
       "categoryId" | "createdDate" | "updatedDate" | "deletedDate" | "isDeleted"
     >
   ): Promise<number> {
@@ -24,7 +24,7 @@ class CategoryService {
     categoryId: number,
     categoryData: Partial<
       Omit<
-        Category,
+        CategorySelect,
         | "categoryId"
         | "createdDate"
         | "updatedDate"

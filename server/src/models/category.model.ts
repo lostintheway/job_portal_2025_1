@@ -1,33 +1,32 @@
-import { eq } from "drizzle-orm";
-import { categories } from "../db/schema";
+import { and, eq } from "drizzle-orm";
+import { categories, CategorySelect } from "../db/schema";
 import { db } from "../config/db";
 import { CommonFields } from "../interfaces/CommonFields";
 
-export interface Category extends CommonFields {
-  categoryId: number;
-  categoryName: string;
-}
-
 class CategoryModel {
-  static async getAllCategories(): Promise<Category[]> {
+  static async getAllCategories(): Promise<CategorySelect[]> {
     return db.select().from(categories).where(eq(categories.isDeleted, false));
   }
 
   static async getCategoryById(
     categoryId: number
-  ): Promise<Category | undefined> {
+  ): Promise<CategorySelect | undefined> {
     return db
       .select()
       .from(categories)
-      .where(eq(categories.categoryId, categoryId))
-      .where(eq(categories.isDeleted, false))
+      .where(
+        and(
+          eq(categories.categoryId, categoryId),
+          eq(categories.isDeleted, false)
+        )
+      )
       .limit(1)
       .then((rows) => rows[0]);
   }
 
   static async createCategory(
     categoryData: Omit<
-      Category,
+      CategorySelect,
       "categoryId" | "createdDate" | "updatedDate" | "deletedDate" | "isDeleted"
     >
   ): Promise<number> {
@@ -39,7 +38,7 @@ class CategoryModel {
     categoryId: number,
     categoryData: Partial<
       Omit<
-        Category,
+        CategorySelect,
         | "categoryId"
         | "createdDate"
         | "updatedDate"

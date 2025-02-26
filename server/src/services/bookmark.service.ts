@@ -1,19 +1,19 @@
-import BookmarkModel, { Bookmark } from "../models/bookmark.model";
+import BookmarkModel, { BookmarkSelect } from "../models/bookmark.model";
 
 class BookmarkService {
-  static async getAllBookmarks(): Promise<Bookmark[]> {
+  static async getAllBookmarks(): Promise<BookmarkSelect[]> {
     return BookmarkModel.getAllBookmarks();
   }
 
   static async getBookmarkById(
     bookmarkId: number
-  ): Promise<Bookmark | undefined> {
+  ): Promise<BookmarkSelect | undefined> {
     return BookmarkModel.getBookmarkById(bookmarkId);
   }
 
   static async createBookmark(
     bookmarkData: Omit<
-      Bookmark,
+      BookmarkSelect,
       "bookmarkId" | "createdDate" | "updatedDate" | "deletedDate" | "isDeleted"
     >
   ): Promise<number> {
@@ -24,7 +24,7 @@ class BookmarkService {
     bookmarkId: number,
     bookmarkData: Partial<
       Omit<
-        Bookmark,
+        BookmarkSelect,
         | "bookmarkId"
         | "createdDate"
         | "updatedDate"

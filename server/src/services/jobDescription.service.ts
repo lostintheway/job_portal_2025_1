@@ -1,21 +1,21 @@
 import JobDescriptionModel, {
-  JobDescription,
+  JobListingSelect,
 } from "../models/jobDescription.model";
 
 class JobDescriptionService {
-  static async getAllJobDescriptions(): Promise<JobDescription[]> {
+  static async getAllJobDescriptions(): Promise<JobListingSelect[]> {
     return JobDescriptionModel.getAllJobDescriptions();
   }
 
   static async getJobDescriptionById(
     jobDescriptionId: number
-  ): Promise<JobDescription | undefined> {
+  ): Promise<JobListingSelect | undefined> {
     return JobDescriptionModel.getJobDescriptionById(jobDescriptionId);
   }
 
   static async createJobDescription(
     jobDescriptionData: Omit<
-      JobDescription,
+      JobListingSelect,
       | "jobDescriptionId"
       | "createdDate"
       | "updatedDate"
@@ -30,7 +30,7 @@ class JobDescriptionService {
     jobDescriptionId: number,
     jobDescriptionData: Partial<
       Omit<
-        JobDescription,
+        JobListingSelect,
         | "jobDescriptionId"
         | "createdDate"
         | "updatedDate"

@@ -1,17 +1,17 @@
-import UserModel, { User } from "../models/user.model";
+import UserModel, { UserSelect } from "../models/user.model";
 
 class UserService {
-  static async getAllUsers(): Promise<User[]> {
+  static async getAllUsers(): Promise<UserSelect[]> {
     return UserModel.getAllUsers();
   }
 
-  static async getUserById(userId: number): Promise<User | undefined> {
+  static async getUserById(userId: number): Promise<UserSelect | undefined> {
     return UserModel.getUserById(userId);
   }
 
   static async createUser(
     userData: Omit<
-      User,
+      UserSelect,
       "userId" | "createdDate" | "updatedDate" | "deletedDate" | "isDeleted"
     >
   ): Promise<number> {
@@ -22,7 +22,7 @@ class UserService {
     userId: number,
     userData: Partial<
       Omit<
-        User,
+        UserSelect,
         "userId" | "createdDate" | "updatedDate" | "deletedDate" | "isDeleted"
       >
     >

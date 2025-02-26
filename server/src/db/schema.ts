@@ -159,6 +159,15 @@ export const bookmarks = mysqlTable("bookmarks", {
   ...commonFields,
 });
 
+// list all the available table here in comment
+// 1 bookmarks
+// 2 applications
+// 3jobListings
+// 4employerProfiles
+// 5jobseekerProfiles
+// 6categories
+// 7users
+
 // Type definitions for TypeScript
 export type UserSelect = typeof users.$inferSelect;
 export type CategorySelect = typeof categories.$inferSelect;

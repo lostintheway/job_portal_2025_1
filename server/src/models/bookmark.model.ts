@@ -1,40 +1,34 @@
 import { eq, and } from "drizzle-orm";
 import { db } from "../config/db";
-import { bookmarks } from "../db/schema";
+import { bookmarks, BookmarkSelect } from "../db/schema";
 import { CommonFields } from "../interfaces/CommonFields";
 
-export interface Bookmark extends CommonFields {
-  bookmarkId: number;
-  userId: number;
-  jobId: number;
-  notes?: string;
-  reminderDate?: Date;
-  status: "saved" | "applied" | "archived";
-}
-
 class BookmarkModel {
-  static async getAllBookmarks(): Promise<Bookmark[]> {
+  static async getAllBookmarks(): Promise<BookmarkSelect[]> {
     return db.select().from(bookmarks).where(eq(bookmarks.isDeleted, false));
   }
 
   static async getBookmarkById(
     bookmarkId: number
-  ): Promise<Bookmark | undefined> {
+  ): Promise<BookmarkSelect | undefined> {
     return db
       .select()
       .from(bookmarks)
-      .where(eq(bookmarks.bookmarkId, bookmarkId))
-      .where(eq(bookmarks.isDeleted, false))
+      .where(
+        and(
+          eq(bookmarks.bookmarkId, bookmarkId),
+          eq(bookmarks.isDeleted, false)
+        )
+      )
       .limit(1)
       .then((rows) => rows[0]);
   }
 
-  static async getBookmarksByUserId(userId: number): Promise<Bookmark[]> {
+  static async getBookmarksByUserId(userId: number): Promise<BookmarkSelect[]> {
     return db
       .select()
       .from(bookmarks)
-      .where(eq(bookmarks.userId, userId))
-      .where(eq(bookmarks.isDeleted, false));
+      .where(and(eq(bookmarks.userId, userId), eq(bookmarks.isDeleted, false)));
   }
 
   static async isJobBookmarkedByUser(
@@ -59,7 +53,7 @@ class BookmarkModel {
 
   static async createBookmark(
     bookmarkData: Omit<
-      Bookmark,
+      BookmarkSelect,
       "bookmarkId" | "createdDate" | "updatedDate" | "deletedDate" | "isDeleted"
     >
   ): Promise<number> {
@@ -71,7 +65,7 @@ class BookmarkModel {
     bookmarkId: number,
     bookmarkData: Partial<
       Omit<
-        Bookmark,
+        BookmarkSelect,
         | "bookmarkId"
         | "createdDate"
         | "updatedDate"

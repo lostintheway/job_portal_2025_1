@@ -1,25 +1,9 @@
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { db } from "../config/db";
-import { employerProfiles } from "../db/schema";
-import { CommonFields } from "../interfaces/CommonFields";
-
-export interface EmployerProfile extends CommonFields {
-  employerId: number;
-  userId: number;
-  companyName: string;
-  companyAddress: string;
-  companyContact: string;
-  companyEmail: string;
-  companyLogo?: string;
-  companyDescription?: string;
-  industryType?: string;
-  establishedDate?: Date;
-  companySize?: string;
-  companyWebsite?: string;
-}
+import { employerProfiles, EmployerProfileSelect } from "../db/schema";
 
 class EmployerProfileModel {
-  static async getAllEmployerProfiles(): Promise<EmployerProfile[]> {
+  static async getAllEmployerProfiles(): Promise<EmployerProfileSelect[]> {
     return db
       .select()
       .from(employerProfiles)
@@ -28,31 +12,39 @@ class EmployerProfileModel {
 
   static async getEmployerProfileById(
     employerId: number
-  ): Promise<EmployerProfile | undefined> {
+  ): Promise<EmployerProfileSelect | undefined> {
     return db
       .select()
       .from(employerProfiles)
-      .where(eq(employerProfiles.employerId, employerId))
-      .where(eq(employerProfiles.isDeleted, false))
+      .where(
+        and(
+          eq(employerProfiles.employerId, employerId),
+          eq(employerProfiles.isDeleted, false)
+        )
+      )
       .limit(1)
       .then((rows) => rows[0]);
   }
 
   static async getEmployerProfileByUserId(
     userId: number
-  ): Promise<EmployerProfile | undefined> {
+  ): Promise<EmployerProfileSelect | undefined> {
     return db
       .select()
       .from(employerProfiles)
-      .where(eq(employerProfiles.userId, userId))
-      .where(eq(employerProfiles.isDeleted, false))
+      .where(
+        and(
+          eq(employerProfiles.userId, userId),
+          eq(employerProfiles.isDeleted, false)
+        )
+      )
       .limit(1)
       .then((rows) => rows[0]);
   }
 
   static async createEmployerProfile(
     profileData: Omit<
-      EmployerProfile,
+      EmployerProfileSelect,
       "employerId" | "createdDate" | "updatedDate" | "deletedDate" | "isDeleted"
     >
   ): Promise<number> {
@@ -64,7 +56,7 @@ class EmployerProfileModel {
     employerId: number,
     profileData: Partial<
       Omit<
-        EmployerProfile,
+        EmployerProfileSelect,
         | "employerId"
         | "createdDate"
         | "updatedDate"
