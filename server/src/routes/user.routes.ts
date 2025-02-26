@@ -1,17 +1,16 @@
 import express from "express";
-import UserController from "../controllers/user.controller";
 import { authenticate } from "../middleware/auth";
 import { isAdmin, isAdminOrOwner } from "../middleware/roleAuth";
+import UserController from "../controllers/user.controller";
 
 const router = express.Router();
 
 // Public routes
-router.post("/register", UserController.register);
+router.post("/register", UserController.createUser);
 router.post("/login", UserController.login);
 
 // Protected routes
-router.get("/", authenticate, isAdmin, UserController.getAllUsers);
-router.get("/profile", authenticate, UserController.getCurrentUser);
+router.get("/profile", authenticate, UserController.getMyProfile);
 router.get(
   "/:userId",
   authenticate,
@@ -24,6 +23,5 @@ router.put(
   isAdminOrOwner("userId"),
   UserController.updateUser
 );
-router.delete("/:userId", authenticate, isAdmin, UserController.deleteUser);
 
 export default router;

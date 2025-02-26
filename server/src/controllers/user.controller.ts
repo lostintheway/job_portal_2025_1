@@ -2,12 +2,69 @@ import { Request, Response } from "express";
 import UserService from "../services/user.service";
 import ErrorMessage from "../models/errorMessage.model";
 import { UserSelect } from "../db/schema";
+import jwt from "jsonwebtoken";
+import bcrypt from "bcrypt";
 
 class UserController {
-  static async getAllUsers(req: Request, res: Response): Promise<void> {
+  //login
+  static async login(req: Request, res: Response): Promise<void> {
     try {
-      const users = await UserService.getAllUsers();
-      res.status(200).json({ success: true, data: users });
+      const { email, password: myPassword } = req.body;
+      const user = await UserService.getUserByEmail(email);
+
+      if (!user) {
+        res.status(401).json(ErrorMessage.authFailed());
+        return;
+      }
+
+      // Check if the password matches
+      const isMatch = await bcrypt.compare(myPassword, user.password);
+      if (!isMatch) {
+        res.status(401).json(ErrorMessage.authFailed());
+        return;
+      }
+
+      // Generate JWT token with user data
+      const token = jwt.sign(
+        {
+          userId: user.userId,
+          userType: user.role,
+        },
+        process.env.JWT_SECRET || "mysecret_for_testing_dshajkdsadhsajkd",
+        { expiresIn: "24h" }
+      );
+      const { password, ...userWithoutPassword } = user;
+
+      res.status(200).json({
+        success: true,
+        data: {
+          user: userWithoutPassword,
+          token,
+        },
+      });
+    } catch (error) {
+      console.error("Login Error:", error);
+      res.status(500).json(ErrorMessage.serverError());
+    }
+  }
+
+  // get my prfile
+  static async getMyProfile(req: Request, res: Response): Promise<void> {
+    try {
+      if (!req.user) {
+        res.status(401).json(ErrorMessage.authRequired());
+        return;
+      }
+      const userId = req.user.userId;
+      const user = await UserService.getUserById(userId);
+      if (!user) {
+        res.status(404).json(ErrorMessage.notFound());
+        return;
+      }
+      //       // Remove the password field from the user object
+      const { password, ...userWithoutPassword } = user;
+      res.status(200).json({ success: true, data: userWithoutPassword });
+      res.status(200).json({ success: true, data: user });
     } catch (error) {
       res.status(500).json(ErrorMessage.serverError());
     }
@@ -21,7 +78,9 @@ class UserController {
         res.status(404).json(ErrorMessage.notFound());
         return;
       }
-      res.status(200).json({ success: true, data: user });
+      // Remove the password field from the user object
+      const { password, ...userWithoutPassword } = user;
+      res.status(200).json({ success: true, data: userWithoutPassword });
     } catch (error) {
       res.status(500).json(ErrorMessage.serverError());
     }
@@ -35,7 +94,9 @@ class UserController {
         res.status(404).json(ErrorMessage.notFound());
         return;
       }
-      res.status(200).json({ success: true, data: user });
+      // Remove the password field from the user object
+      const { password, ...userWithoutPassword } = user;
+      res.status(200).json({ success: true, data: userWithoutPassword });
     } catch (error) {
       res.status(500).json(ErrorMessage.serverError());
     }
@@ -44,6 +105,10 @@ class UserController {
   static async createUser(req: Request, res: Response): Promise<void> {
     try {
       const userData: UserSelect = req.body;
+      // Hash the password
+      const saltRounds = 10;
+      const hashedPassword = await bcrypt.hash(userData.password, saltRounds);
+      userData.password = hashedPassword;
       const userId = await UserService.createUser(userData);
       res.status(201).json({ success: true, data: { userId } });
     } catch (error) {
@@ -53,14 +118,17 @@ class UserController {
 
   static async updateUser(req: Request, res: Response): Promise<void> {
     try {
-      const userId = parseInt(req.params.userId);
+      // only allow update my profile
+      const userId = req.user.userId;
       const userData: UserSelect = req.body;
       const success = await UserService.updateUser(userId, userData);
       if (!success) {
         res.status(404).json(ErrorMessage.notFound());
         return;
       }
-      res.status(200).json({ success: true, message: "User updated successfully" });
+      res
+        .status(200)
+        .json({ success: true, message: "User updated successfully" });
     } catch (error) {
       res.status(500).json(ErrorMessage.serverError());
     }

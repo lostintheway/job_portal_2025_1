@@ -2,6 +2,10 @@ class ErrorMessage {
   static authRequired(): any {
     return { success: false, error: "Authentication required" };
   }
+  //authfailed
+  static authFailed(): any {
+    return { success: false, error: "Authentication failed" };
+  }
   static notFound(): any {
     return { success: false, error: "Data not found" };
   }

@@ -2,9 +2,6 @@ import { UserSelect } from "../db/schema";
 import UserModel from "../models/user.model";
 
 class UserService {
-  static async getAllUsers(): Promise<UserSelect[]> {
-    return UserModel.getAllUsers();
-  }
   static async getUserByEmail(email: string): Promise<UserSelect | undefined> {
     return UserModel.getUserByEmail(email);
   }
