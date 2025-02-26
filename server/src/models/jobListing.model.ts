@@ -1,7 +1,6 @@
 import { eq, and, desc, like, or } from "drizzle-orm";
 import { db } from "../config/db";
 import { jobListings, employerProfiles, JobListingSelect } from "../db/schema";
-import { CommonFields } from "../interfaces/CommonFields";
 
 class JobListingModel {
   static async getAllJobListings(): Promise<JobListingSelect[]> {
@@ -12,6 +11,20 @@ class JobListingModel {
         and(eq(jobListings.isDeleted, false), eq(jobListings.isActive, true))
       )
       .orderBy(desc(jobListings.createdDate));
+  }
+
+  // Get job listing by page and size
+  static async getJobListingsByPageAndSize(
+    page: number,
+    size: number
+  ): Promise<JobListingSelect[]> {
+    const offset = (page - 1) * size;
+    return db
+      .select()
+      .from(jobListings)
+      .where(eq(jobListings.isDeleted, false))
+      .limit(size)
+      .offset(offset);
   }
 
   static async getJobListingById(
