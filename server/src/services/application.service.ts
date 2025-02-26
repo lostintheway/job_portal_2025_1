@@ -1,19 +1,20 @@
-import ApplicationModel, { Application } from "../models/application.model";
+import { ApplicationSelect } from "../db/schema";
+import ApplicationModel from "../models/application.model";
 
 class ApplicationService {
-  static async getAllApplications(): Promise<Application[]> {
+  static async getAllApplications(): Promise<ApplicationSelect[]> {
     return ApplicationModel.getAllApplications();
   }
 
   static async getApplicationById(
     applicationId: number
-  ): Promise<Application | undefined> {
+  ): Promise<ApplicationSelect | undefined> {
     return ApplicationModel.getApplicationById(applicationId);
   }
 
   static async createApplication(
     applicationData: Omit<
-      Application,
+      ApplicationSelect,
       | "applicationId"
       | "createdDate"
       | "updatedDate"
@@ -28,7 +29,7 @@ class ApplicationService {
     applicationId: number,
     applicationData: Partial<
       Omit<
-        Application,
+        ApplicationSelect,
         | "applicationId"
         | "createdDate"
         | "updatedDate"

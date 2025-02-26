@@ -1,26 +1,26 @@
 import { Request, Response } from "express";
-import ProfileService from "../services/profile.service";
+import JobSeekerProfileModel from "../models/jobseekerProfile.model";
+import EmployerProfileModel from "../models/employerProfile.model";
 
 class ProfileController {
-  static async getAllProfiles(req: Request, res: Response): Promise<void> {
+  // JobSeeker Profile Methods
+  static async getJobSeekerProfile(req: Request, res: Response): Promise<void> {
     try {
-      const profiles = await ProfileService.getAllProfiles();
-      res.json({ success: true, data: profiles });
-    } catch (error) {
-      res
-        .status(500)
-        .json({ success: false, error: "Failed to fetch profiles" });
-    }
-  }
+      if (!req.user) {
+        res
+          .status(401)
+          .json({ success: false, error: "Authentication required" });
+        return;
+      }
 
-  static async getProfileById(req: Request, res: Response): Promise<void> {
-    try {
-      const profileId = parseInt(req.params.profileId);
-      const profile = await ProfileService.getProfileById(profileId);
+      const profile = await JobSeekerProfileModel.getProfileByUserId(
+        req.user.userId
+      );
       if (!profile) {
         res.status(404).json({ success: false, error: "Profile not found" });
         return;
       }
+
       res.json({ success: true, data: profile });
     } catch (error) {
       res
@@ -29,10 +29,25 @@ class ProfileController {
     }
   }
 
-  static async createProfile(req: Request, res: Response): Promise<void> {
+  static async createJobSeekerProfile(
+    req: Request,
+    res: Response
+  ): Promise<void> {
     try {
-      const profileData = req.body;
-      const profileId = await ProfileService.createProfile(profileData);
+      if (!req.user) {
+        res
+          .status(401)
+          .json({ success: false, error: "Authentication required" });
+        return;
+      }
+
+      const profileData = {
+        ...req.body,
+        userId: req.user.userId,
+        createdBy: req.user.userId,
+      };
+
+      const profileId = await JobSeekerProfileModel.createProfile(profileData);
       res.status(201).json({ success: true, data: { profileId } });
     } catch (error) {
       res
@@ -41,19 +56,33 @@ class ProfileController {
     }
   }
 
-  static async updateProfile(req: Request, res: Response): Promise<void> {
+  static async updateJobSeekerProfile(
+    req: Request,
+    res: Response
+  ): Promise<void> {
     try {
-      const profileId = parseInt(req.params.profileId);
-      const profileData = req.body;
-      const success = await ProfileService.updateProfile(
-        profileId,
-        profileData
+      if (!req.user) {
+        res
+          .status(401)
+          .json({ success: false, error: "Authentication required" });
+        return;
+      }
+
+      const profile = await JobSeekerProfileModel.getProfileByUserId(
+        req.user.userId
       );
-      if (!success) {
+      if (!profile) {
         res.status(404).json({ success: false, error: "Profile not found" });
         return;
       }
-      res.json({ success: true });
+
+      const profileData = {
+        ...req.body,
+        updatedBy: req.user.userId,
+      };
+
+      await JobSeekerProfileModel.updateProfile(profile.profileId, profileData);
+      res.json({ success: true, message: "Profile updated successfully" });
     } catch (error) {
       res
         .status(500)
@@ -61,20 +90,124 @@ class ProfileController {
     }
   }
 
-  static async deleteProfile(req: Request, res: Response): Promise<void> {
+  // Employer Profile Methods
+  static async getEmployerProfile(req: Request, res: Response): Promise<void> {
     try {
-      const profileId = parseInt(req.params.profileId);
-      const deletedBy = parseInt(req.body.deletedBy);
-      const success = await ProfileService.deleteProfile(profileId, deletedBy);
-      if (!success) {
+      if (!req.user) {
+        res
+          .status(401)
+          .json({ success: false, error: "Authentication required" });
+        return;
+      }
+
+      const profile = await EmployerProfileModel.getEmployerProfileByUserId(
+        req.user.userId
+      );
+      if (!profile) {
         res.status(404).json({ success: false, error: "Profile not found" });
         return;
       }
-      res.json({ success: true });
+
+      res.json({ success: true, data: profile });
     } catch (error) {
       res
         .status(500)
-        .json({ success: false, error: "Failed to delete profile" });
+        .json({ success: false, error: "Failed to fetch profile" });
+    }
+  }
+
+  static async createEmployerProfile(
+    req: Request,
+    res: Response
+  ): Promise<void> {
+    try {
+      if (!req.user) {
+        res
+          .status(401)
+          .json({ success: false, error: "Authentication required" });
+        return;
+      }
+
+      const profileData = {
+        ...req.body,
+        userId: req.user.userId,
+        createdBy: req.user.userId,
+      };
+
+      const employerId = await EmployerProfileModel.createEmployerProfile(
+        profileData
+      );
+      res.status(201).json({ success: true, data: { employerId } });
+    } catch (error) {
+      res
+        .status(500)
+        .json({ success: false, error: "Failed to create profile" });
+    }
+  }
+
+  static async updateEmployerProfile(
+    req: Request,
+    res: Response
+  ): Promise<void> {
+    try {
+      if (!req.user) {
+        res
+          .status(401)
+          .json({ success: false, error: "Authentication required" });
+        return;
+      }
+
+      const profile = await EmployerProfileModel.getEmployerProfileByUserId(
+        req.user.userId
+      );
+      if (!profile) {
+        res.status(404).json({ success: false, error: "Profile not found" });
+        return;
+      }
+
+      const profileData = {
+        ...req.body,
+        updatedBy: req.user.userId,
+      };
+
+      await EmployerProfileModel.updateEmployerProfile(
+        profile.employerId,
+        profileData
+      );
+      res.json({ success: true, message: "Profile updated successfully" });
+    } catch (error) {
+      res
+        .status(500)
+        .json({ success: false, error: "Failed to update profile" });
+    }
+  }
+
+  // Admin Methods
+  static async getAllJobSeekerProfiles(
+    req: Request,
+    res: Response
+  ): Promise<void> {
+    try {
+      const profiles = await JobSeekerProfileModel.getAllProfiles();
+      res.json({ success: true, data: profiles });
+    } catch (error) {
+      res
+        .status(500)
+        .json({ success: false, error: "Failed to fetch profiles" });
+    }
+  }
+
+  static async getAllEmployerProfiles(
+    req: Request,
+    res: Response
+  ): Promise<void> {
+    try {
+      const profiles = await EmployerProfileModel.getAllEmployerProfiles();
+      res.json({ success: true, data: profiles });
+    } catch (error) {
+      res
+        .status(500)
+        .json({ success: false, error: "Failed to fetch profiles" });
     }
   }
 }
