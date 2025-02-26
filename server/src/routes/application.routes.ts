@@ -16,7 +16,7 @@ router.get(
   "/my-applications",
   authenticate,
   isJobSeeker,
-  ApplicationController.getMyApplications
+  ApplicationController.getApplicationsByUserId
 );
 
 // Employer routes
@@ -24,10 +24,10 @@ router.get(
   "/job/:jobId",
   authenticate,
   isEmployer,
-  ApplicationController.getApplicationsByJob
+  ApplicationController.getApplicationsByJobId
 );
 router.put(
-  "/:applicationId/status",
+  "/status/:applicationId",
   authenticate,
   isEmployer,
   ApplicationController.updateApplicationStatus

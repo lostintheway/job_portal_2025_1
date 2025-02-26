@@ -1,7 +1,7 @@
 import express from "express";
-import JobListingController from "../controllers/jobListing.controller";
 import { authenticate } from "../middleware/auth";
-import { isAdmin, isEmployer, isAdminOrEmployer } from "../middleware/roleAuth";
+import { isEmployer, isAdminOrEmployer } from "../middleware/roleAuth";
+import JobListingController from "../controllers/jobListing.controller";
 
 const router = express.Router();
 
@@ -10,9 +10,8 @@ router.get("/", JobListingController.getAllJobListings);
 router.get("/:jobId", JobListingController.getJobListingById);
 router.get(
   "/category/:categoryId",
-  JobListingController.getJobListingsByCategory
+  JobListingController.getJobListingsByCategoryId
 );
-router.get("/search", JobListingController.searchJobListings);
 
 // Protected routes
 router.post(
@@ -37,7 +36,7 @@ router.get(
   "/employer/:employerId",
   authenticate,
   isAdminOrEmployer,
-  JobListingController.getJobListingsByEmployer
+  JobListingController.getJobListingsByEmployerId
 );
 
 export default router;

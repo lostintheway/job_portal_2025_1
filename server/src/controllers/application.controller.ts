@@ -73,6 +73,36 @@ class ApplicationController {
       res.status(500).json(ErrorMessage.serverError());
     }
   }
+
+  static async updateApplicationStatus(
+    req: Request,
+    res: Response
+  ): Promise<void> {
+    try {
+      if (!req.user) {
+        res.status(401).json(ErrorMessage.authRequired());
+        return;
+      }
+      const applicationId = parseInt(req.params.applicationId);
+      const application = await ApplicationService.updateApplicationStatus(
+        applicationId,
+        req.body.status as
+          | "pending"
+          | "shortlisted"
+          | "interviewed"
+          | "rejected"
+          | "accepted"
+      );
+      if (!application) {
+        res.status(404).json(ErrorMessage.notFound());
+        return;
+      }
+      res.status(200).json({ success: true, data: application });
+    } catch (error) {
+      res.status(500).json(ErrorMessage.serverError());
+    }
+  }
+
   static async updateApplication(req: Request, res: Response): Promise<void> {
     try {
       if (!req.user) {

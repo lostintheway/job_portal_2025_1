@@ -27,6 +27,36 @@ class JobListingModel {
       .offset(offset);
   }
 
+  // static async getJobListingsByCategoryId(
+  //   req: Request,
+  //   res: Response
+  // ): Promise<void> {
+  //   try {
+  //     const categoryId = parseInt(req.params.categoryId);
+  //     const jobListings = await JobListingService.getJobListingsByCategoryId(
+  //       categoryId
+  //     );
+  //     res.status(200).json({ success: true, data: jobListings });
+  //   } catch (error) {
+  //     res.status(500).json(ErrorMessage.serverError());
+  //   }
+  // }
+  static async getJobListingsByCategoryId(
+    categoryId: number
+  ): Promise<JobListingSelect[]> {
+    return db
+      .select()
+      .from(jobListings)
+      .where(
+        and(
+          eq(jobListings.categoryId, categoryId),
+          eq(jobListings.isDeleted, false),
+          eq(jobListings.isActive, true)
+        )
+      )
+      .orderBy(desc(jobListings.createdDate));
+  }
+
   static async getJobListingById(
     jobId: number
   ): Promise<JobListingSelect | undefined> {

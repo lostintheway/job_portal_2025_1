@@ -64,6 +64,21 @@ class ApplicationService {
   ): Promise<boolean> {
     return ApplicationModel.updateApplication(applicationId, applicationData);
   }
+  // update application status
+  static async updateApplicationStatus(
+    applicationId: number,
+    applicationStatus:
+      | "pending"
+      | "shortlisted"
+      | "interviewed"
+      | "rejected"
+      | "accepted"
+  ): Promise<boolean> {
+    return ApplicationModel.updateApplicationStatus(
+      applicationId,
+      applicationStatus
+    );
+  }
 
   static async deleteApplication(
     applicationId: number,

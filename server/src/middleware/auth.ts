@@ -28,7 +28,7 @@ export const authenticate = async (
     // Verify token
     const decoded = jwt.verify(
       token,
-      process.env.JWT_SECRET || "your-secret-key"
+      process.env.JWT_SECRET || "mysecret_for_testing_dshajkdsadhsajkd"
     ) as JwtPayload;
 
     // Get user from database
@@ -47,7 +47,7 @@ export const authenticate = async (
     }
 
     // Attach user to request object
-    req.user = user;
+    req.user = { userId: user.userId, role: user.role };
     next();
   } catch (error) {
     res
@@ -56,12 +56,12 @@ export const authenticate = async (
   }
 };
 
-export const authorizeOrganization = (
+export const authorizeEmployer = (
   req: Request,
   res: Response,
   next: NextFunction
 ): void => {
-  if (req.user?.role !== "organization") {
+  if (req.user?.role !== "employer") {
     res.status(403).json({ message: "Access denied" });
     return;
   }

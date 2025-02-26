@@ -13,6 +13,12 @@ class JobListingService {
     return JobListingModel.getJobListingsByPageAndSize(page, size);
   }
 
+  static async getJobListingsByCategoryId(
+    categoryId: number
+  ): Promise<JobListingSelect[]> {
+    return JobListingModel.getJobListingsByCategoryId(categoryId);
+  }
+
   static async getJobListingById(
     jobId: number
   ): Promise<JobListingSelect | undefined> {
@@ -37,7 +43,9 @@ class JobListingService {
     return JobListingModel.getJobListingsByCategory(categoryId);
   }
 
-  static async searchJobListings(searchTerm: string): Promise<JobListingSelect[]> {
+  static async searchJobListings(
+    searchTerm: string
+  ): Promise<JobListingSelect[]> {
     return JobListingModel.searchJobListings(searchTerm);
   }
 
@@ -48,7 +56,12 @@ class JobListingService {
   static async createJobListing(
     jobData: Omit<
       JobListingSelect,
-      "jobId" | "createdDate" | "updatedDate" | "deletedDate" | "isDeleted" | "viewCount"
+      | "jobId"
+      | "createdDate"
+      | "updatedDate"
+      | "deletedDate"
+      | "isDeleted"
+      | "viewCount"
     >
   ): Promise<number> {
     return JobListingModel.createJobListing(jobData);

@@ -47,6 +47,22 @@ class JobListingController {
     }
   }
 
+  // get all job listings by category id
+  static async getJobListingsByCategoryId(
+    req: Request,
+    res: Response
+  ): Promise<void> {
+    try {
+      const categoryId = parseInt(req.params.categoryId);
+      const jobListings = await JobListingService.getJobListingsByCategoryId(
+        categoryId
+      );
+      res.status(200).json({ success: true, data: jobListings });
+    } catch (error) {
+      res.status(500).json(ErrorMessage.serverError());
+    }
+  }
+
   static async createJobListing(req: Request, res: Response): Promise<void> {
     try {
       if (!req.user) {

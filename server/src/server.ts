@@ -1,11 +1,11 @@
 import express, { Application, Request, Response } from "express";
 import userRoutes from "./routes/user.routes";
-import profileRoutes from "./routes/profile.routes";
-import vendorOrganizationRoutes from "./routes/vendorOrganization.routes";
 import categoryRoutes from "./routes/category.routes";
-import jobDescriptionRoutes from "./routes/jobDescription.routes";
 import applicationRoutes from "./routes/application.routes";
 import bookmarkRoutes from "./routes/bookmark.routes";
+import jobListingRoutes from "./routes/jobListing.routes";
+// import JobSeekerProfileRoutes from "./routes/";
+
 import cors from "cors";
 
 const app: Application = express();
@@ -47,10 +47,8 @@ app.use(express.json()); // for parsing application/json
 
 // Use routes
 app.use("/users", userRoutes);
-app.use("/profiles", profileRoutes);
-app.use("/vendor-organizations", vendorOrganizationRoutes);
 app.use("/categories", categoryRoutes);
-app.use("/job-descriptions", jobDescriptionRoutes);
+app.use("/job-descriptions", jobListingRoutes);
 app.use("/applications", applicationRoutes);
 app.use("/bookmarks", bookmarkRoutes);
 

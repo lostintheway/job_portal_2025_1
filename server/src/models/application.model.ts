@@ -113,6 +113,20 @@ class ApplicationModel {
     return result.insertId;
   }
 
+  // update application status
+  static async updateApplicationStatus(
+    applicationId: number,
+    status: "pending" | "shortlisted" | "interviewed" | "rejected" | "accepted"
+  ): Promise<boolean> {
+    await db
+      .update(applications)
+      .set({ status, updatedDate: new Date() })
+      .where(eq(applications.applicationId, applicationId));
+    // Generated SQL:
+    // UPDATE `applications` SET `status` =?, `updated_date` =? WHERE (`applications`.`application_id` =?)
+    return true;
+  }
+
   static async updateApplication(
     applicationId: number,
     applicationData: Partial<
