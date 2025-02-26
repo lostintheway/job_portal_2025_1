@@ -1,4 +1,5 @@
-import CategoryModel, { CategorySelect } from "../models/category.model";
+import { CategorySelect } from "../db/schema";
+import CategoryModel from "../models/category.model";
 
 class CategoryService {
   static async getAllCategories(): Promise<CategorySelect[]> {

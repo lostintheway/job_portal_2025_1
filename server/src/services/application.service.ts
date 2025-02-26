@@ -5,6 +5,30 @@ class ApplicationService {
   static async getAllApplications(): Promise<ApplicationSelect[]> {
     return ApplicationModel.getAllApplications();
   }
+  static async getApplicationsByUserId(
+    userId: number
+  ): Promise<ApplicationSelect[]> {
+    return ApplicationModel.getApplicationsByUserId(userId);
+  }
+  static async getApplicationsByJobId(
+    jobId: number
+  ): Promise<ApplicationSelect[]> {
+    return ApplicationModel.getApplicationsByJobId(jobId);
+  }
+  // getApplicationsByPageAndSize
+  static async getApplicationsByPageAndSize(
+    page: number,
+    size: number
+  ): Promise<ApplicationSelect[]> {
+    return ApplicationModel.getApplicationsByPageAndSize(page, size);
+  }
+  // hasUserAppliedToJob
+  static async hasUserAppliedToJob(
+    userId: number,
+    jobId: number
+  ): Promise<boolean> {
+    return ApplicationModel.hasUserAppliedToJob(userId, jobId);
+  }
 
   static async getApplicationById(
     applicationId: number

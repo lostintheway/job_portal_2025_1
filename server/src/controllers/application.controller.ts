@@ -1,18 +1,14 @@
 import { Request, Response } from "express";
 import ApplicationService from "../services/application.service";
-import { eq, and } from "drizzle-orm";
-import { db } from "../config/db";
-import { applications, jobListings, employerProfiles } from "../db/schema";
+import ErrorMessage from "../models/errorMessage.model";
 
 class ApplicationController {
   static async getAllApplications(req: Request, res: Response): Promise<void> {
     try {
       const applications = await ApplicationService.getAllApplications();
       res.status(200).json({ success: true, data: applications });
-    } catch (error) {
-      res
-        .status(500)
-        .json({ success: false, error: "Failed to get applications" });
+    } catch (error: any) {
+      res.status(500).json({ success: false, error: error.message });
     }
   }
 
@@ -22,217 +18,100 @@ class ApplicationController {
       const application = await ApplicationService.getApplicationById(
         applicationId
       );
-
       if (!application) {
-        res
-          .status(404)
-          .json({ success: false, error: "Application not found" });
+        res.status(404).json(ErrorMessage.notFound());
         return;
       }
-
       res.status(200).json({ success: true, data: application });
     } catch (error) {
-      res
-        .status(500)
-        .json({ success: false, error: "Failed to get application" });
+      res.status(500).json(ErrorMessage.serverError());
     }
   }
 
-  static async getMyApplications(req: Request, res: Response): Promise<void> {
-    try {
-      if (!req.user) {
-        res
-          .status(401)
-          .json({ success: false, error: "Authentication required" });
-        return;
-      }
-
-      const userId = req.user.userId;
-      const userApplications = await db
-        .select()
-        .from(applications)
-        .where(
-          and(
-            eq(applications.userId, userId),
-            eq(applications.isDeleted, false)
-          )
-        );
-
-      res.status(200).json({ success: true, data: userApplications });
-    } catch (error) {
-      res
-        .status(500)
-        .json({ success: false, error: "Failed to get applications" });
-    }
-  }
-
-  static async getApplicationsByJob(
+  static async getApplicationsByUserId(
     req: Request,
     res: Response
   ): Promise<void> {
     try {
       if (!req.user) {
-        res
-          .status(401)
-          .json({ success: false, error: "Authentication required" });
+        res.status(401).json(ErrorMessage.authRequired());
         return;
       }
-
-      const jobId = parseInt(req.params.jobId);
       const userId = req.user.userId;
-
-      // Verify the job belongs to the employer
-      const job = await db
-        .select()
-        .from(jobListings)
-        .leftJoin(
-          employerProfiles,
-          eq(jobListings.employerId, employerProfiles.employerId)
-        )
-        .where(
-          and(eq(jobListings.jobId, jobId), eq(employerProfiles.userId, userId))
-        )
-        .limit(1)
-        .then((rows) => rows[0]);
-
-      if (!job && req.user.role !== "admin") {
-        res.status(403).json({ success: false, error: "Access denied" });
-        return;
-      }
-
-      const jobApplications = await db
-        .select()
-        .from(applications)
-        .where(
-          and(eq(applications.jobId, jobId), eq(applications.isDeleted, false))
-        );
-
-      res.status(200).json({ success: true, data: jobApplications });
+      const applications = await ApplicationService.getApplicationsByUserId(
+        userId
+      );
+      res.status(200).json({ success: true, data: applications });
     } catch (error) {
-      res
-        .status(500)
-        .json({ success: false, error: "Failed to get applications" });
+      res.status(500).json(ErrorMessage.serverError());
     }
   }
 
+  static async getApplicationsByJobId(
+    req: Request,
+    res: Response
+  ): Promise<void> {
+    try {
+      const jobId = parseInt(req.params.jobId);
+      const applications = await ApplicationService.getApplicationsByJobId(
+        jobId
+      );
+      res.status(200).json({ success: true, data: applications });
+    } catch (error) {
+      res.status(500).json(ErrorMessage.serverError());
+    }
+  }
   static async createApplication(req: Request, res: Response): Promise<void> {
     try {
       if (!req.user) {
-        res
-          .status(401)
-          .json({ success: false, error: "Authentication required" });
+        res.status(401).json(ErrorMessage.authRequired());
         return;
       }
-
-      const applicationData = {
-        ...req.body,
-        userId: req.user.userId,
-        createdBy: req.user.userId,
-      };
-
-      const applicationId = await ApplicationService.createApplication(
-        applicationData
-      );
-      res.status(201).json({ success: true, data: { applicationId } });
+      const application = await ApplicationService.createApplication(req.body);
+      res.status(201).json({ success: true, data: application });
     } catch (error) {
-      res
-        .status(500)
-        .json({ success: false, error: "Failed to create application" });
+      res.status(500).json(ErrorMessage.serverError());
     }
   }
-
-  static async updateApplicationStatus(
-    req: Request,
-    res: Response
-  ): Promise<void> {
+  static async updateApplication(req: Request, res: Response): Promise<void> {
     try {
       if (!req.user) {
-        res
-          .status(401)
-          .json({ success: false, error: "Authentication required" });
+        res.status(401).json(ErrorMessage.authRequired());
         return;
       }
-
       const applicationId = parseInt(req.params.applicationId);
-      const { status, interviewDate, interviewNotes, rejectionReason } =
-        req.body;
-
-      // Verify the application is for a job owned by the employer
-      const application = await db
-        .select()
-        .from(applications)
-        .leftJoin(jobListings, eq(applications.jobId, jobListings.jobId))
-        .leftJoin(
-          employerProfiles,
-          eq(jobListings.employerId, employerProfiles.employerId)
-        )
-        .where(
-          and(
-            eq(applications.applicationId, applicationId),
-            eq(employerProfiles.userId, req.user.userId)
-          )
-        )
-        .limit(1)
-        .then((rows) => rows[0]);
-
-      if (!application && req.user.role !== "admin") {
-        res.status(403).json({ success: false, error: "Access denied" });
+      const application = await ApplicationService.updateApplication(
+        applicationId,
+        req.body
+      );
+      if (!application) {
+        res.status(404).json(ErrorMessage.notFound());
         return;
       }
-
-      const updateData = {
-        status,
-        updatedBy: req.user.userId,
-      };
-
-      if (status === "interviewed" && interviewDate) {
-        Object.assign(updateData, { interviewDate, interviewNotes });
-      }
-
-      if (status === "rejected" && rejectionReason) {
-        Object.assign(updateData, { rejectionReason });
-      }
-
-      await ApplicationService.updateApplication(applicationId, updateData);
-      res
-        .status(200)
-        .json({ success: true, message: "Application status updated" });
+      res.status(200).json({ success: true, data: application });
     } catch (error) {
-      res
-        .status(500)
-        .json({ success: false, error: "Failed to update application status" });
+      res.status(500).json(ErrorMessage.serverError());
     }
   }
 
   static async deleteApplication(req: Request, res: Response): Promise<void> {
     try {
       if (!req.user) {
-        res
-          .status(401)
-          .json({ success: false, error: "Authentication required" });
+        res.status(401).json(ErrorMessage.authRequired());
         return;
       }
-
       const applicationId = parseInt(req.params.applicationId);
-      const success = await ApplicationService.deleteApplication(
+      const application = await ApplicationService.deleteApplication(
         applicationId,
         req.user.userId
       );
-
-      if (!success) {
-        res
-          .status(404)
-          .json({ success: false, error: "Application not found" });
+      if (!application) {
+        res.status(404).json(ErrorMessage.notFound());
         return;
       }
-
-      res
-        .status(200)
-        .json({ success: true, message: "Application deleted successfully" });
+      res.status(200).json({ success: true, data: application });
     } catch (error) {
-      res
-        .status(500)
-        .json({ success: false, error: "Failed to delete application" });
+      res.status(500).json(ErrorMessage.serverError());
     }
   }
 }

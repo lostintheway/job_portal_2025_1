@@ -1,7 +1,6 @@
 import { eq, and } from "drizzle-orm";
 import { db } from "../config/db";
 import { bookmarks, BookmarkSelect } from "../db/schema";
-import { CommonFields } from "../interfaces/CommonFields";
 
 class BookmarkModel {
   static async getAllBookmarks(): Promise<BookmarkSelect[]> {
@@ -29,6 +28,14 @@ class BookmarkModel {
       .select()
       .from(bookmarks)
       .where(and(eq(bookmarks.userId, userId), eq(bookmarks.isDeleted, false)));
+  }
+
+  // getBookmarksByJobId
+  static async getBookmarksByJobId(jobId: number): Promise<BookmarkSelect[]> {
+    return db
+      .select()
+      .from(bookmarks)
+      .where(and(eq(bookmarks.jobId, jobId), eq(bookmarks.isDeleted, false)));
   }
 
   static async isJobBookmarkedByUser(

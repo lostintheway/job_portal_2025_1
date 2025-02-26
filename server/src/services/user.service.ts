@@ -1,37 +1,27 @@
-import UserModel, { UserSelect } from "../models/user.model";
+import { UserSelect } from "../db/schema";
+import UserModel from "../models/user.model";
 
 class UserService {
   static async getAllUsers(): Promise<UserSelect[]> {
     return UserModel.getAllUsers();
+  }
+  static async getUserByEmail(email: string): Promise<UserSelect | undefined> {
+    return UserModel.getUserByEmail(email);
   }
 
   static async getUserById(userId: number): Promise<UserSelect | undefined> {
     return UserModel.getUserById(userId);
   }
 
-  static async createUser(
-    userData: Omit<
-      UserSelect,
-      "userId" | "createdDate" | "updatedDate" | "deletedDate" | "isDeleted"
-    >
-  ): Promise<number> {
+  static async createUser(userData: UserSelect): Promise<number> {
     return UserModel.createUser(userData);
   }
 
   static async updateUser(
     userId: number,
-    userData: Partial<
-      Omit<
-        UserSelect,
-        "userId" | "createdDate" | "updatedDate" | "deletedDate" | "isDeleted"
-      >
-    >
+    userData: UserSelect
   ): Promise<boolean> {
     return UserModel.updateUser(userId, userData);
-  }
-
-  static async deleteUser(userId: number, deletedBy: number): Promise<boolean> {
-    return UserModel.deleteUser(userId, deletedBy);
   }
 }
 

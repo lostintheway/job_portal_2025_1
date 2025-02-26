@@ -1,4 +1,5 @@
-import BookmarkModel, { BookmarkSelect } from "../models/bookmark.model";
+import { BookmarkSelect } from "../db/schema";
+import BookmarkModel from "../models/bookmark.model";
 
 class BookmarkService {
   static async getAllBookmarks(): Promise<BookmarkSelect[]> {
@@ -9,6 +10,23 @@ class BookmarkService {
     bookmarkId: number
   ): Promise<BookmarkSelect | undefined> {
     return BookmarkModel.getBookmarkById(bookmarkId);
+  }
+  // getBookmarksByUserId
+  static async getBookmarksByUserId(userId: number): Promise<BookmarkSelect[]> {
+    return BookmarkModel.getBookmarksByUserId(userId);
+  }
+
+  // isJobBookmarkedByUser
+  static async isJobBookmarkedByUser(
+    userId: number,
+    jobId: number
+  ): Promise<boolean> {
+    return BookmarkModel.isJobBookmarkedByUser(userId, jobId);
+  }
+
+  // getBookmarksByJobId
+  static async getBookmarksByJobId(jobId: number): Promise<BookmarkSelect[]> {
+    return BookmarkModel.getBookmarksByJobId(jobId);
   }
 
   static async createBookmark(
