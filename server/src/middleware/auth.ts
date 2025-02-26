@@ -36,7 +36,6 @@ export const authenticate = async (
       .select()
       .from(users)
       .where(eq(users.userId, decoded.userId))
-      .where(eq(users.isDeleted, false))
       .limit(1)
       .then((rows) => rows[0]);
 

@@ -32,7 +32,6 @@ export const users = mysqlTable("users", {
   address: varchar("address", { length: 255 }).notNull(),
   role: mysqlEnum("role", ["jobseeker", "employer", "admin"]).notNull(),
   profileImage: varchar("profile_image", { length: 255 }),
-  ...commonFields,
 });
 
 // JobSeeker Profiles table
