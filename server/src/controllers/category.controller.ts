@@ -1,6 +1,6 @@
-import { Request, Response } from "express";
-import CategoryService from "../services/category.service";
-import ErrorMessage from "../models/errorMessage.model";
+import type { Request, Response } from "express";
+import CategoryService from "../services/category.service.ts";
+import ErrorMessage from "../models/errorMessage.model.ts";
 
 class CategoryController {
   static async getAllCategories(req: Request, res: Response): Promise<void> {

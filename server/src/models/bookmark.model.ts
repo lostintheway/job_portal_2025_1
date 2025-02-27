@@ -1,6 +1,6 @@
 import { eq, and } from "drizzle-orm";
-import { db } from "../config/db";
-import { bookmarks, BookmarkSelect } from "../db/schema";
+import { db } from "../config/db.ts";
+import { bookmarks, type BookmarkSelect } from "../db/schema.ts";
 
 class BookmarkModel {
   static async getAllBookmarks(): Promise<BookmarkSelect[]> {

@@ -1,6 +1,6 @@
-import { Request, Response } from "express";
-import ApplicationService from "../services/application.service";
-import ErrorMessage from "../models/errorMessage.model";
+import type { Request, Response } from "express";
+import ApplicationService from "../services/application.service.ts";
+import ErrorMessage from "../models/errorMessage.model.ts";
 
 class ApplicationController {
   static async getAllApplications(req: Request, res: Response): Promise<void> {

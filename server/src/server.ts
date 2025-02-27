@@ -1,9 +1,10 @@
-import express, { Application, Request, Response } from "express";
-import userRoutes from "./routes/user.routes";
-import categoryRoutes from "./routes/category.routes";
-import applicationRoutes from "./routes/application.routes";
-import bookmarkRoutes from "./routes/bookmark.routes";
-import jobListingRoutes from "./routes/jobListing.routes";
+import express from "express";
+import type { Application, Request, Response } from "express";
+import userRoutes from "./routes/user.routes.ts";
+import categoryRoutes from "./routes/category.routes.ts";
+import applicationRoutes from "./routes/application.routes.ts";
+import bookmarkRoutes from "./routes/bookmark.routes.ts";
+import jobListingRoutes from "./routes/jobListing.routes.ts";
 // import JobSeekerProfileRoutes from "./routes/";
 
 import cors from "cors";

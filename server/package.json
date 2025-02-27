@@ -3,9 +3,10 @@
   "version": "1.0.0",
   "private": true,
   "main": "src/server.ts",
+  "type": "module",
   "scripts": {
-    "start": "nodemon --exec ts-node src/server.ts",
-    "dev": "nodemon --exec ts-node src/server.ts",
+    "start": "node --experimental-strip-types --watch src/server.ts",
+    "dev": "node --experimental-strip-types --watch src/server.ts",
     "tsc": "tsc --init",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",

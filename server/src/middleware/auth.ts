@@ -1,7 +1,7 @@
-import { Request, Response, NextFunction } from "express";
+import type { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
-import { db } from "../config/db";
-import { users } from "../db/schema";
+import { db } from "../config/db.ts";
+import { users } from "../db/schema.ts";
 import { eq } from "drizzle-orm";
 
 interface JwtPayload {

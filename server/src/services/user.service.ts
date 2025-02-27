@@ -1,5 +1,5 @@
-import { UserSelect } from "../db/schema";
-import UserModel from "../models/user.model";
+import type { UserSelect } from "../db/schema";
+import UserModel from "../models/user.model.ts";
 
 class UserService {
   static async getUserByEmail(email: string): Promise<UserSelect | undefined> {

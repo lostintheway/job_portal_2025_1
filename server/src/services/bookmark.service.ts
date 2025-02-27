@@ -1,5 +1,5 @@
-import { BookmarkSelect } from "../db/schema";
-import BookmarkModel from "../models/bookmark.model";
+import type { BookmarkSelect } from "../db/schema";
+import BookmarkModel from "../models/bookmark.model.ts";
 
 class BookmarkService {
   static async getAllBookmarks(): Promise<BookmarkSelect[]> {

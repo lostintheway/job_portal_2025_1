@@ -1,6 +1,6 @@
-import { Request, Response } from "express";
-import JobListingService from "../services/jobListing.service";
-import ErrorMessage from "../models/errorMessage.model";
+import type { Request, Response } from "express";
+import JobListingService from "../services/jobListing.service.ts";
+import ErrorMessage from "../models/errorMessage.model.ts";
 
 class JobListingController {
   static async getAllJobListings(req: Request, res: Response): Promise<void> {

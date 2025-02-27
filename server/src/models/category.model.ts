@@ -1,7 +1,6 @@
 import { and, eq } from "drizzle-orm";
-import { categories, CategorySelect } from "../db/schema";
-import { db } from "../config/db";
-import { CommonFields } from "../interfaces/CommonFields";
+import { categories, type CategorySelect } from "../db/schema.ts";
+import { db } from "../config/db.ts";
 
 class CategoryModel {
   static async getAllCategories(): Promise<CategorySelect[]> {

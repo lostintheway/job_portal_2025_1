@@ -1,5 +1,5 @@
-import { JobListingSelect } from "../db/schema";
-import JobListingModel from "../models/jobListing.model";
+import type { JobListingSelect } from "../db/schema";
+import JobListingModel from "../models/jobListing.model.ts";
 
 class JobListingService {
   static async getAllJobListings(): Promise<JobListingSelect[]> {

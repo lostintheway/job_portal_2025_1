@@ -1,7 +1,7 @@
 import express from "express";
-import ApplicationController from "../controllers/application.controller";
-import { authenticate } from "../middleware/auth";
-import { isAdmin, isJobSeeker, isEmployer } from "../middleware/roleAuth";
+import ApplicationController from "../controllers/application.controller.ts";
+import { authenticate } from "../middleware/auth.ts";
+import { isAdmin, isJobSeeker, isEmployer } from "../middleware/roleAuth.ts";
 
 const router = express.Router();
 

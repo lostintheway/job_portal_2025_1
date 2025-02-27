@@ -1,6 +1,6 @@
-import { Request, Response } from "express";
-import BookmarkService from "../services/bookmark.service";
-import ErrorMessage from "../models/errorMessage.model";
+import type { Request, Response } from "express";
+import BookmarkService from "../services/bookmark.service.ts";
+import ErrorMessage from "../models/errorMessage.model.ts";
 
 class BookmarkController {
   static async getAllBookmarks(req: Request, res: Response): Promise<void> {
@@ -26,7 +26,10 @@ class BookmarkController {
     }
   }
 
-  static async getBookmarksByUserId(req: Request, res: Response): Promise<void> {
+  static async getBookmarksByUserId(
+    req: Request,
+    res: Response
+  ): Promise<void> {
     try {
       if (!req.user) {
         res.status(401).json(ErrorMessage.authRequired());
@@ -60,7 +63,10 @@ class BookmarkController {
         return;
       }
       const bookmarkId = parseInt(req.params.bookmarkId);
-      const bookmark = await BookmarkService.deleteBookmark(bookmarkId, req.user.userId);
+      const bookmark = await BookmarkService.deleteBookmark(
+        bookmarkId,
+        req.user.userId
+      );
       if (!bookmark) {
         res.status(404).json(ErrorMessage.notFound());
         return;

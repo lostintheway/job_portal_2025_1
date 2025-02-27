@@ -1,5 +1,5 @@
 import express from "express";
-import BookmarkController from "../controllers/bookmark.controller";
+import BookmarkController from "../controllers/bookmark.controller.ts";
 
 const router: express.Router = express.Router();
 

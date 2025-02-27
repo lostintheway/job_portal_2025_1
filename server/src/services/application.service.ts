@@ -1,5 +1,5 @@
-import { ApplicationSelect } from "../db/schema";
-import ApplicationModel from "../models/application.model";
+import type { ApplicationSelect } from "../db/schema";
+import ApplicationModel from "../models/application.model.ts";
 
 class ApplicationService {
   static async getAllApplications(): Promise<ApplicationSelect[]> {

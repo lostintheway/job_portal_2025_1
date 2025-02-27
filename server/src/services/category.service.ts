@@ -1,5 +1,5 @@
-import { CategorySelect } from "../db/schema";
-import CategoryModel from "../models/category.model";
+import type { CategorySelect } from "../db/schema";
+import CategoryModel from "../models/category.model.ts";
 
 class CategoryService {
   static async getAllCategories(): Promise<CategorySelect[]> {

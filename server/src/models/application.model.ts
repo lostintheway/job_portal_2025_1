@@ -1,6 +1,6 @@
 import { eq, and } from "drizzle-orm";
-import { db } from "../config/db";
-import { applications, ApplicationSelect, jobListings } from "../db/schema";
+import { db } from "../config/db.ts";
+import { applications, type ApplicationSelect } from "../db/schema.ts";
 
 class ApplicationModel {
   static async getAllApplications(): Promise<ApplicationSelect[]> {

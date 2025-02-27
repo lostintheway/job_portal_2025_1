@@ -1,6 +1,10 @@
 import { eq, and, desc, like, or } from "drizzle-orm";
-import { db } from "../config/db";
-import { jobListings, employerProfiles, JobListingSelect } from "../db/schema";
+import { db } from "../config/db.ts";
+import {
+  jobListings,
+  employerProfiles,
+  type JobListingSelect,
+} from "../db/schema.ts";
 
 class JobListingModel {
   static async getAllJobListings(): Promise<JobListingSelect[]> {

@@ -1,3 +1,5 @@
+// your-project/src/types/express.d.ts
+
 declare global {
   namespace Express {
     interface Request {
@@ -8,3 +10,5 @@ declare global {
     }
   }
 }
+
+export {};

@@ -1,7 +1,7 @@
 import express from "express";
-import { authenticate } from "../middleware/auth";
-import { isEmployer, isAdminOrEmployer } from "../middleware/roleAuth";
-import JobListingController from "../controllers/jobListing.controller";
+import { authenticate } from "../middleware/auth.ts";
+import { isEmployer, isAdminOrEmployer } from "../middleware/roleAuth.ts";
+import JobListingController from "../controllers/jobListing.controller.ts";
 
 const router = express.Router();
 

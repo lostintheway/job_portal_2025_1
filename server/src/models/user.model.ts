@@ -1,6 +1,6 @@
 import { eq, and } from "drizzle-orm";
-import { users, UserSelect } from "../db/schema";
-import { db } from "../config/db";
+import { users, type UserSelect } from "../db/schema.ts";
+import { db } from "../config/db.ts";
 
 class UserModel {
   static async login(

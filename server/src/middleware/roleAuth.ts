@@ -1,5 +1,5 @@
-import { Request, Response, NextFunction } from "express";
-import { UserSelect } from "../db/schema";
+import type { Request, Response, NextFunction } from "express";
+import type { UserSelect } from "../db/schema";
 
 // Extend Express Request type to include user
 declare global {

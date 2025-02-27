@@ -1,7 +1,7 @@
-import { Request, Response } from "express";
-import UserService from "../services/user.service";
-import ErrorMessage from "../models/errorMessage.model";
-import { UserSelect } from "../db/schema";
+import type { Request, Response } from "express";
+import UserService from "../services/user.service.ts";
+import ErrorMessage from "../models/errorMessage.model.ts";
+import type { UserSelect } from "../db/schema";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 
