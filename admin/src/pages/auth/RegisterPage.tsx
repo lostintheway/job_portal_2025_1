@@ -42,7 +42,7 @@ export default function RegisterPage() {
     try {
       const response = await api.register(formData);
 
-      if (response.data.token) {
+      if (response.data.success) {
         localStorage.setItem("token", response.data.token);
         localStorage.setItem("userType", formData.role);
         toast.success("Registration successful!");
@@ -186,6 +186,7 @@ export default function RegisterPage() {
                   <SelectContent>
                     <SelectItem value="jobseeker">Job Seeker</SelectItem>
                     <SelectItem value="employer">Employer</SelectItem>
+                    <SelectItem value="admin">Admin</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
