@@ -6,7 +6,7 @@ import Sidebar from "./Sidebar";
 import { Outlet } from "react-router-dom";
 
 const Dashboard = () => {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const { theme, setTheme } = useTheme();
 
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);

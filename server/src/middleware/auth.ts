@@ -6,6 +6,7 @@ import { eq } from "drizzle-orm";
 
 interface JwtPayload {
   userId: number;
+  role: string;
 }
 
 export const authenticate = async (
@@ -47,7 +48,7 @@ export const authenticate = async (
     }
 
     // Attach user to request object
-    req.user = { userId: user.userId, role: user.role };
+    req.user = user;
     next();
   } catch (error) {
     res

@@ -119,8 +119,12 @@ class UserController {
   static async updateUser(req: Request, res: Response): Promise<void> {
     try {
       // only allow update my profile
-      const userId = req.user.userId;
+      const userId = req.user?.userId;
       const userData: UserSelect = req.body;
+      if (userId !== userData.userId) {
+        res.status(403).json(ErrorMessage.forbidden());
+        return;
+      }
       const success = await UserService.updateUser(userId, userData);
       if (!success) {
         res.status(404).json(ErrorMessage.notFound());
