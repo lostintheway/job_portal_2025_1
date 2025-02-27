@@ -112,7 +112,11 @@ class UserController {
       const userId = await UserService.createUser(userData);
       res.status(201).json({ success: true, data: { userId } });
     } catch (error) {
-      res.status(500).json(ErrorMessage.serverError());
+      res
+        .status(500)
+        .json(
+          error instanceof Error ? error.message : ErrorMessage.serverError()
+        );
     }
   }
 

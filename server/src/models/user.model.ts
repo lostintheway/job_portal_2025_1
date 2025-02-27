@@ -34,6 +34,7 @@ class UserModel {
   }
 
   static async createUser(userData: UserSelect): Promise<number> {
+    console.log({ userData });
     const [result] = await db.insert(users).values(userData);
     return result.insertId;
   }

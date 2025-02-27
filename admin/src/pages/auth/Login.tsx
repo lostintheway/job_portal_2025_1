@@ -15,29 +15,24 @@ import { Label } from "@/components/ui/label";
 
 type UserType = "jobseeker" | "employer";
 
-interface AuthFormData {
+interface LoginFormData {
   email: string;
   password: string;
-  name?: string;
   userType: UserType;
 }
 
-export default function AuthPage() {
+export default function LoginPage() {
   const navigate = useNavigate();
-  const [isLogin, setIsLogin] = useState(true);
-  const [formData, setFormData] = useState<AuthFormData>({
+  const [formData, setFormData] = useState<LoginFormData>({
     email: "",
     password: "",
-    name: "",
     userType: "jobseeker",
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = isLogin
-        ? await api.login(formData)
-        : await api.register(formData);
+      const response = await api.login(formData);
 
       if (response.data.token) {
         localStorage.setItem("token", response.data.token);
@@ -53,28 +48,11 @@ export default function AuthPage() {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle className="text-center">
-            {isLogin ? "Sign in to your account" : "Create a new account"}
-          </CardTitle>
+          <CardTitle className="text-center">Sign in to your account</CardTitle>
         </CardHeader>
         <CardContent>
           <form className="space-y-6" onSubmit={handleSubmit}>
             <div className="space-y-4">
-              {!isLogin && (
-                <div className="space-y-2">
-                  <Label htmlFor="name">Name</Label>
-                  <Input
-                    id="name"
-                    type="text"
-                    required
-                    placeholder="Full name"
-                    value={formData.name}
-                    onChange={(e) =>
-                      setFormData({ ...formData, name: e.target.value })
-                    }
-                  />
-                </div>
-              )}
               <div className="space-y-2">
                 <Label htmlFor="email">Email address</Label>
                 <Input
@@ -121,18 +99,16 @@ export default function AuthPage() {
             </div>
 
             <Button type="submit" className="w-full">
-              {isLogin ? "Sign in" : "Sign up"}
+              Sign in
             </Button>
 
             <div className="text-center">
               <Button
                 variant="link"
                 type="button"
-                onClick={() => setIsLogin(!isLogin)}
+                onClick={() => navigate("/register")}
               >
-                {isLogin
-                  ? "Need an account? Sign up"
-                  : "Already have an account? Sign in"}
+                Need an account? Sign up
               </Button>
             </div>
           </form>
