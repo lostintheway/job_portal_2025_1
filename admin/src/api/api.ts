@@ -29,11 +29,18 @@ export class Api {
   }
 
   // Auth
-  login(data: any) {
+  login(data: { email: string; password: string }) {
     return this.axiosInstance.post("/api/users/login", data);
   }
 
-  register(data: any) {
+  register(data: {
+    email: string;
+    password: string;
+    fullName: string;
+    contactNumber: string;
+    address: string;
+    role: "jobseeker" | "employer" | "admin";
+  }) {
     return this.axiosInstance.post("/api/users/register", data);
   }
 

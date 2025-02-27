@@ -12,8 +12,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
 
-type UserType = "jobseeker" | "employer";
+type UserType = "jobseeker" | "employer" | "admin";
 
 interface LoginFormData {
   email: string;
@@ -35,9 +36,16 @@ export default function LoginPage() {
       const response = await api.login(formData);
 
       if (response.data.token) {
+        toast.success("Login successful");
         localStorage.setItem("token", response.data.token);
         localStorage.setItem("userType", formData.userType);
-        navigate(formData.userType === "jobseeker" ? "/jobs" : "/dashboard");
+        if (formData.userType === "jobseeker") {
+          navigate("/public");
+        } else if (formData.userType === "admin") {
+          navigate("/admin");
+        } else if (formData.userType === "employer") {
+          navigate("/employer");
+        }
       }
     } catch (error) {
       console.error("Authentication error:", error);
