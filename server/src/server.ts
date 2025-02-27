@@ -16,6 +16,7 @@ const PORT = process.env.PORT || 5222;
 const allowedDomains = [
   "http://localhost:3000",
   "http://localhost:3005",
+  "http://localhost:3006",
   "http://localhost:5222",
   "http://127.0.0.1:3000",
   "http://127.0.0.1:3005",
@@ -47,11 +48,11 @@ app.use(
 app.use(express.json()); // for parsing application/json
 
 // Use routes
-app.use("/users", userRoutes);
-app.use("/categories", categoryRoutes);
-app.use("/job-descriptions", jobListingRoutes);
-app.use("/applications", applicationRoutes);
-app.use("/bookmarks", bookmarkRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api/categories", categoryRoutes);
+app.use("/api/job-descriptions", jobListingRoutes);
+app.use("/api/applications", applicationRoutes);
+app.use("/api/bookmarks", bookmarkRoutes);
 
 app.get("/", (req: Request, res: Response) => {
   res.send("Job Application System API is running!");

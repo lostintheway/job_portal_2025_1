@@ -3,7 +3,6 @@ import UserService from "../services/user.service.ts";
 import ErrorMessage from "../models/errorMessage.model.ts";
 import type { UserSelect } from "../db/schema";
 import jwt from "jsonwebtoken";
-import bcrypt from "bcrypt";
 
 class UserController {
   //login
@@ -18,7 +17,7 @@ class UserController {
       }
 
       // Check if the password matches
-      const isMatch = await bcrypt.compare(myPassword, user.password);
+      const isMatch = myPassword === user.password;
       if (!isMatch) {
         res.status(401).json(ErrorMessage.authFailed());
         return;
@@ -42,9 +41,13 @@ class UserController {
           token,
         },
       });
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("Login Error:", error);
-      res.status(500).json(ErrorMessage.serverError());
+      res
+        .status(500)
+        .json(
+          error instanceof Error ? error.message : ErrorMessage.serverError()
+        );
     }
   }
 
@@ -105,10 +108,7 @@ class UserController {
   static async createUser(req: Request, res: Response): Promise<void> {
     try {
       const userData: UserSelect = req.body;
-      // Hash the password
-      const saltRounds = 10;
-      const hashedPassword = await bcrypt.hash(userData.password, saltRounds);
-      userData.password = hashedPassword;
+
       const userId = await UserService.createUser(userData);
       res.status(201).json({ success: true, data: { userId } });
     } catch (error) {
