@@ -19,7 +19,7 @@ class UserController {
       // Check if the password matches
       const isMatch = myPassword === user.password;
       if (!isMatch) {
-        res.status(401).json(ErrorMessage.authFailed());
+        res.status(401).json(ErrorMessage.passwordDidntMatch());
         return;
       }
 
@@ -43,11 +43,12 @@ class UserController {
       });
     } catch (error: unknown) {
       console.error("Login Error:", error);
-      res
-        .status(500)
-        .json(
-          error instanceof Error ? error.message : ErrorMessage.serverError()
-        );
+      res.status(500).json({
+        message:
+          error instanceof Error
+            ? error.message
+            : ErrorMessage.serverError().message,
+      });
     }
   }
 

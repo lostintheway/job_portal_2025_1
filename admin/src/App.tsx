@@ -3,7 +3,7 @@ import "./App.css";
 import Dashboard from "./components/Dashboard";
 import JobListingPage from "./pages/public/JobListingPage";
 import RegisterPage from "./pages/auth/RegisterPage";
-import LoginPage from "./pages/auth/LoginPAge";
+import LoginPage from "./pages/auth/LoginPage";
 
 // import GalleryPage from "./pages/GalleryPage";Page";
 

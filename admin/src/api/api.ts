@@ -1,4 +1,5 @@
-import axios, { AxiosInstance } from "axios";
+import axios, { AxiosInstance, AxiosResponse } from "axios";
+import { LoginResponse } from "./types";
 
 export class Api {
   private baseUrl: string;
@@ -29,7 +30,10 @@ export class Api {
   }
 
   // Auth
-  login(data: { email: string; password: string }) {
+  login(data: {
+    email: string;
+    password: string;
+  }): Promise<AxiosResponse<LoginResponse>> {
     return this.axiosInstance.post("/api/users/login", data);
   }
 

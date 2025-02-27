@@ -1,9 +1,21 @@
-import { useState } from "react";
+"use client";
+
 import { useNavigate } from "react-router-dom";
 import { api } from "../../api/api";
+import { toast } from "sonner";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import {
   Select,
   SelectContent,
@@ -11,116 +23,120 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Label } from "@/components/ui/label";
-import { toast } from "sonner";
+import FormInput from "@/components/form/FormInput";
+import { isAxiosError } from "axios";
 
-type UserType = "jobseeker" | "employer" | "admin";
+// Define a validation schema using zod
+const loginSchema = z.object({
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(1, "Password is required"),
+  userType: z.enum(["jobseeker", "employer", "admin"]),
+});
 
-interface LoginFormData {
-  email: string;
-  password: string;
-  userType: UserType;
-}
+type LoginFormData = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
   const navigate = useNavigate();
-  const [formData, setFormData] = useState<LoginFormData>({
-    email: "",
-    password: "",
-    userType: "jobseeker",
+
+  const form = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+      userType: "jobseeker",
+    },
   });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const onSubmit = async (data: LoginFormData) => {
     try {
-      const response = await api.login(formData);
-
-      if (response.data.token) {
+      const response = await api.login(data);
+      if (response?.data?.data?.token) {
         toast.success("Login successful");
-        localStorage.setItem("token", response.data.token);
-        localStorage.setItem("userType", formData.userType);
-        if (formData.userType === "jobseeker") {
+        const res = response.data.data;
+        localStorage.setItem("token", res.token);
+        localStorage.setItem("userType", res.user.role);
+        if (res.user.role === "jobseeker") {
           navigate("/public");
-        } else if (formData.userType === "admin") {
+        } else if (res.user.role === "admin") {
           navigate("/admin");
-        } else if (formData.userType === "employer") {
+        } else if (res.user.role === "employer") {
           navigate("/employer");
         }
       }
     } catch (error) {
+      if (isAxiosError(error)) {
+        toast.error(error.response?.data.error);
+        return;
+      }
+      toast.error("Login failed");
       console.error("Authentication error:", error);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <Card className="w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center bg-gray-500 py-12 px-4 sm:px-6 lg:px-8">
+      <Card className="w-full max-w-md shadow-lg">
         <CardHeader>
-          <CardTitle className="text-center">Sign in to your account</CardTitle>
+          <CardTitle className="text-center text-2xl font-bold">
+            Sign in to your account
+          </CardTitle>
         </CardHeader>
         <CardContent>
-          <form className="space-y-6" onSubmit={handleSubmit}>
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="email">Email address</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  required
-                  placeholder="Email address"
-                  value={formData.email}
-                  onChange={(e) =>
-                    setFormData({ ...formData, email: e.target.value })
-                  }
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  required
-                  placeholder="Password"
-                  value={formData.password}
-                  onChange={(e) =>
-                    setFormData({ ...formData, password: e.target.value })
-                  }
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="userType">I am a</Label>
-                <Select
-                  value={formData.userType}
-                  onValueChange={(value: UserType) =>
-                    setFormData({ ...formData, userType: value })
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select user type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="jobseeker">Job Seeker</SelectItem>
-                    <SelectItem value="employer">Employer</SelectItem>
-                    <SelectItem value="admin">Admin</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <FormInput name="email" control={form.control} />
+              <FormInput
+                type="password"
+                name="password"
+                control={form.control}
+              />
 
-            <Button type="submit" className="w-full">
-              Sign in
-            </Button>
+              <FormField
+                control={form.control}
+                name="userType"
+                render={() => (
+                  <FormItem>
+                    <FormLabel>I am a</FormLabel>
+                    <FormControl>
+                      <Controller
+                        control={form.control}
+                        name="userType"
+                        render={({ field: { onChange, value } }) => (
+                          <Select value={value} onValueChange={onChange}>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select user type" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="jobseeker">
+                                Job Seeker
+                              </SelectItem>
+                              <SelectItem value="employer">Employer</SelectItem>
+                              <SelectItem value="admin">Admin</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        )}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            <div className="text-center">
-              <Button
-                variant="link"
-                type="button"
-                onClick={() => navigate("/register")}
-              >
-                Need an account? Sign up
+              <Button type="submit" className="w-full">
+                Sign in
               </Button>
-            </div>
-          </form>
+            </form>
+          </Form>
+
+          <div className="mt-4 text-center">
+            <Button
+              variant="link"
+              type="button"
+              onClick={() => navigate("/register")}
+            >
+              Need an account? Sign up
+            </Button>
+          </div>
         </CardContent>
       </Card>
     </div>

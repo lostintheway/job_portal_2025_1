@@ -18,6 +18,9 @@ class ErrorMessage {
   static serverError(): any {
     return { success: false, error: "Server error" };
   }
+  static passwordDidntMatch(): any {
+    return { success: false, error: "Password did not match." };
+  }
 }
 
 export default ErrorMessage;
