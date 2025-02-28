@@ -55,15 +55,16 @@ export class Api {
   }
   // Jobs
   getJobs() {
-    return this.axiosInstance.get("/api/jobs");
+    return this.axiosInstance.get("/api/job-descriptions");
   }
-
   getJobById(jobId: string) {
-    return this.axiosInstance.get(`/api/jobs/${jobId}`);
+    return this.axiosInstance.get(`/api/job-descriptions/${jobId}`);
   }
   // Get jobs by category
   getJobsByCategory(categoryId: string) {
-    return this.axiosInstance.get(`/api/jobs/category/${categoryId}`);
+    return this.axiosInstance.get(
+      `/api/job-descriptions/category/${categoryId}`
+    );
   }
   // Search jobs with filters
   searchJobs(filters: {
@@ -73,20 +74,22 @@ export class Api {
     jobType?: string;
     salary?: string;
   }) {
-    return this.axiosInstance.get("/api/jobs/search", { params: filters });
+    return this.axiosInstance.get("/api/job-descriptions/search", {
+      params: filters,
+    });
   }
   createJob(data: any) {
-    return this.axiosInstance.post("/api/jobs", data);
+    return this.axiosInstance.post("/api/job-descriptions", data);
   }
   updateJob(jobId: string, data: any) {
-    return this.axiosInstance.put(`/api/jobs/${jobId}`, data);
+    return this.axiosInstance.put(`/api/job-descriptions/${jobId}`, data);
   }
   deleteJob(jobId: string) {
-    return this.axiosInstance.delete(`/api/jobs/${jobId}`);
+    return this.axiosInstance.delete(`/api/job-descriptions/${jobId}`);
   }
   // Get jobs posted by the logged-in employer
   getMyJobs() {
-    return this.axiosInstance.get("/api/jobs/employer/me");
+    return this.axiosInstance.get("/api/job-descriptions/employer/me");
   }
   // Applications
   applyForJob(jobId: string, data: any) {
