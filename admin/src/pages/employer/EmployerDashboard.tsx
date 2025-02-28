@@ -53,21 +53,22 @@ export default function EmployerDashboard() {
 
       setJobs(jobsResponse.data);
 
+      // Ensure applications is an array and handle the response properly
+      const applications = Array.isArray(applicationsResponse.data)
+        ? applicationsResponse.data
+        : [];
+
       // Calculate application statistics
-      const applications = applicationsResponse.data;
       const stats = {
         total: applications.length,
-        pending: applications.filter((app: any) => app.status === "pending")
+        pending: applications.filter((app) => app.status === "pending").length,
+        shortlisted: applications.filter((app) => app.status === "shortlisted")
           .length,
-        shortlisted: applications.filter(
-          (app: any) => app.status === "shortlisted"
-        ).length,
-        interviewed: applications.filter(
-          (app: any) => app.status === "interviewed"
-        ).length,
-        accepted: applications.filter((app: any) => app.status === "accepted")
+        interviewed: applications.filter((app) => app.status === "interviewed")
           .length,
-        rejected: applications.filter((app: any) => app.status === "rejected")
+        accepted: applications.filter((app) => app.status === "accepted")
+          .length,
+        rejected: applications.filter((app) => app.status === "rejected")
           .length,
       };
       setApplicationStats(stats);
