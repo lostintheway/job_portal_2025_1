@@ -48,6 +48,11 @@ export class Api {
     return this.axiosInstance.post("/api/users/register", data);
   }
 
+  logout() {
+    // Clear token from localStorage
+    localStorage.removeItem("token");
+    return Promise.resolve();
+  }
   // Jobs
   getJobs() {
     return this.axiosInstance.get("/api/jobs");
@@ -56,45 +61,101 @@ export class Api {
   getJobById(jobId: string) {
     return this.axiosInstance.get(`/api/jobs/${jobId}`);
   }
-
+  // Get jobs by category
+  getJobsByCategory(categoryId: string) {
+    return this.axiosInstance.get(`/api/jobs/category/${categoryId}`);
+  }
+  // Search jobs with filters
+  searchJobs(filters: {
+    keyword?: string;
+    location?: string;
+    category?: string;
+    jobType?: string;
+    salary?: string;
+  }) {
+    return this.axiosInstance.get("/api/jobs/search", { params: filters });
+  }
   createJob(data: any) {
     return this.axiosInstance.post("/api/jobs", data);
   }
-
   updateJob(jobId: string, data: any) {
     return this.axiosInstance.put(`/api/jobs/${jobId}`, data);
   }
-
   deleteJob(jobId: string) {
     return this.axiosInstance.delete(`/api/jobs/${jobId}`);
   }
-
+  // Get jobs posted by the logged-in employer
+  getMyJobs() {
+    return this.axiosInstance.get("/api/jobs/employer/me");
+  }
   // Applications
   applyForJob(jobId: string, data: any) {
     return this.axiosInstance.post(`/api/applications/${jobId}`, data);
   }
-
+  // Get all applications (admin only)
   getApplications() {
     return this.axiosInstance.get("/api/applications");
   }
-
+  // Get applications for a specific job (employer only)
+  getApplicationsByJobId(jobId: string) {
+    return this.axiosInstance.get(`/api/applications/job/${jobId}`);
+  }
+  // Get applications submitted by the logged-in user (jobseeker only)
+  getMyApplications() {
+    return this.axiosInstance.get("/api/applications/my-applications");
+  }
+  // Get application by ID
+  getApplicationById(applicationId: string) {
+    return this.axiosInstance.get(`/api/applications/${applicationId}`);
+  }
+  // Update application (general update)
   updateApplication(applicationId: string, data: any) {
     return this.axiosInstance.put(`/api/applications/${applicationId}`, data);
   }
-
+  // Update application status (employer only)
+  updateApplicationStatus(applicationId: string, status: string) {
+    return this.axiosInstance.put(`/api/applications/status/${applicationId}`, {
+      status,
+    });
+  }
+  // Delete application
+  deleteApplication(applicationId: string) {
+    return this.axiosInstance.delete(`/api/applications/${applicationId}`);
+  }
+  // JobSeeker Profile
+  getJobSeekerProfile() {
+    return this.axiosInstance.get("/api/jobseeker-profiles/my-profile");
+  }
+  createJobSeekerProfile(data: any) {
+    return this.axiosInstance.post("/api/jobseeker-profiles", data);
+  }
+  updateJobSeekerProfile(profileId: string, data: any) {
+    return this.axiosInstance.put(`/api/jobseeker-profiles/${profileId}`, data);
+  }
+  // Employer Profile
+  getEmployerProfile() {
+    return this.axiosInstance.get("/api/employer-profiles/my-profile");
+  }
+  createEmployerProfile(data: any) {
+    return this.axiosInstance.post("/api/employer-profiles", data);
+  }
+  updateEmployerProfile(profileId: string, data: any) {
+    return this.axiosInstance.put(`/api/employer-profiles/${profileId}`, data);
+  }
+  // Categories
+  getCategories() {
+    return this.axiosInstance.get("/api/categories");
+  }
   // Bookmarks
   getBookmarkedJobs() {
     return this.axiosInstance.get("/api/bookmarks");
   }
-
   addBookmark(jobId: string) {
     return this.axiosInstance.post(`/api/bookmarks/${jobId}`);
   }
-
   removeBookmark(jobId: string) {
     return this.axiosInstance.delete(`/api/bookmarks/${jobId}`);
   }
-
   getInstance() {
     return this.axiosInstance;
   }
