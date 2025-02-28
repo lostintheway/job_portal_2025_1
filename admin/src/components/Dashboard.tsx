@@ -2,10 +2,16 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Menu, Moon, Sun } from "lucide-react";
 import { useTheme } from "./theme-provider";
-import Sidebar from "./Sidebar";
 import { Outlet } from "react-router-dom";
+import AdminSidebar from "./sidebars/AdminSidebar";
+import EmployerSidebar from "./sidebars/EmployerSidebar";
+import JobSeekerSidebar from "./sidebars/JobSeekerSidebar";
 
-const Dashboard = () => {
+interface DashboardProps {
+  role: "admin" | "employer" | "jobseeker";
+}
+
+const Dashboard = ({ role }: DashboardProps) => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const { theme, setTheme } = useTheme();
 
@@ -42,8 +48,10 @@ const Dashboard = () => {
 
       {/* Main content area with sidebar */}
       <div className="flex flex-1 overflow-hidden">
-        {/* Sidebar */}
-        <Sidebar sidebarOpen={sidebarOpen} />
+        {/* Sidebar based on role */}
+        {role === "admin" && <AdminSidebar sidebarOpen={sidebarOpen} />}
+        {role === "employer" && <EmployerSidebar sidebarOpen={sidebarOpen} />}
+        {role === "jobseeker" && <JobSeekerSidebar sidebarOpen={sidebarOpen} />}
 
         {/* Main content */}
         <main
