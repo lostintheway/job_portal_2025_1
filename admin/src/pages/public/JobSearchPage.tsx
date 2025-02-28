@@ -68,6 +68,7 @@ export default function JobSearchPage() {
 
   useEffect(() => {
     applyFilters();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [jobs, searchTerm, selectedCategory, selectedJobType, selectedLocation]);
 
   const fetchJobs = async () => {
@@ -87,7 +88,7 @@ export default function JobSearchPage() {
 
       // Extract unique locations
       const uniqueLocations = [
-        ...new Set(jobsWithBookmarks.map((job: Job) => job.location)),
+        ...jobsWithBookmarks.map((job: Job) => job.location),
       ];
       setLocations(uniqueLocations);
     } catch (error) {

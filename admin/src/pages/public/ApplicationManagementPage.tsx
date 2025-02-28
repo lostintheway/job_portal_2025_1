@@ -1,11 +1,18 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../../api/api";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Search, Filter, ArrowUpDown, Eye, FileText, MapPin, Briefcase, Calendar } from "lucide-react";
+import {
+  Loader2,
+  Search,
+  Filter,
+  ArrowUpDown,
+  Eye,
+  FileText,
+} from "lucide-react";
 import { toast } from "sonner";
 import {
   Select,
@@ -53,13 +60,16 @@ interface Job {
 export default function ApplicationManagementPage() {
   const navigate = useNavigate();
   const [applications, setApplications] = useState<Application[]>([]);
-  const [filteredApplications, setFilteredApplications] = useState<Application[]>([]);
+  const [filteredApplications, setFilteredApplications] = useState<
+    Application[]
+  >([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("");
   const [sortBy, setSortBy] = useState<string>("date");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
-  const [selectedApplication, setSelectedApplication] = useState<Application | null>(null);
+  const [selectedApplication, setSelectedApplication] =
+    useState<Application | null>(null);
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("application");
@@ -107,8 +117,10 @@ export default function ApplicationManagementPage() {
     result.sort((a, b) => {
       if (sortBy === "date") {
         return sortOrder === "asc"
-          ? new Date(a.appliedDate).getTime() - new Date(b.appliedDate).getTime()
-          : new Date(b.appliedDate).getTime() - new Date(a.appliedDate).getTime();
+          ? new Date(a.appliedDate).getTime() -
+              new Date(b.appliedDate).getTime()
+          : new Date(b.appliedDate).getTime() -
+              new Date(a.appliedDate).getTime();
       } else if (sortBy === "company") {
         return sortOrder === "asc"
           ? a.companyName.localeCompare(b.companyName)
@@ -230,9 +242,17 @@ export default function ApplicationManagementPage() {
                 onClick={toggleSortOrder}
                 className="flex-shrink-0"
               >
-                <ArrowUpDown className={`h-4 w-4 ${sortOrder === "asc" ? "rotate-180" : ""}`} />
+                <ArrowUpDown
+                  className={`h-4 w-4 ${
+                    sortOrder === "asc" ? "rotate-180" : ""
+                  }`}
+                />
               </Button>
-              <Button variant="outline" onClick={resetFilters} className="flex-grow">
+              <Button
+                variant="outline"
+                onClick={resetFilters}
+                className="flex-grow"
+              >
                 <Filter className="h-4 w-4 mr-2" />
                 Reset Filters
               </Button>
@@ -260,22 +280,30 @@ export default function ApplicationManagementPage() {
       ) : (
         <div className="space-y-4">
           <p className="text-sm text-gray-500">
-            Showing {filteredApplications.length} of {applications.length} applications
+            Showing {filteredApplications.length} of {applications.length}{" "}
+            applications
           </p>
           {filteredApplications.map((application) => (
             <Card key={application.applicationId} className="overflow-hidden">
               <CardContent className="p-6">
                 <div className="flex flex-col md:flex-row justify-between gap-4">
                   <div className="flex-grow">
-                    <h3 className="text-lg font-semibold">{application.jobTitle}</h3>
+                    <h3 className="text-lg font-semibold">
+                      {application.jobTitle}
+                    </h3>
                     <p className="text-gray-600">{application.companyName}</p>
                     <p className="text-sm text-gray-500">
                       Applied on {formatDate(application.appliedDate)}
                     </p>
                   </div>
                   <div className="flex flex-col items-end justify-between">
-                    <Badge className={`${getStatusBadgeColor(application.status)} text-white mb-2`}>
-                      {application.status.charAt(0).toUpperCase() + application.status.slice(1)}
+                    <Badge
+                      className={`${getStatusBadgeColor(
+                        application.status
+                      )} text-white mb-2`}
+                    >
+                      {application.status.charAt(0).toUpperCase() +
+                        application.status.slice(1)}
                     </Badge>
                     <Button
                       variant="outline"
@@ -301,7 +329,9 @@ export default function ApplicationManagementPage() {
               {selectedJob?.title} at {selectedJob?.company}
             </DialogTitle>
             <DialogDescription>
-              Application submitted on {selectedApplication && formatDate(selectedApplication.appliedDate)}
+              Application submitted on{" "}
+              {selectedApplication &&
+                formatDate(selectedApplication.appliedDate)}
             </DialogDescription>
           </DialogHeader>
 
@@ -314,15 +344,25 @@ export default function ApplicationManagementPage() {
             <TabsContent value="application" className="space-y-4 mt-4">
               <div className="flex justify-between items-center">
                 <h3 className="text-lg font-semibold">Application Status</h3>
-                <Badge className={`${selectedApplication && getStatusBadgeColor(selectedApplication.status)} text-white`}>
-                  {selectedApplication?.status.charAt(0).toUpperCase() + selectedApplication?.status.slice(1)}
+                <Badge
+                  className={`${
+                    selectedApplication &&
+                    getStatusBadgeColor(selectedApplication.status)
+                  } text-white`}
+                >
+                  {selectedApplication?.status
+                    ? selectedApplication.status.charAt(0).toUpperCase() +
+                      selectedApplication.status.slice(1)
+                    : ""}
                 </Badge>
               </div>
 
               {selectedApplication?.feedback && (
                 <div className="bg-gray-50 p-4 rounded-md">
                   <h4 className="font-medium mb-2">Employer Feedback</h4>
-                  <p className="text-gray-700">{selectedApplication.feedback}</p>
+                  <p className="text-gray-700">
+                    {selectedApplication.feedback}
+                  </p>
                 </div>
               )}
 
@@ -362,7 +402,9 @@ export default function ApplicationManagementPage() {
                 <div className="grid grid-cols-2 gap-4 mb-4">
                   <div>
                     <p className="text-sm font-medium">Salary</p>
-                    <p className="text-gray-500">{selectedJob?.salary || "Not specified"}</p>
+                    <p className="text-gray-500">
+                      {selectedJob?.salary || "Not specified"}
+                    </p>
                   </div>
                   <div>
                     <p className="text-sm font-medium">Job Type</p>
@@ -374,40 +416,60 @@ export default function ApplicationManagementPage() {
                   </div>
                   <div>
                     <p className="text-sm font-medium">Application Deadline</p>
-                    <p className="text-gray-500">{selectedJob?.deadLine && formatDate(selectedJob.deadLine)}</p>
+                    <p className="text-gray-500">
+                      {selectedJob?.deadLine &&
+                        formatDate(selectedJob.deadLine)}
+                    </p>
                   </div>
                 </div>
 
                 <div className="space-y-4">
                   <div>
                     <h4 className="text-lg font-semibold mb-2">Description</h4>
-                    <p className="text-gray-700 whitespace-pre-line">{selectedJob?.description}</p>
+                    <p className="text-gray-700 whitespace-pre-line">
+                      {selectedJob?.description}
+                    </p>
                   </div>
 
                   {selectedJob?.requirements && (
                     <div>
-                      <h4 className="text-lg font-semibold mb-2">Requirements</h4>
-                      <p className="text-gray-700 whitespace-pre-line">{selectedJob.requirements}</p>
+                      <h4 className="text-lg font-semibold mb-2">
+                        Requirements
+                      </h4>
+                      <p className="text-gray-700 whitespace-pre-line">
+                        {selectedJob.requirements}
+                      </p>
                     </div>
                   )}
 
                   {selectedJob?.responsibilities && (
                     <div>
-                      <h4 className="text-lg font-semibold mb-2">Responsibilities</h4>
-                      <p className="text-gray-700 whitespace-pre-line">{selectedJob.responsibilities}</p>
+                      <h4 className="text-lg font-semibold mb-2">
+                        Responsibilities
+                      </h4>
+                      <p className="text-gray-700 whitespace-pre-line">
+                        {selectedJob.responsibilities}
+                      </p>
                     </div>
                   )}
 
                   {selectedJob?.benefits && (
                     <div>
                       <h4 className="text-lg font-semibold mb-2">Benefits</h4>
-                      <p className="text-gray-700 whitespace-pre-line">{selectedJob.benefits}</p>
+                      <p className="text-gray-700 whitespace-pre-line">
+                        {selectedJob.benefits}
+                      </p>
                     </div>
                   )}
                 </div>
 
                 <div className="mt-4">
-                  <Button onClick={() => navigate(`/public/jobs/${selectedJob?.jobId}`)} className="w-full">
+                  <Button
+                    onClick={() =>
+                      navigate(`/public/jobs/${selectedJob?.jobId}`)
+                    }
+                    className="w-full"
+                  >
                     View Full Job Posting
                   </Button>
                 </div>

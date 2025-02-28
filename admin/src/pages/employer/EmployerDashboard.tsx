@@ -57,11 +57,18 @@ export default function EmployerDashboard() {
       const applications = applicationsResponse.data;
       const stats = {
         total: applications.length,
-        pending: applications.filter((app: any) => app.status === "pending").length,
-        shortlisted: applications.filter((app: any) => app.status === "shortlisted").length,
-        interviewed: applications.filter((app: any) => app.status === "interviewed").length,
-        accepted: applications.filter((app: any) => app.status === "accepted").length,
-        rejected: applications.filter((app: any) => app.status === "rejected").length,
+        pending: applications.filter((app: any) => app.status === "pending")
+          .length,
+        shortlisted: applications.filter(
+          (app: any) => app.status === "shortlisted"
+        ).length,
+        interviewed: applications.filter(
+          (app: any) => app.status === "interviewed"
+        ).length,
+        accepted: applications.filter((app: any) => app.status === "accepted")
+          .length,
+        rejected: applications.filter((app: any) => app.status === "rejected")
+          .length,
       };
       setApplicationStats(stats);
     } catch (error) {
@@ -93,8 +100,10 @@ export default function EmployerDashboard() {
   }
 
   // Get active and expired jobs
-  const activeJobs = jobs.filter(job => job.isActive && new Date(job.deadLine) > new Date());
-  const expiredJobs = jobs.filter(job => !job.isActive || new Date(job.deadLine) <= new Date());
+  const activeJobs = jobs.filter(
+    (job) => job.isActive && new Date(job.deadLine) > new Date()
+  );
+  //   const expiredJobs = jobs.filter(job => !job.isActive || new Date(job.deadLine) <= new Date());
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -134,7 +143,9 @@ export default function EmployerDashboard() {
         <Card>
           <CardContent className="p-6 flex flex-col items-center justify-center">
             <Users className="h-8 w-8 text-yellow-500 mb-2" />
-            <p className="text-2xl font-bold">{applicationStats.shortlisted + applicationStats.interviewed}</p>
+            <p className="text-2xl font-bold">
+              {applicationStats.shortlisted + applicationStats.interviewed}
+            </p>
             <p className="text-gray-500">In Progress</p>
           </CardContent>
         </Card>
@@ -145,7 +156,11 @@ export default function EmployerDashboard() {
         <CardHeader>
           <CardTitle className="flex justify-between items-center">
             <span>Application Status</span>
-            <Button variant="outline" size="sm" onClick={handleViewApplications}>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleViewApplications}
+            >
               View All
             </Button>
           </CardTitle>
@@ -153,23 +168,33 @@ export default function EmployerDashboard() {
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-center">
             <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-              <p className="text-lg font-bold text-yellow-500">{applicationStats.pending}</p>
+              <p className="text-lg font-bold text-yellow-500">
+                {applicationStats.pending}
+              </p>
               <p className="text-sm text-gray-500">Pending</p>
             </div>
             <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-              <p className="text-lg font-bold text-blue-500">{applicationStats.shortlisted}</p>
+              <p className="text-lg font-bold text-blue-500">
+                {applicationStats.shortlisted}
+              </p>
               <p className="text-sm text-gray-500">Shortlisted</p>
             </div>
             <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-              <p className="text-lg font-bold text-purple-500">{applicationStats.interviewed}</p>
+              <p className="text-lg font-bold text-purple-500">
+                {applicationStats.interviewed}
+              </p>
               <p className="text-sm text-gray-500">Interviewed</p>
             </div>
             <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-              <p className="text-lg font-bold text-green-500">{applicationStats.accepted}</p>
+              <p className="text-lg font-bold text-green-500">
+                {applicationStats.accepted}
+              </p>
               <p className="text-sm text-gray-500">Accepted</p>
             </div>
             <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-              <p className="text-lg font-bold text-red-500">{applicationStats.rejected}</p>
+              <p className="text-lg font-bold text-red-500">
+                {applicationStats.rejected}
+              </p>
               <p className="text-sm text-gray-500">Rejected</p>
             </div>
           </div>
@@ -181,14 +206,20 @@ export default function EmployerDashboard() {
         <CardHeader>
           <CardTitle className="flex justify-between items-center">
             <span>Recent Job Postings</span>
-            <Button variant="outline" size="sm" onClick={() => navigate("/employer/posted-jobs")}>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => navigate("/employer/posted-jobs")}
+            >
               View All
             </Button>
           </CardTitle>
         </CardHeader>
         <CardContent>
           {jobs.length === 0 ? (
-            <p className="text-center text-gray-500 py-4">No job postings yet</p>
+            <p className="text-center text-gray-500 py-4">
+              No job postings yet
+            </p>
           ) : (
             <div className="space-y-4">
               {jobs.slice(0, 5).map((job) => (
@@ -208,7 +239,10 @@ export default function EmployerDashboard() {
                         <Users className="h-4 w-4 mr-1" />
                         <span>{job.applicationCount || 0} applications</span>
                       </div>
-                      <Button size="sm" onClick={() => handleViewJob(job.jobId)}>
+                      <Button
+                        size="sm"
+                        onClick={() => handleViewJob(job.jobId)}
+                      >
                         View Details
                       </Button>
                     </div>
