@@ -51,7 +51,7 @@ export default function EmployerDashboard() {
         api.getApplications(),
       ]);
 
-      setJobs(jobsResponse.data);
+      setJobs(jobsResponse.data.data);
 
       // Ensure applications is an array and handle the response properly
       const applications = Array.isArray(applicationsResponse.data)

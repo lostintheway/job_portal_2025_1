@@ -86,7 +86,7 @@ export default function ApplicationManagementPage() {
     try {
       setLoading(true);
       const response = await api.getMyApplications();
-      setApplications(response.data);
+      setApplications(response.data.data);
     } catch (error) {
       console.error("Error fetching applications:", error);
       toast.error("Failed to load applications");
@@ -152,7 +152,7 @@ export default function ApplicationManagementPage() {
     setSelectedApplication(application);
     try {
       const jobResponse = await api.getJobById(application.jobId);
-      setSelectedJob(jobResponse.data);
+      setSelectedJob(jobResponse.data.data);
       setIsDialogOpen(true);
     } catch (error) {
       console.error("Error fetching job details:", error);

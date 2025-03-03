@@ -26,11 +26,13 @@ const Dashboard = ({ role }: DashboardProps) => {
             variant="ghost"
             size="icon"
             onClick={toggleSidebar}
-            className="text-white hover:bg-purple-600"
+            className="text-gray hover:bg-purple-600"
           >
-            <Menu className="h-6 w-6" />
+            <Menu className="h-6 w-6 text-gray-600" />
           </Button>
-          <h1 className="text-xl font-bold">Dashboard</h1>
+          <h1 className="text-xl font-semibold text-slate-600">
+            {role.charAt(0).toUpperCase() + role.slice(1)} Dashboard
+          </h1>
         </div>
         <Button
           variant="ghost"

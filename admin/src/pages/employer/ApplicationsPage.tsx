@@ -49,8 +49,8 @@ export default function DashboardPage() {
         api.getApplications(),
       ]);
 
-      setJobs(jobsResponse.data);
-      setApplications(applicationsResponse.data);
+      setJobs(jobsResponse.data.data);
+      setApplications(applicationsResponse.data.data);
     } catch (error) {
       console.error("Error fetching employer data:", error);
     } finally {

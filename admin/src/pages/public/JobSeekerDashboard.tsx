@@ -39,8 +39,8 @@ export default function JobSeekerDashboard() {
         api.getBookmarkedJobs(),
       ]);
 
-      setApplications(applicationsResponse.data);
-      setBookmarkedJobs(bookmarksResponse.data);
+      setApplications(applicationsResponse.data.data);
+      setBookmarkedJobs(bookmarksResponse.data.data);
     } catch (error) {
       console.error("Error fetching dashboard data:", error);
     } finally {
@@ -87,12 +87,17 @@ export default function JobSeekerDashboard() {
                   >
                     <div className="flex justify-between items-start">
                       <div>
-                        <h3 className="font-semibold">{application.jobTitle}</h3>
+                        <h3 className="font-semibold">
+                          {application.jobTitle}
+                        </h3>
                         <p className="text-sm text-gray-500">
                           {application.companyName}
                         </p>
                         <p className="text-xs text-gray-400">
-                          Applied: {new Date(application.appliedDate).toLocaleDateString()}
+                          Applied:{" "}
+                          {new Date(
+                            application.appliedDate
+                          ).toLocaleDateString()}
                         </p>
                       </div>
                       <Badge
@@ -133,7 +138,9 @@ export default function JobSeekerDashboard() {
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => window.location.href = `/public/jobs/${job.jobId}`}
+                        onClick={() =>
+                          (window.location.href = `/public/jobs/${job.jobId}`)
+                        }
                       >
                         View Job
                       </Button>
