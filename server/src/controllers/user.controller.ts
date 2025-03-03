@@ -8,7 +8,9 @@ class UserController {
   //login
   static async login(req: Request, res: Response): Promise<void> {
     try {
-      const { email, password: myPassword } = req.body;
+      const { email, password: myPassword, role } = req.body;
+      if (!email || !myPassword || !role)
+        res.status(400).json(ErrorMessage.badRequest());
       const user = await UserService.getUserByEmail(email);
 
       if (!user) {
@@ -20,6 +22,12 @@ class UserController {
       const isMatch = myPassword === user.password;
       if (!isMatch) {
         res.status(401).json(ErrorMessage.passwordDidntMatch());
+        return;
+      }
+
+      // Check if the role matches
+      if (role && role !== user.role) {
+        res.status(401).json(ErrorMessage.authFailed());
         return;
       }
 

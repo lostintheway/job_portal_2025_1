@@ -119,6 +119,9 @@ export const applications = mysqlTable("applications", {
   userId: int("user_id")
     .notNull()
     .references(() => users.userId),
+  employerId: int("employer_id")
+    .notNull()
+    .references(() => employerProfiles.employerId),
   status: mysqlEnum("status", [
     "pending",
     "shortlisted",

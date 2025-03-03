@@ -21,6 +21,9 @@ class ErrorMessage {
   static passwordDidntMatch(): any {
     return { success: false, error: "Password did not match." };
   }
+  static badRequestBody(): any {
+    return { success: false, error: "Invalid request body" };
+  }
 }
 
 export default ErrorMessage;

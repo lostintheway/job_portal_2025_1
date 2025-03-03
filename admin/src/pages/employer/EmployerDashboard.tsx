@@ -48,7 +48,7 @@ export default function EmployerDashboard() {
     try {
       const [jobsResponse, applicationsResponse] = await Promise.all([
         api.getJobs(),
-        api.getApplications(),
+        api.getApplicationsByUserId(),
       ]);
 
       setJobs(jobsResponse.data.data);

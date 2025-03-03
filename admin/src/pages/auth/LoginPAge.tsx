@@ -30,7 +30,7 @@ import { isAxiosError } from "axios";
 const loginSchema = z.object({
   email: z.string().email("Invalid email address"),
   password: z.string().min(1, "Password is required"),
-  userType: z.enum(["jobseeker", "employer", "admin"]),
+  role: z.enum(["jobseeker", "employer", "admin"]),
 });
 
 type LoginFormData = z.infer<typeof loginSchema>;
@@ -43,7 +43,7 @@ export default function LoginPage() {
     defaultValues: {
       email: "",
       password: "",
-      userType: "jobseeker",
+      role: "jobseeker",
     },
   });
 
@@ -54,7 +54,7 @@ export default function LoginPage() {
         toast.success("Login successful");
         const res = response.data.data;
         localStorage.setItem("token", res.token);
-        localStorage.setItem("userType", res.user.role);
+        localStorage.setItem("role", res.user.role);
         if (res.user.role === "jobseeker") {
           navigate("/public");
         } else if (res.user.role === "admin") {
@@ -74,10 +74,10 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-500 py-12 px-4 sm:px-6 lg:px-8">
-      <Card className="w-full max-w-md shadow-lg">
+    <div className="min-h-screen flex items-center justify-center bg-background dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
+      <Card className="w-full max-w-md shadow-lg dark:border-gray-700">
         <CardHeader>
-          <CardTitle className="text-center text-2xl font-bold">
+          <CardTitle className="text-center text-2xl font-bold text-foreground dark:text-white">
             Sign in to your account
           </CardTitle>
         </CardHeader>
@@ -93,17 +93,17 @@ export default function LoginPage() {
 
               <FormField
                 control={form.control}
-                name="userType"
+                name="role"
                 render={() => (
                   <FormItem>
-                    <FormLabel>I am a</FormLabel>
+                    <FormLabel className="dark:text-gray-200">I am a</FormLabel>
                     <FormControl>
                       <Controller
                         control={form.control}
-                        name="userType"
+                        name="role"
                         render={({ field: { onChange, value } }) => (
                           <Select value={value} onValueChange={onChange}>
-                            <SelectTrigger>
+                            <SelectTrigger className="dark:border-gray-600">
                               <SelectValue placeholder="Select user type" />
                             </SelectTrigger>
                             <SelectContent>
@@ -122,9 +122,7 @@ export default function LoginPage() {
                 )}
               />
 
-              <Button type="submit" className="w-full">
-                Sign in
-              </Button>
+              <Button type="submit">Sign in</Button>
             </form>
           </Form>
 
@@ -133,6 +131,7 @@ export default function LoginPage() {
               variant="link"
               type="button"
               onClick={() => navigate("/register")}
+              className="dark:text-primary-400 hover:dark:text-primary-300"
             >
               Need an account? Sign up
             </Button>
