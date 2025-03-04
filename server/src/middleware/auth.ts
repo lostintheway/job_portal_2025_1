@@ -47,8 +47,9 @@ export const authenticate = async (
       return;
     }
 
-    // Attach user to request object
-    req.user = user;
+    // Attach user to request object without password
+    const { password, ...userWithoutPassword } = user;
+    (req as any).user = userWithoutPassword;
     next();
   } catch (error) {
     res

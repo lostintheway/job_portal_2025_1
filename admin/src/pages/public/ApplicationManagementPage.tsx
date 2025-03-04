@@ -29,6 +29,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import ErrorBoundary from "@/components/ErrorBoundary";
 
 interface Application {
   applicationId: string;
@@ -210,30 +211,34 @@ export default function ApplicationManagementPage() {
               />
             </div>
 
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger>
-                <SelectValue placeholder="Filter by Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="">All Statuses</SelectItem>
-                <SelectItem value="pending">Pending</SelectItem>
-                <SelectItem value="shortlisted">Shortlisted</SelectItem>
-                <SelectItem value="interviewed">Interviewed</SelectItem>
-                <SelectItem value="accepted">Accepted</SelectItem>
-                <SelectItem value="rejected">Rejected</SelectItem>
-              </SelectContent>
-            </Select>
+            <ErrorBoundary>
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Filter by Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">All Statuses</SelectItem>
+                  <SelectItem value="pending">Pending</SelectItem>
+                  <SelectItem value="shortlisted">Shortlisted</SelectItem>
+                  <SelectItem value="interviewed">Interviewed</SelectItem>
+                  <SelectItem value="accepted">Accepted</SelectItem>
+                  <SelectItem value="rejected">Rejected</SelectItem>
+                </SelectContent>
+              </Select>
+            </ErrorBoundary>
 
-            <Select value={sortBy} onValueChange={setSortBy}>
-              <SelectTrigger>
-                <SelectValue placeholder="Sort By" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="date">Application Date</SelectItem>
-                <SelectItem value="company">Company Name</SelectItem>
-                <SelectItem value="title">Job Title</SelectItem>
-              </SelectContent>
-            </Select>
+            <ErrorBoundary>
+              <Select value={sortBy} onValueChange={setSortBy}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Sort By" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="date">Application Date</SelectItem>
+                  <SelectItem value="company">Company Name</SelectItem>
+                  <SelectItem value="title">Job Title</SelectItem>
+                </SelectContent>
+              </Select>
+            </ErrorBoundary>
 
             <div className="flex gap-2">
               <Button

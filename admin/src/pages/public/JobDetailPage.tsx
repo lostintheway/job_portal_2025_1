@@ -47,7 +47,7 @@ export default function JobDetailPage() {
       const response = await api.getJobById(id);
       const bookmarksResponse = await api.getBookmarkedJobs();
       const bookmarkedJobIds = new Set(
-        bookmarksResponse.data.map((job: any) => job.jobId)
+        bookmarksResponse.data.data.map((job: any) => job.jobId)
       );
 
       setJob({
@@ -62,11 +62,13 @@ export default function JobDetailPage() {
     }
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
-    setApplication(prev => ({
+    setApplication((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
@@ -135,7 +137,9 @@ export default function JobDetailPage() {
         <CardHeader className="flex flex-row items-start justify-between">
           <div>
             <CardTitle className="text-2xl">{job.title}</CardTitle>
-            <p className="text-gray-500 mt-1">{job.company} • {job.location}</p>
+            <p className="text-gray-500 mt-1">
+              {job.company} • {job.location}
+            </p>
           </div>
           <Button
             variant="ghost"
@@ -164,39 +168,51 @@ export default function JobDetailPage() {
               </div>
               <div>
                 <p className="text-sm font-medium">Application Deadline</p>
-                <p className="text-gray-500">{new Date(job.deadLine).toLocaleDateString()}</p>
+                <p className="text-gray-500">
+                  {new Date(job.deadLine).toLocaleDateString()}
+                </p>
               </div>
             </div>
           </div>
 
           <div>
             <h3 className="text-lg font-semibold mb-2">Description</h3>
-            <p className="text-gray-700 whitespace-pre-line">{job.description}</p>
+            <p className="text-gray-700 whitespace-pre-line">
+              {job.description}
+            </p>
           </div>
 
           {job.requirements && (
             <div>
               <h3 className="text-lg font-semibold mb-2">Requirements</h3>
-              <p className="text-gray-700 whitespace-pre-line">{job.requirements}</p>
+              <p className="text-gray-700 whitespace-pre-line">
+                {job.requirements}
+              </p>
             </div>
           )}
 
           {job.responsibilities && (
             <div>
               <h3 className="text-lg font-semibold mb-2">Responsibilities</h3>
-              <p className="text-gray-700 whitespace-pre-line">{job.responsibilities}</p>
+              <p className="text-gray-700 whitespace-pre-line">
+                {job.responsibilities}
+              </p>
             </div>
           )}
 
           {job.benefits && (
             <div>
               <h3 className="text-lg font-semibold mb-2">Benefits</h3>
-              <p className="text-gray-700 whitespace-pre-line">{job.benefits}</p>
+              <p className="text-gray-700 whitespace-pre-line">
+                {job.benefits}
+              </p>
             </div>
           )}
 
           <div className="pt-6 border-t">
-            <h3 className="text-xl font-semibold mb-4">Apply for this position</h3>
+            <h3 className="text-xl font-semibold mb-4">
+              Apply for this position
+            </h3>
             <form onSubmit={handleApply} className="space-y-4">
               <div>
                 <Label htmlFor="resumeUrl">Resume URL</Label>

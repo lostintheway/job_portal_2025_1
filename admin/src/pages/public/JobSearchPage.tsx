@@ -28,6 +28,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
+import ErrorBoundary from "@/components/ErrorBoundary";
 
 interface Job {
   jobId: string;
@@ -76,10 +77,10 @@ export default function JobSearchPage() {
       const response = await api.getJobs();
       const bookmarksResponse = await api.getBookmarkedJobs();
       const bookmarkedJobIds = new Set(
-        bookmarksResponse.data.map((job: any) => job.jobId)
+        bookmarksResponse.data.data.map((job: { jobId: number }) => job.jobId)
       );
 
-      const jobsWithBookmarks = response.data.map((job: Job) => ({
+      const jobsWithBookmarks = response.data.data.map((job: Job) => ({
         ...job,
         isBookmarked: bookmarkedJobIds.has(job.jobId),
       }));
@@ -226,54 +227,60 @@ export default function JobSearchPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <Select
-              value={selectedCategory}
-              onValueChange={setSelectedCategory}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Filter by Category" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="">All Categories</SelectItem>
-                {categories.map((category) => (
-                  <SelectItem key={category.id} value={category.id}>
-                    {category.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            <Select value={selectedJobType} onValueChange={setSelectedJobType}>
-              <SelectTrigger>
-                <SelectValue placeholder="Job Type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="">All Types</SelectItem>
-                <SelectItem value="full-time">Full-time</SelectItem>
-                <SelectItem value="part-time">Part-time</SelectItem>
-                <SelectItem value="contract">Contract</SelectItem>
-                <SelectItem value="internship">Internship</SelectItem>
-                <SelectItem value="remote">Remote</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select
-              value={selectedLocation}
-              onValueChange={setSelectedLocation}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Location" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="">All Locations</SelectItem>
-                {locations.map((location) => (
-                  <SelectItem key={location} value={location}>
-                    {location}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
+            <ErrorBoundary>
+              <Select
+                value={selectedCategory}
+                onValueChange={setSelectedCategory}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Filter by Category" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">All Categories</SelectItem>
+                  {categories.map((category, index) => (
+                    <SelectItem key={index} value={category.id}>
+                      {category.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </ErrorBoundary>
+            <ErrorBoundary>
+              <Select
+                value={selectedJobType}
+                onValueChange={setSelectedJobType}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Job Type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">All Types</SelectItem>
+                  <SelectItem value="full-time">Full-time</SelectItem>
+                  <SelectItem value="part-time">Part-time</SelectItem>
+                  <SelectItem value="contract">Contract</SelectItem>
+                  <SelectItem value="internship">Internship</SelectItem>
+                  <SelectItem value="remote">Remote</SelectItem>
+                </SelectContent>
+              </Select>
+            </ErrorBoundary>
+            <ErrorBoundary>
+              <Select
+                value={selectedLocation}
+                onValueChange={setSelectedLocation}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Location" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">All Locations</SelectItem>
+                  {locations.map((location, index) => (
+                    <SelectItem key={index} value={location}>
+                      {location}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </ErrorBoundary>
             <Button variant="outline" onClick={resetFilters}>
               Reset Filters
             </Button>

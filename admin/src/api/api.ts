@@ -57,6 +57,7 @@ export class Api {
   getJobs() {
     return this.axiosInstance.get("/api/job-descriptions");
   }
+
   getJobById(jobId: string) {
     return this.axiosInstance.get(`/api/job-descriptions/${jobId}`);
   }
@@ -106,6 +107,10 @@ export class Api {
   // Get applications submitted by the logged-in user (jobseeker only)
   getMyApplications() {
     return this.axiosInstance.get("/api/applications/my-applications");
+  }
+  //getApplicationsByUserId
+  getApplicationsByUserId(userId: string) {
+    return this.axiosInstance.get(`/api/my-applications/${userId}`);
   }
   // Get application by ID
   getApplicationById(applicationId: string) {

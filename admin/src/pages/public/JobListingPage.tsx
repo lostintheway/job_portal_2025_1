@@ -36,10 +36,10 @@ export default function JobListingPage() {
       const response = await api.getJobs();
       const bookmarksResponse = await api.getBookmarkedJobs();
       const bookmarkedJobIds = new Set(
-        bookmarksResponse.data.map((job: Job) => job.jobId)
+        bookmarksResponse.data.data.map((job: Job) => job.jobId)
       );
 
-      const jobsWithBookmarks = response.data.map((job: Job) => ({
+      const jobsWithBookmarks = response.data.data.map((job: Job) => ({
         ...job,
         isBookmarked: bookmarkedJobIds.has(job.jobId),
       }));
