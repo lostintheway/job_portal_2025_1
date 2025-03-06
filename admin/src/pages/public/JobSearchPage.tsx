@@ -1,7 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../../api/api";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -15,7 +14,6 @@ import { Badge } from "@/components/ui/badge";
 import {
   Bookmark,
   BookmarkCheck,
-  Search,
   MapPin,
   Briefcase,
   Calendar,
@@ -29,81 +27,71 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 import ErrorBoundary from "@/components/ErrorBoundary";
-
-interface Job {
-  jobId: string;
-  title: string;
-  company: string;
-  location: string;
-  description: string;
-  jobType: string;
-  deadLine: string;
-  salary: string;
-  categoryId: string;
-  categoryName?: string;
-  isBookmarked?: boolean;
-}
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+} from "@/components/ui/pagination";
+import { JobListingModel } from "@/api/JobListingResponse";
 
 export default function JobSearchPage() {
   const navigate = useNavigate();
-  const [jobs, setJobs] = useState<Job[]>([]);
-  const [filteredJobs, setFilteredJobs] = useState<Job[]>([]);
-  const [categories, setCategories] = useState<{ id: string; name: string }[]>(
-    []
-  );
+  const [jobs, setJobs] = useState<JobListingModel[]>([]);
+  const [filteredJobs, setFilteredJobs] = useState<JobListingModel[]>([]);
+  const [categories, setCategories] = useState<
+    { categoryId: string; categoryName: string }[]
+  >([]);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
 
   // Search and filter states
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<string>("");
-  const [selectedJobType, setSelectedJobType] = useState<string>("");
-  const [selectedLocation, setSelectedLocation] = useState<string>("");
+  const [selectedCategory, setSelectedCategory] = useState<number>(0);
+  const [selectedJobType, setSelectedJobType] = useState<string>("all");
 
-  // Unique locations derived from jobs
-  const [locations, setLocations] = useState<string[]>([]);
-
-  useEffect(() => {
-    fetchJobs();
-    fetchCategories();
-  }, []);
-
-  useEffect(() => {
-    applyFilters();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [jobs, searchTerm, selectedCategory, selectedJobType, selectedLocation]);
-
-  const fetchJobs = async () => {
+  const fetchJobsByPageAndSize = useCallback(async () => {
     try {
-      const response = await api.getJobs();
+      const response = await api.getJobsByPageAndSize(page, 10);
       const bookmarksResponse = await api.getBookmarkedJobs();
       const bookmarkedJobIds = new Set(
         bookmarksResponse.data.data.map((job: { jobId: number }) => job.jobId)
       );
 
-      const jobsWithBookmarks = response.data.data.map((job: Job) => ({
-        ...job,
-        isBookmarked: bookmarkedJobIds.has(job.jobId),
-      }));
+      const jobsWithBookmarks = response.data.data.data.map(
+        (job: JobListingModel) => ({
+          ...job,
+          isBookmarked: bookmarkedJobIds.has(job.jobId),
+        })
+      );
 
       setJobs(jobsWithBookmarks);
-
-      // Extract unique locations
-      const uniqueLocations = [
-        ...jobsWithBookmarks.map((job: Job) => job.location),
-      ];
-      setLocations(uniqueLocations);
+      setTotal(response.data.data.total);
     } catch (error) {
       console.error("Error fetching jobs:", error);
       toast.error("Failed to load jobs");
     } finally {
       setLoading(false);
     }
-  };
+  }, [page]);
+
+  useEffect(() => {
+    fetchJobsByPageAndSize();
+    fetchCategories();
+  }, [fetchJobsByPageAndSize]);
+
+  useEffect(() => {
+    applyFilters();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [jobs, selectedCategory, selectedJobType]);
 
   const fetchCategories = async () => {
     try {
       const response = await api.getInstance().get("/api/categories");
-      setCategories(response.data.data);
+      const categories = response.data.data;
+      setCategories(categories);
     } catch (error) {
       console.error("Error fetching categories:", error);
     }
@@ -112,36 +100,26 @@ export default function JobSearchPage() {
   const applyFilters = () => {
     let result = [...jobs];
 
-    // Apply search term filter
-    if (searchTerm) {
-      const term = searchTerm.toLowerCase();
-      result = result.filter(
-        (job) =>
-          job.title.toLowerCase().includes(term) ||
-          job.company.toLowerCase().includes(term) ||
-          job.description.toLowerCase().includes(term)
-      );
-    }
-
     // Apply category filter
     if (selectedCategory) {
+      if (selectedCategory === 0 || selectedCategory === "all") {
+        return;
+      }
       result = result.filter((job) => job.categoryId === selectedCategory);
     }
 
     // Apply job type filter
     if (selectedJobType) {
+      if (selectedJobType === "all") {
+        return;
+      }
       result = result.filter((job) => job.jobType === selectedJobType);
-    }
-
-    // Apply location filter
-    if (selectedLocation) {
-      result = result.filter((job) => job.location === selectedLocation);
     }
 
     setFilteredJobs(result);
   };
 
-  const toggleBookmark = async (jobId: string) => {
+  const toggleBookmark = async (jobId: number) => {
     try {
       const job = jobs.find((j) => j.jobId === jobId);
       if (job?.isBookmarked) {
@@ -166,15 +144,13 @@ export default function JobSearchPage() {
     }
   };
 
-  const handleViewJob = (jobId: string) => {
+  const handleViewJob = (jobId: number) => {
     navigate(`/public/jobs/${jobId}`);
   };
 
   const resetFilters = () => {
-    setSearchTerm("");
-    setSelectedCategory("");
-    setSelectedJobType("");
-    setSelectedLocation("");
+    setSelectedCategory(0);
+    setSelectedJobType("all");
   };
 
   if (loading) {
@@ -214,32 +190,24 @@ export default function JobSearchPage() {
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-6">Find Your Perfect Job</h1>
 
-        {/* Search and filters */}
+        {JSON.stringify({ jobs })}
         <div className="space-y-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-            <Input
-              placeholder="Search jobs by title, company, or keywords"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
-            />
-          </div>
-
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <ErrorBoundary>
               <Select
-                value={selectedCategory}
-                onValueChange={setSelectedCategory}
+                value={(selectedCategory || "all").toString()}
+                onValueChange={(val) => {
+                  setSelectedCategory(Number(val));
+                }}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Filter by Category" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Categories</SelectItem>
+                  <SelectItem value={"all"}>All Categories</SelectItem>
                   {categories.map((category, index) => (
-                    <SelectItem key={index} value={category.id}>
-                      {category.name}
+                    <SelectItem key={index} value={category.categoryId}>
+                      {category.categoryName}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -247,14 +215,16 @@ export default function JobSearchPage() {
             </ErrorBoundary>
             <ErrorBoundary>
               <Select
-                value={selectedJobType}
-                onValueChange={setSelectedJobType}
+                value={(selectedJobType || "all").toString()}
+                onValueChange={(val) => {
+                  setSelectedJobType(val);
+                }}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Job Type" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Types</SelectItem>
+                  <SelectItem value="all">All Types</SelectItem>
                   <SelectItem value="full-time">Full-time</SelectItem>
                   <SelectItem value="part-time">Part-time</SelectItem>
                   <SelectItem value="contract">Contract</SelectItem>
@@ -263,31 +233,13 @@ export default function JobSearchPage() {
                 </SelectContent>
               </Select>
             </ErrorBoundary>
-            <ErrorBoundary>
-              <Select
-                value={selectedLocation}
-                onValueChange={setSelectedLocation}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Location" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="">All Locations</SelectItem>
-                  {locations.map((location, index) => (
-                    <SelectItem key={index} value={location}>
-                      {location}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </ErrorBoundary>
+
             <Button variant="outline" onClick={resetFilters}>
               Reset Filters
             </Button>
           </div>
         </div>
       </div>
-
       {/* Results count */}
       <div className="mb-4">
         <p className="text-gray-500">
@@ -295,7 +247,6 @@ export default function JobSearchPage() {
           found
         </p>
       </div>
-
       {/* Job listings */}
       {filteredJobs.length === 0 ? (
         <Card>
@@ -314,14 +265,14 @@ export default function JobSearchPage() {
             <Card key={job.jobId} className="overflow-hidden">
               <CardHeader className="pb-2">
                 <CardTitle className="text-xl">{job.title}</CardTitle>
-                <p className="text-gray-500 font-medium">{job.company}</p>
+                <p className="text-gray-500 font-medium">{job.employerName}</p>
               </CardHeader>
 
               <CardContent className="pb-2">
                 <div className="flex flex-col space-y-2 mb-4">
                   <div className="flex items-center text-gray-500">
                     <MapPin className="h-4 w-4 mr-2" />
-                    <span>{job.location}</span>
+                    <span>{job.employerAddress}</span>
                   </div>
                   <div className="flex items-center text-gray-500">
                     <Briefcase className="h-4 w-4 mr-2" />
@@ -335,11 +286,13 @@ export default function JobSearchPage() {
                   </div>
                 </div>
 
-                <p className="text-gray-700 line-clamp-3">{job.description}</p>
+                <p className="text-gray-700 line-clamp-3">
+                  {job.jobDescription}
+                </p>
 
-                {job.salary && (
+                {job.offeredSalary && (
                   <Badge className="mt-3 bg-green-100 text-green-800 hover:bg-green-100">
-                    {job.salary}
+                    {job.offeredSalary}
                   </Badge>
                 )}
               </CardContent>
@@ -365,6 +318,32 @@ export default function JobSearchPage() {
           ))}
         </div>
       )}
+      <Pagination>
+        <PaginationContent>
+          {[...Array(Math.ceil(total / 10)).keys()].map((page) => (
+            <PaginationItem key={page}>
+              <PaginationLink
+                isActive={page === page}
+                onClick={() => setPage(page)}
+              >
+                {page + 1}
+              </PaginationLink>
+            </PaginationItem>
+          ))}
+          {page < Math.ceil(total / 10) - 1 && (
+            <PaginationItem>
+              <PaginationEllipsis />
+            </PaginationItem>
+          )}
+          <PaginationItem>
+            <PaginationNext
+              aria-disabled={page >= Math.ceil(total / 10) - 1}
+              onClick={() => setPage(page + 1)}
+              className={page >= Math.ceil(total / 10) - 1 ? "disabled" : ""}
+            />
+          </PaginationItem>
+        </PaginationContent>
+      </Pagination>
     </div>
   );
 }

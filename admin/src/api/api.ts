@@ -1,5 +1,6 @@
 import axios, { AxiosInstance, AxiosResponse } from "axios";
 import { LoginResponse } from "./types";
+import { JobListingResponse } from "./JobListingResponse";
 
 export class Api {
   private baseUrl: string;
@@ -56,6 +57,13 @@ export class Api {
   // Jobs
   getJobs() {
     return this.axiosInstance.get("/api/job-descriptions");
+  }
+
+  // Get jobs by page and size
+  getJobsByPageAndSize(page: number, size: number) {
+    return this.axiosInstance.get<JobListingResponse>(
+      `/api/job-descriptions/page/${page}/size/${size}`
+    );
   }
 
   getJobById(jobId: string) {

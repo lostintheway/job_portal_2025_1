@@ -1,4 +1,5 @@
 import type { JobListingSelect } from "../db/schema";
+import type { ResponseWithTotal } from "../interfaces/ResponseWithTotal.ts";
 import JobListingModel from "../models/jobListing.model.ts";
 
 class JobListingService {
@@ -9,7 +10,7 @@ class JobListingService {
   static async getJobListingsByPageAndSize(
     page: number,
     size: number
-  ): Promise<JobListingSelect[]> {
+  ): Promise<ResponseWithTotal<JobListingSelect[]>> {
     return JobListingModel.getJobListingsByPageAndSize(page, size);
   }
 

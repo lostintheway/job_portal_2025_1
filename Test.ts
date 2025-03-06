@@ -1,0 +1,7 @@
+applications
+bookmarks
+categories
+employer_profiles
+job_listings
+jobseeker_profiles
+users

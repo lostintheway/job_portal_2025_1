@@ -1,10 +1,11 @@
-import { eq, and, desc, like, or } from "drizzle-orm";
+import { eq, and, desc, like, or, sql } from "drizzle-orm";
 import { db } from "../config/db.ts";
 import {
   jobListings,
   employerProfiles,
   type JobListingSelect,
 } from "../db/schema.ts";
+import type { ResponseWithTotal } from "../interfaces/ResponseWithTotal.ts";
 
 class JobListingModel {
   static async getAllJobListings(): Promise<JobListingSelect[]> {
@@ -18,33 +19,44 @@ class JobListingModel {
   }
 
   // Get job listing by page and size
+  // Get job listing by page and size
   static async getJobListingsByPageAndSize(
     page: number,
     size: number
-  ): Promise<JobListingSelect[]> {
+  ): Promise<ResponseWithTotal<JobListingSelect[]>> {
     const offset = (page - 1) * size;
-    return db
-      .select()
+    const [total] = await db
+      .select({
+        count: sql`count(*)`.mapWith(Number),
+      })
       .from(jobListings)
+      .where(eq(jobListings.isDeleted, false));
+
+    // Join with employer profiles to include employer details
+    const data = await db
+      .select({
+        ...jobListings,
+        employerName: employerProfiles.companyName,
+        employerAddress: employerProfiles.companyAddress,
+        employerIndustry: employerProfiles.industryType,
+      } as any)
+      .from(jobListings)
+      .leftJoin(
+        employerProfiles,
+        eq(jobListings.employerId, employerProfiles.employerId)
+      )
       .where(eq(jobListings.isDeleted, false))
       .limit(size)
       .offset(offset);
+
+    return {
+      data,
+      total: total.count,
+      page,
+      size,
+    };
   }
 
-  // static async getJobListingsByCategoryId(
-  //   req: Request,
-  //   res: Response
-  // ): Promise<void> {
-  //   try {
-  //     const categoryId = parseInt(req.params.categoryId);
-  //     const jobListings = await JobListingService.getJobListingsByCategoryId(
-  //       categoryId
-  //     );
-  //     res.status(200).json({ success: true, data: jobListings });
-  //   } catch (error) {
-  //     res.status(500).json(ErrorMessage.serverError());
-  //   }
-  // }
   static async getJobListingsByCategoryId(
     categoryId: number
   ): Promise<JobListingSelect[]> {
