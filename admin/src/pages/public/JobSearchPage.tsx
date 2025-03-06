@@ -42,14 +42,14 @@ export default function JobSearchPage() {
   const [jobs, setJobs] = useState<JobListingModel[]>([]);
   const [filteredJobs, setFilteredJobs] = useState<JobListingModel[]>([]);
   const [categories, setCategories] = useState<
-    { categoryId: string; categoryName: string }[]
+    { categoryId: number; categoryName: string }[]
   >([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
 
   // Search and filter states
-  const [selectedCategory, setSelectedCategory] = useState<number>(0);
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [selectedJobType, setSelectedJobType] = useState<string>("all");
 
   const fetchJobsByPageAndSize = useCallback(async () => {
@@ -97,22 +97,25 @@ export default function JobSearchPage() {
     }
   };
 
+  const [jobTypes, setJobTypes] = useState<string[]>([]);
+
+  useEffect(() => {
+    const uniqueJobTypes = [...new Set(jobs.map((job) => job.jobType))];
+    setJobTypes(uniqueJobTypes);
+  }, [jobs]);
+
   const applyFilters = () => {
     let result = [...jobs];
 
     // Apply category filter
-    if (selectedCategory) {
-      if (selectedCategory === 0 || selectedCategory === "all") {
-        return;
-      }
-      result = result.filter((job) => job.categoryId === selectedCategory);
+    if (selectedCategory !== "all") {
+      result = result.filter(
+        (job) => job.categoryId === parseInt(selectedCategory)
+      );
     }
 
     // Apply job type filter
-    if (selectedJobType) {
-      if (selectedJobType === "all") {
-        return;
-      }
+    if (selectedJobType !== "all") {
       result = result.filter((job) => job.jobType === selectedJobType);
     }
 
@@ -189,15 +192,13 @@ export default function JobSearchPage() {
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-6">Find Your Perfect Job</h1>
-
-        {JSON.stringify({ jobs })}
         <div className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <ErrorBoundary>
               <Select
-                value={(selectedCategory || "all").toString()}
+                value={selectedCategory}
                 onValueChange={(val) => {
-                  setSelectedCategory(Number(val));
+                  setSelectedCategory(val);
                 }}
               >
                 <SelectTrigger>
@@ -225,11 +226,11 @@ export default function JobSearchPage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Types</SelectItem>
-                  <SelectItem value="full-time">Full-time</SelectItem>
-                  <SelectItem value="part-time">Part-time</SelectItem>
-                  <SelectItem value="contract">Contract</SelectItem>
-                  <SelectItem value="internship">Internship</SelectItem>
-                  <SelectItem value="remote">Remote</SelectItem>
+                  {jobTypes.map((type) => (
+                    <SelectItem key={type} value={type}>
+                      {type}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </ErrorBoundary>
@@ -243,8 +244,7 @@ export default function JobSearchPage() {
       {/* Results count */}
       <div className="mb-4">
         <p className="text-gray-500">
-          {filteredJobs.length} {filteredJobs.length === 1 ? "job" : "jobs"}{" "}
-          found
+          {total} {filteredJobs.length === 1 ? "job" : "jobs"} found
         </p>
       </div>
       {/* Job listings */}
@@ -318,15 +318,18 @@ export default function JobSearchPage() {
           ))}
         </div>
       )}
+      {JSON.stringify({ page })}
       <Pagination>
         <PaginationContent>
-          {[...Array(Math.ceil(total / 10)).keys()].map((page) => (
-            <PaginationItem key={page}>
+          {[...Array(Math.ceil(total / 10)).keys()].map((pageNo) => (
+            <PaginationItem key={pageNo}>
               <PaginationLink
-                isActive={page === page}
-                onClick={() => setPage(page)}
+                isActive={page === pageNo + 1}
+                onClick={() => {
+                  setPage(pageNo + 1);
+                }}
               >
-                {page + 1}
+                {pageNo + 1}
               </PaginationLink>
             </PaginationItem>
           ))}
