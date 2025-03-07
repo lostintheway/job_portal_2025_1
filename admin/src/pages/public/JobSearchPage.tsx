@@ -10,7 +10,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Badge } from "@/components/ui/badge";
 import {
   Bookmark,
   BookmarkCheck,
@@ -34,32 +33,74 @@ import {
   PaginationItem,
   PaginationLink,
   PaginationNext,
+  PaginationPrevious,
 } from "@/components/ui/pagination";
 import { JobListingModel } from "@/api/JobListingResponse";
+
+// Define filter state interface
+interface FilterState {
+  category?: string;
+  jobType?: string;
+}
 
 export default function JobSearchPage() {
   const navigate = useNavigate();
   const [jobs, setJobs] = useState<JobListingModel[]>([]);
-  const [filteredJobs, setFilteredJobs] = useState<JobListingModel[]>([]);
   const [categories, setCategories] = useState<
-    { categoryId: number; categoryName: string }[]
+    { categoryId: string; categoryName: string }[]
   >([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
+  const [pageSize] = useState(9); // Fixed page size
 
   // Search and filter states
-  const [selectedCategory, setSelectedCategory] = useState<string>("all");
-  const [selectedJobType, setSelectedJobType] = useState<string>("all");
+  const [filters, setFilters] = useState<FilterState>({
+    category: "all",
+    jobType: "all",
+  });
+  const [jobTypes, setJobTypes] = useState<string[]>([]);
 
-  const fetchJobsByPageAndSize = useCallback(async () => {
+  // Fetch jobs with filters applied
+  const fetchJobs = useCallback(async () => {
+    setLoading(true);
     try {
-      const response = await api.getJobsByPageAndSize(page, 10);
+      // Prepare filter parameters for API call
+      const apiFilters: {
+        keyword?: string;
+        location?: string;
+        category?: string;
+        jobType?: string;
+        salary?: string;
+        page?: string;
+        size?: string;
+      } = {};
+      
+      if (filters.category && filters.category !== "all") {
+        apiFilters.category = filters.category;
+      }
+      
+      if (filters.jobType && filters.jobType !== "all") {
+        apiFilters.jobType = filters.jobType;
+      }
+      
+      // If we have filters, use searchJobs API, otherwise use pagination API
+      let response;
+      if (Object.keys(apiFilters).length > 0) {
+        apiFilters.page = page.toString();
+        apiFilters.size = pageSize.toString();
+        response = await api.searchJobs(apiFilters);
+      } else {
+        response = await api.getJobsByPageAndSize(page, pageSize);
+      }
+      
+      // Get bookmarked jobs to mark them in the UI
       const bookmarksResponse = await api.getBookmarkedJobs();
       const bookmarkedJobIds = new Set(
         bookmarksResponse.data.data.map((job: { jobId: number }) => job.jobId)
       );
 
+      // Add isBookmarked flag to each job
       const jobsWithBookmarks = response.data.data.data.map(
         (job: JobListingModel) => ({
           ...job,
@@ -69,70 +110,70 @@ export default function JobSearchPage() {
 
       setJobs(jobsWithBookmarks);
       setTotal(response.data.data.total);
+      
+      // Extract unique job types for the filter dropdown
+      const uniqueJobTypes = [...new Set(jobsWithBookmarks.map((job: JobListingModel) => job.jobType))];
+      setJobTypes(uniqueJobTypes);
     } catch (error) {
       console.error("Error fetching jobs:", error);
       toast.error("Failed to load jobs");
     } finally {
       setLoading(false);
     }
-  }, [page]);
+  }, [page, pageSize, filters]);
 
-  useEffect(() => {
-    fetchJobsByPageAndSize();
-    fetchCategories();
-  }, [fetchJobsByPageAndSize]);
-
-  useEffect(() => {
-    applyFilters();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [jobs, selectedCategory, selectedJobType]);
-
-  const fetchCategories = async () => {
+  // Fetch categories for the filter dropdown
+  const fetchCategories = useCallback(async () => {
     try {
       const response = await api.getInstance().get("/api/categories");
-      const categories = response.data.data;
-      setCategories(categories);
+      const categoriesData = response.data.data.map((category: any) => ({
+        ...category,
+        categoryId: category.categoryId.toString()
+      }));
+      setCategories(categoriesData);
     } catch (error) {
       console.error("Error fetching categories:", error);
+      toast.error("Failed to load categories");
     }
-  };
+  }, []);
 
-  const [jobTypes, setJobTypes] = useState<string[]>([]);
-
+  // Initial data loading
   useEffect(() => {
-    const uniqueJobTypes = [...new Set(jobs.map((job) => job.jobType))];
-    setJobTypes(uniqueJobTypes);
-  }, [jobs]);
+    fetchJobs();
+    fetchCategories();
+  }, [fetchJobs, fetchCategories]);
 
-  const applyFilters = () => {
-    let result = [...jobs];
-
-    // Apply category filter
-    if (selectedCategory !== "all") {
-      result = result.filter(
-        (job) => job.categoryId === parseInt(selectedCategory)
-      );
-    }
-
-    // Apply job type filter
-    if (selectedJobType !== "all") {
-      result = result.filter((job) => job.jobType === selectedJobType);
-    }
-
-    setFilteredJobs(result);
+  // Handle category filter change
+  const handleCategoryChange = (value: string) => {
+    setFilters((prev: FilterState) => ({ ...prev, category: value }));
+    setPage(1); // Reset to first page when filter changes
   };
 
+  // Handle job type filter change
+  const handleJobTypeChange = (value: string) => {
+    setFilters((prev: FilterState) => ({ ...prev, jobType: value }));
+    setPage(1); // Reset to first page when filter changes
+  };
+
+  // Reset all filters
+  const resetFilters = () => {
+    setFilters({ category: "all", jobType: "all" });
+    setPage(1); // Reset to first page
+  };
+
+  // Toggle bookmark status for a job
   const toggleBookmark = async (jobId: number) => {
     try {
       const job = jobs.find((j) => j.jobId === jobId);
       if (job?.isBookmarked) {
-        await api.removeBookmark(jobId);
+        await api.removeBookmark(jobId.toString());
         toast.success("Job removed from bookmarks");
       } else {
-        await api.addBookmark(jobId);
+        await api.addBookmark(jobId.toString());
         toast.success("Job added to bookmarks");
       }
 
+      // Update local state to reflect bookmark change
       setJobs(
         jobs.map((job) => {
           if (job.jobId === jobId) {
@@ -147,15 +188,12 @@ export default function JobSearchPage() {
     }
   };
 
+  // Navigate to job details page
   const handleViewJob = (jobId: number) => {
     navigate(`/public/jobs/${jobId}`);
   };
 
-  const resetFilters = () => {
-    setSelectedCategory(0);
-    setSelectedJobType("all");
-  };
-
+  // Loading state UI
   if (loading) {
     return (
       <div className="container mx-auto px-4 py-8">
@@ -188,6 +226,9 @@ export default function JobSearchPage() {
     );
   }
 
+  // Calculate total pages for pagination
+  const totalPages = Math.ceil(total / pageSize);
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
@@ -196,16 +237,14 @@ export default function JobSearchPage() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <ErrorBoundary>
               <Select
-                value={selectedCategory}
-                onValueChange={(val) => {
-                  setSelectedCategory(val);
-                }}
+                value={filters.category}
+                onValueChange={handleCategoryChange}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Filter by Category" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value={"all"}>All Categories</SelectItem>
+                  <SelectItem value="all">All Categories</SelectItem>
                   {categories.map((category, index) => (
                     <SelectItem key={index} value={category.categoryId}>
                       {category.categoryName}
@@ -216,10 +255,8 @@ export default function JobSearchPage() {
             </ErrorBoundary>
             <ErrorBoundary>
               <Select
-                value={(selectedJobType || "all").toString()}
-                onValueChange={(val) => {
-                  setSelectedJobType(val);
-                }}
+                value={filters.jobType || "all"}
+                onValueChange={handleJobTypeChange}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Job Type" />
@@ -241,14 +278,16 @@ export default function JobSearchPage() {
           </div>
         </div>
       </div>
+      
       {/* Results count */}
       <div className="mb-4">
         <p className="text-gray-500">
-          {total} {filteredJobs.length === 1 ? "job" : "jobs"} found
+          {total} {total === 1 ? "job" : "jobs"} found
         </p>
       </div>
+      
       {/* Job listings */}
-      {filteredJobs.length === 0 ? (
+      {jobs.length === 0 ? (
         <Card>
           <CardContent className="p-6 text-center">
             <p className="text-gray-500 mb-2">
@@ -261,7 +300,7 @@ export default function JobSearchPage() {
         </Card>
       ) : (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {filteredJobs.map((job) => (
+          {jobs.map((job) => (
             <Card key={job.jobId} className="overflow-hidden">
               <CardHeader className="pb-2">
                 <CardTitle className="text-xl">{job.title}</CardTitle>
@@ -291,9 +330,9 @@ export default function JobSearchPage() {
                 </p>
 
                 {job.offeredSalary && (
-                  <Badge className="mt-3 bg-green-100 text-green-800 hover:bg-green-100">
+                  <div className="mt-3 inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 bg-green-100 text-green-800 hover:bg-green-100">
                     {job.offeredSalary}
-                  </Badge>
+                  </div>
                 )}
               </CardContent>
 
@@ -318,35 +357,94 @@ export default function JobSearchPage() {
           ))}
         </div>
       )}
-      {JSON.stringify({ page })}
-      <Pagination>
-        <PaginationContent>
-          {[...Array(Math.ceil(total / 10)).keys()].map((pageNo) => (
-            <PaginationItem key={pageNo}>
-              <PaginationLink
-                isActive={page === pageNo + 1}
-                onClick={() => {
-                  setPage(pageNo + 1);
-                }}
-              >
-                {pageNo + 1}
-              </PaginationLink>
-            </PaginationItem>
-          ))}
-          {page < Math.ceil(total / 10) - 1 && (
-            <PaginationItem>
-              <PaginationEllipsis />
-            </PaginationItem>
-          )}
-          <PaginationItem>
-            <PaginationNext
-              aria-disabled={page >= Math.ceil(total / 10) - 1}
-              onClick={() => setPage(page + 1)}
-              className={page >= Math.ceil(total / 10) - 1 ? "disabled" : ""}
-            />
-          </PaginationItem>
-        </PaginationContent>
-      </Pagination>
+      
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="mt-8">
+          <Pagination>
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  onClick={() => setPage(Math.max(1, page - 1))}
+                  aria-disabled={page === 1}
+                  className={page === 1 ? "pointer-events-none opacity-50" : ""}
+                />
+              </PaginationItem>
+              
+              {/* Show first page */}
+              {page > 3 && (
+                <PaginationItem>
+                  <PaginationLink onClick={() => setPage(1)}>
+                    1
+                  </PaginationLink>
+                </PaginationItem>
+              )}
+              
+              {/* Show ellipsis if needed */}
+              {page > 4 && (
+                <PaginationItem>
+                  <PaginationEllipsis />
+                </PaginationItem>
+              )}
+              
+              {/* Show pages around current page */}
+              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                // Calculate the page number to display
+                let pageNum;
+                if (page <= 3) {
+                  // If near the start, show first 5 pages
+                  pageNum = i + 1;
+                } else if (page >= totalPages - 2) {
+                  // If near the end, show last 5 pages
+                  pageNum = totalPages - 4 + i;
+                } else {
+                  // Otherwise show 2 before and 2 after current page
+                  pageNum = page - 2 + i;
+                }
+                
+                // Only show if the page number is valid
+                if (pageNum > 0 && pageNum <= totalPages) {
+                  return (
+                    <PaginationItem key={pageNum}>
+                      <PaginationLink
+                        isActive={page === pageNum}
+                        onClick={() => setPage(pageNum)}
+                      >
+                        {pageNum}
+                      </PaginationLink>
+                    </PaginationItem>
+                  );
+                }
+                return null;
+              })}
+              
+              {/* Show ellipsis if needed */}
+              {page < totalPages - 3 && (
+                <PaginationItem>
+                  <PaginationEllipsis />
+                </PaginationItem>
+              )}
+              
+              {/* Show last page */}
+              {page < totalPages - 2 && (
+                <PaginationItem>
+                  <PaginationLink onClick={() => setPage(totalPages)}>
+                    {totalPages}
+                  </PaginationLink>
+                </PaginationItem>
+              )}
+              
+              <PaginationItem>
+                <PaginationNext
+                  onClick={() => setPage(Math.min(totalPages, page + 1))}
+                  aria-disabled={page === totalPages}
+                  className={page === totalPages ? "pointer-events-none opacity-50" : ""}
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        </div>
+      )}
     </div>
   );
 }

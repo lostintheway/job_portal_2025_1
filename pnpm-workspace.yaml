@@ -1,3 +1,9 @@
 packages:
-  - "admin/"
-  - "server/"
+  - admin/
+  - server/
+ignoredBuiltDependencies:
+  - '@scarf/scarf'
+  - '@swc/core'
+  - esbuild
+onlyBuiltDependencies:
+  - '@swc/core'
