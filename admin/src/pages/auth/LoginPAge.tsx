@@ -56,7 +56,7 @@ export default function LoginPage() {
         localStorage.setItem("token", res.token);
         localStorage.setItem("role", res.user.role);
         if (res.user.role === "jobseeker") {
-          navigate("/public");
+          navigate("/dashboard");
         } else if (res.user.role === "admin") {
           navigate("/admin");
         } else if (res.user.role === "employer") {

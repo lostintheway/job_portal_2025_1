@@ -3,4 +3,5 @@ export interface ResponseWithTotal<T> {
   data: T;
   page: number;
   size: number;
+  totalPages: number;
 }

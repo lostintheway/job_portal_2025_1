@@ -1,11 +1,28 @@
 import type { Request, Response } from "express";
 import ApplicationService from "../services/application.service.ts";
 import ErrorMessage from "../models/errorMessage.model.ts";
+import type { ApplicationQueryParams } from "../interfaces/QueryParams.ts";
 
 class ApplicationController {
-  static async getAllApplications(req: Request, res: Response): Promise<void> {
+  static async getApplications(req: Request, res: Response): Promise<void> {
     try {
-      const applications = await ApplicationService.getAllApplications();
+      const params: ApplicationQueryParams = {
+        page: req.query.page ? parseInt(req.query.page as string) : undefined,
+        size: req.query.size ? parseInt(req.query.size as string) : undefined,
+        sortBy: req.query.sortBy as string | undefined,
+        sortOrder: (req.query.sortOrder as "asc" | "desc") || undefined,
+        filters: {
+          status: req.query.status ? [req.query.status as string] : undefined,
+          userId: req.query.userId
+            ? parseInt(req.query.userId as string)
+            : undefined,
+          jobId: req.query.jobId
+            ? parseInt(req.query.jobId as string)
+            : undefined,
+        },
+      };
+
+      const applications = await ApplicationService.getApplications(params);
       res.status(200).json({ success: true, data: applications });
     } catch (error: any) {
       res.status(500).json({ success: false, error: error.message });
@@ -28,39 +45,6 @@ class ApplicationController {
     }
   }
 
-  static async getApplicationsByUserId(
-    req: Request,
-    res: Response
-  ): Promise<void> {
-    try {
-      if (!req.user) {
-        res.status(401).json(ErrorMessage.authRequired());
-        return;
-      }
-      const userId = req.user.userId;
-      const applications = await ApplicationService.getApplicationsByUserId(
-        userId
-      );
-      res.status(200).json({ success: true, data: applications });
-    } catch (error) {
-      res.status(500).json(ErrorMessage.serverError());
-    }
-  }
-
-  static async getApplicationsByJobId(
-    req: Request,
-    res: Response
-  ): Promise<void> {
-    try {
-      const jobId = parseInt(req.params.jobId);
-      const applications = await ApplicationService.getApplicationsByJobId(
-        jobId
-      );
-      res.status(200).json({ success: true, data: applications });
-    } catch (error) {
-      res.status(500).json(ErrorMessage.serverError());
-    }
-  }
   static async createApplication(req: Request, res: Response): Promise<void> {
     try {
       if (!req.user) {

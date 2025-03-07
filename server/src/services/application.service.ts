@@ -1,33 +1,13 @@
 import type { ApplicationSelect } from "../db/schema";
+import type { ResponseWithTotal } from "../interfaces/ResponseWithTotal.ts";
+import type { ApplicationQueryParams } from "../interfaces/QueryParams.ts";
 import ApplicationModel from "../models/application.model.ts";
 
 class ApplicationService {
-  static async getAllApplications(): Promise<ApplicationSelect[]> {
-    return ApplicationModel.getAllApplications();
-  }
-  static async getApplicationsByUserId(
-    userId: number
-  ): Promise<ApplicationSelect[]> {
-    return ApplicationModel.getApplicationsByUserId(userId);
-  }
-  static async getApplicationsByJobId(
-    jobId: number
-  ): Promise<ApplicationSelect[]> {
-    return ApplicationModel.getApplicationsByJobId(jobId);
-  }
-  // getApplicationsByPageAndSize
-  static async getApplicationsByPageAndSize(
-    page: number,
-    size: number
-  ): Promise<ApplicationSelect[]> {
-    return ApplicationModel.getApplicationsByPageAndSize(page, size);
-  }
-  // hasUserAppliedToJob
-  static async hasUserAppliedToJob(
-    userId: number,
-    jobId: number
-  ): Promise<boolean> {
-    return ApplicationModel.hasUserAppliedToJob(userId, jobId);
+  static async getApplications(
+    params: ApplicationQueryParams
+  ): Promise<ResponseWithTotal<ApplicationSelect[]>> {
+    return ApplicationModel.getApplications(params);
   }
 
   static async getApplicationById(
@@ -64,7 +44,7 @@ class ApplicationService {
   ): Promise<boolean> {
     return ApplicationModel.updateApplication(applicationId, applicationData);
   }
-  // update application status
+
   static async updateApplicationStatus(
     applicationId: number,
     applicationStatus:

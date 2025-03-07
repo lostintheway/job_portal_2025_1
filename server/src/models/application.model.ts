@@ -1,29 +1,77 @@
-import { eq, and } from "drizzle-orm";
+import { eq, and, desc, asc, inArray, sql } from "drizzle-orm";
 import { db } from "../config/db.ts";
 import { applications, type ApplicationSelect } from "../db/schema.ts";
+import type { ResponseWithTotal } from "../interfaces/ResponseWithTotal.ts";
+import type { ApplicationQueryParams } from "../interfaces/QueryParams.ts";
+
+type ApplicationStatus =
+  | "pending"
+  | "shortlisted"
+  | "interviewed"
+  | "rejected"
+  | "accepted";
+type SortableFields = keyof typeof applications;
 
 class ApplicationModel {
-  static async getAllApplications(): Promise<ApplicationSelect[]> {
-    return db
-      .select()
-      .from(applications)
-      .where(eq(applications.isDeleted, false));
-    // Generated SQL:
-    // SELECT * FROM `applications` WHERE (`applications`.`is_deleted` = false)
-  }
+  static async getApplications(
+    params: ApplicationQueryParams
+  ): Promise<ResponseWithTotal<ApplicationSelect[]>> {
+    const {
+      page = 1,
+      size = 10,
+      sortBy = "applicationDate",
+      sortOrder = "desc",
+      filters = {},
+    } = params;
 
-  // Get by Page and Size
-  static async getApplicationsByPageAndSize(
-    page: number,
-    size: number
-  ): Promise<ApplicationSelect[]> {
     const offset = (page - 1) * size;
-    return db
+
+    // Build where conditions
+    const whereConditions = [eq(applications.isDeleted, false)];
+
+    // Apply filters
+    if (filters.status?.length) {
+      whereConditions.push(
+        inArray(applications.status, filters.status as ApplicationStatus[])
+      );
+    }
+    if (filters.userId) {
+      whereConditions.push(eq(applications.userId, filters.userId));
+    }
+    if (filters.jobId) {
+      whereConditions.push(eq(applications.jobId, filters.jobId));
+    }
+
+    // Get total count
+    const [total] = await db
+      .select({
+        count: sql`count(*)`.mapWith(Number),
+      })
+      .from(applications)
+      .where(and(...whereConditions));
+
+    // Build order by clause
+    const orderByClause =
+      sortOrder === "desc"
+        ? desc(applications[sortBy as SortableFields])
+        : asc(applications[sortBy as SortableFields]);
+
+    // Get paginated data
+    const data = await db
       .select()
       .from(applications)
-      .where(eq(applications.isDeleted, false))
+      .where(and(...whereConditions))
+      .orderBy(orderByClause)
       .limit(size)
       .offset(offset);
+
+    return {
+      data,
+      total: total.count,
+      page,
+      size,
+      totalPages: Math.ceil(total.count / size),
+    };
   }
 
   static async getApplicationById(
@@ -109,7 +157,7 @@ class ApplicationModel {
       applicationDate: new Date(),
     });
     // Generated SQL:
-    // INSERT INTO `applications` (`job_id`, `user_id`, `status`, `resume_url`, `cover_letter`, `expected_salary`, `application_date`, `interview_date`, `interview_notes`, `rejection_reason`, `created_by`, `created_date`, `updated_by`, `updated_date`, `deleted_by`, `deleted_date`, `is_deleted`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    // INSERT INTO `applications` (`job_id`, `user_id`, `status`, `resume_url`, `cover_letter`, `expected_salary`, `application_date`, `interview_date`, `interview_notes`, `rejection_reason`, `created_by`, `created_date`, `updated_by`, `updated_date`, `deleted_by`, `deleted_date`, `is_deleted`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     return result.insertId;
   }
 

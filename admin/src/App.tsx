@@ -23,14 +23,6 @@ function App() {
         <Route path="/" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         {/* <Route path="/register" element={<RegisterPage />} /> */}
-        <Route path="/public" element={<Dashboard role="jobseeker" />}>
-          <Route path="dashboard" element={<JobSeekerDashboard />} />
-          <Route path="jobs" element={<JobSearchPage />} />
-          <Route path="jobs/:id" element={<JobDetailPage />} />
-          <Route path="applications" element={<ApplicationManagementPage />} />
-          <Route path="profile" element={<JobSeekerProfilePage />} />
-          <Route path="bookmarks" element={<JobListingPage />} />
-        </Route>
         <Route path="/employer" element={<Dashboard role="employer" />}>
           <Route path="dashboard" element={<EmployerDashboard />} />
           <Route path="job-postings" element={<PostedJobsPage />} />
@@ -43,6 +35,14 @@ function App() {
           <Route path="users" element={<JobListingPage />} />
           <Route path="job-listings" element={<JobListingPage />} />
           <Route path="settings" element={<JobSeekerProfilePage />} />
+        </Route>
+        <Route path="/" element={<Dashboard role="jobseeker" />}>
+          <Route path="dashboard" element={<JobSeekerDashboard />} />
+          <Route path="jobs" element={<JobSearchPage />} />
+          <Route path="jobs/:id" element={<JobDetailPage />} />
+          <Route path="applications" element={<ApplicationManagementPage />} />
+          <Route path="profile" element={<JobSeekerProfilePage />} />
+          <Route path="bookmarks" element={<JobListingPage />} />
         </Route>
 
         <Route path="*" element={<LoginPage />} />

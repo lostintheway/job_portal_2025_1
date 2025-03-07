@@ -3,16 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { api } from "../../api/api";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import {
-  Loader2,
-  Search,
-  Filter,
-  ArrowUpDown,
-  Eye,
-  FileText,
-} from "lucide-react";
+import { Loader2, Filter, ArrowUpDown, Eye, FileText } from "lucide-react";
 import { toast } from "sonner";
 import {
   Select,
@@ -30,6 +22,7 @@ import {
 } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ErrorBoundary from "@/components/ErrorBoundary";
+import { Pagination } from "@/components/ui/pagination";
 
 interface Application {
   applicationId: string;
@@ -58,36 +51,41 @@ interface Job {
   deadLine: string;
 }
 
+interface ApplicationsResponse {
+  data: Application[];
+  total: number;
+  page: number;
+  size: number;
+  totalPages: number;
+}
+
 export default function ApplicationManagementPage() {
   const navigate = useNavigate();
   const [applications, setApplications] = useState<Application[]>([]);
-  const [filteredApplications, setFilteredApplications] = useState<
-    Application[]
-  >([]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("");
-  const [sortBy, setSortBy] = useState<string>("date");
+  const [sortBy, setSortBy] = useState<string>("appliedDate");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [selectedApplication, setSelectedApplication] =
     useState<Application | null>(null);
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("application");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize] = useState(10);
+  const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
     fetchApplications();
-  }, []);
-
-  useEffect(() => {
-    applyFiltersAndSort();
-  }, [applications, searchTerm, statusFilter, sortBy, sortOrder]);
+  }, [currentPage, pageSize, statusFilter, sortBy, sortOrder]);
 
   const fetchApplications = async () => {
     try {
       setLoading(true);
       const response = await api.getMyApplications();
-      setApplications(response.data.data);
+      const data = response.data as ApplicationsResponse;
+      setApplications(data.data);
+      setTotalPages(data.totalPages);
     } catch (error) {
       console.error("Error fetching applications:", error);
       toast.error("Failed to load applications");
@@ -96,57 +94,15 @@ export default function ApplicationManagementPage() {
     }
   };
 
-  const applyFiltersAndSort = () => {
-    let result = [...applications];
-
-    // Apply search filter
-    if (searchTerm) {
-      const term = searchTerm.toLowerCase();
-      result = result.filter(
-        (app) =>
-          app.jobTitle.toLowerCase().includes(term) ||
-          app.companyName.toLowerCase().includes(term)
-      );
-    }
-
-    // Apply status filter
-    if (statusFilter) {
-      result = result.filter((app) => app.status === statusFilter);
-    }
-
-    // Apply sorting
-    result.sort((a, b) => {
-      if (sortBy === "date") {
-        return sortOrder === "asc"
-          ? new Date(a.appliedDate).getTime() -
-              new Date(b.appliedDate).getTime()
-          : new Date(b.appliedDate).getTime() -
-              new Date(a.appliedDate).getTime();
-      } else if (sortBy === "company") {
-        return sortOrder === "asc"
-          ? a.companyName.localeCompare(b.companyName)
-          : b.companyName.localeCompare(a.companyName);
-      } else if (sortBy === "title") {
-        return sortOrder === "asc"
-          ? a.jobTitle.localeCompare(b.jobTitle)
-          : b.jobTitle.localeCompare(a.jobTitle);
-      } else {
-        return 0;
-      }
-    });
-
-    setFilteredApplications(result);
-  };
-
   const toggleSortOrder = () => {
     setSortOrder(sortOrder === "asc" ? "desc" : "asc");
   };
 
   const resetFilters = () => {
-    setSearchTerm("");
     setStatusFilter("");
-    setSortBy("date");
+    setSortBy("appliedDate");
     setSortOrder("desc");
+    setCurrentPage(1);
   };
 
   const viewApplicationDetails = async (application: Application) => {
@@ -197,20 +153,10 @@ export default function ApplicationManagementPage() {
         </Button>
       </div>
 
-      {/* Filters and Search */}
+      {/* Filters and Sort */}
       <Card className="mb-6">
         <CardContent className="p-6">
-          <div className="grid gap-4 md:grid-cols-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-              <Input
-                placeholder="Search by job title or company"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-
+          <div className="grid gap-4 md:grid-cols-3">
             <ErrorBoundary>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
                 <SelectTrigger>
@@ -233,9 +179,9 @@ export default function ApplicationManagementPage() {
                   <SelectValue placeholder="Sort By" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="date">Application Date</SelectItem>
-                  <SelectItem value="company">Company Name</SelectItem>
-                  <SelectItem value="title">Job Title</SelectItem>
+                  <SelectItem value="appliedDate">Application Date</SelectItem>
+                  <SelectItem value="companyName">Company Name</SelectItem>
+                  <SelectItem value="jobTitle">Job Title</SelectItem>
                 </SelectContent>
               </Select>
             </ErrorBoundary>
@@ -267,28 +213,20 @@ export default function ApplicationManagementPage() {
       </Card>
 
       {/* Applications List */}
-      {filteredApplications.length === 0 ? (
+      {applications.length === 0 ? (
         <Card>
           <CardContent className="p-6 text-center">
             <p className="text-gray-500 mb-4">
-              {applications.length === 0
-                ? "You haven't applied to any jobs yet."
-                : "No applications match your search criteria."}
+              You haven't applied to any jobs yet.
             </p>
-            {applications.length > 0 && (
-              <Button variant="outline" onClick={resetFilters}>
-                Clear Filters
-              </Button>
-            )}
+            <Button variant="outline" onClick={() => navigate("/public/jobs")}>
+              Browse Jobs
+            </Button>
           </CardContent>
         </Card>
       ) : (
         <div className="space-y-4">
-          <p className="text-sm text-gray-500">
-            Showing {filteredApplications.length} of {applications.length}{" "}
-            applications
-          </p>
-          {filteredApplications.map((application) => (
+          {applications.map((application) => (
             <Card key={application.applicationId} className="overflow-hidden">
               <CardContent className="p-6">
                 <div className="flex flex-col md:flex-row justify-between gap-4">
@@ -323,6 +261,33 @@ export default function ApplicationManagementPage() {
               </CardContent>
             </Card>
           ))}
+
+          {/* Pagination */}
+          <div className="mt-6 flex justify-center">
+            <Pagination>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}
+              >
+                Previous
+              </Button>
+              <span className="mx-2">
+                Page {currentPage} of {totalPages}
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() =>
+                  setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                }
+                disabled={currentPage === totalPages}
+              >
+                Next
+              </Button>
+            </Pagination>
+          </div>
         </div>
       )}
 

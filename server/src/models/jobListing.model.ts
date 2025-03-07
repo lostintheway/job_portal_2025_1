@@ -1,4 +1,15 @@
-import { eq, and, desc, like, or, sql } from "drizzle-orm";
+import {
+  eq,
+  and,
+  desc,
+  asc,
+  or,
+  sql,
+  inArray,
+  like,
+  gte,
+  lte,
+} from "drizzle-orm";
 import { db } from "../config/db.ts";
 import {
   jobListings,
@@ -6,8 +17,114 @@ import {
   type JobListingSelect,
 } from "../db/schema.ts";
 import type { ResponseWithTotal } from "../interfaces/ResponseWithTotal.ts";
+import type { JobListingQueryParams } from "../interfaces/QueryParams.ts";
+
+type JobType = "full-time" | "part-time" | "contract" | "internship" | "remote";
 
 class JobListingModel {
+  static async getJobListings(
+    params: JobListingQueryParams
+  ): Promise<ResponseWithTotal<JobListingSelect[]>> {
+    const {
+      page = 1,
+      size = 10,
+      sortBy = "createdDate",
+      sortOrder = "desc",
+      filters = {},
+    } = params;
+
+    const offset = (page - 1) * size;
+
+    // Build where conditions
+    const whereConditions = [eq(jobListings.isDeleted, false)];
+
+    // Apply filters
+    if (filters.jobType?.length) {
+      whereConditions.push(
+        inArray(jobListings.jobType, filters.jobType as JobType[])
+      );
+    }
+    if (filters.level?.length) {
+      whereConditions.push(inArray(jobListings.level, filters.level));
+    }
+    if (filters.location) {
+      whereConditions.push(
+        like(jobListings.jobLocation, `%${filters.location}%`)
+      );
+    }
+    if (filters.categoryId) {
+      whereConditions.push(eq(jobListings.categoryId, filters.categoryId));
+    }
+    if (filters.employerId) {
+      whereConditions.push(eq(jobListings.employerId, filters.employerId));
+    }
+    if (filters.isActive !== undefined) {
+      whereConditions.push(eq(jobListings.isActive, filters.isActive));
+    }
+    if (filters.isPremium !== undefined) {
+      whereConditions.push(eq(jobListings.isPremium, filters.isPremium));
+    }
+    if (filters.salaryRange?.min) {
+      whereConditions.push(
+        gte(
+          sql`CAST(REPLACE(REPLACE(${jobListings.offeredSalary}, '$', ''), ',', '') AS DECIMAL)`,
+          filters.salaryRange.min
+        )
+      );
+    }
+    if (filters.salaryRange?.max) {
+      whereConditions.push(
+        lte(
+          sql`CAST(REPLACE(REPLACE(${jobListings.offeredSalary}, '$', ''), ',', '') AS DECIMAL)`,
+          filters.salaryRange.max
+        )
+      );
+    }
+    if (filters.deadline) {
+      whereConditions.push(gte(jobListings.deadLine, filters.deadline));
+    }
+
+    // Get total count
+    const [total] = await db
+      .select({
+        count: sql`count(*)`.mapWith(Number),
+      })
+      .from(jobListings)
+      .where(and(...whereConditions));
+
+    // Build order by clause
+    const orderByClause =
+      sortOrder === "desc"
+        ? desc(jobListings[sortBy as keyof typeof jobListings])
+        : asc(jobListings[sortBy as keyof typeof jobListings]);
+
+    // Get paginated data
+    const data = await db
+      .select({
+        ...jobListings,
+        employerName: employerProfiles.companyName,
+        employerAddress: employerProfiles.companyAddress,
+        employerIndustry: employerProfiles.industryType,
+      } as any)
+      .from(jobListings)
+      .leftJoin(
+        employerProfiles,
+        eq(jobListings.employerId, employerProfiles.employerId)
+      )
+      .where(and(...whereConditions))
+      .orderBy(orderByClause)
+      .limit(size)
+      .offset(offset);
+
+    return {
+      data: data as unknown as JobListingSelect[],
+      total: total.count,
+      page,
+      size,
+      totalPages: Math.ceil(total.count / size),
+    };
+  }
+
   static async getAllJobListings(): Promise<JobListingSelect[]> {
     return db
       .select()
