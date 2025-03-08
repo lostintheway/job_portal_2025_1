@@ -267,6 +267,7 @@ class JobListingModel {
   }
 
   static async createJobListing(
+    userId: number,
     jobData: Omit<
       JobListingSelect,
       | "jobId"
@@ -277,11 +278,30 @@ class JobListingModel {
       | "viewCount"
     >
   ): Promise<number> {
-    const [result] = await db.insert(jobListings).values({
-      ...jobData,
-      viewCount: 0,
-    });
-    return result.insertId;
+    try {
+      // get employer id from user id
+      const employerProfile = await db
+        .select()
+        .from(employerProfiles)
+        .where(eq(employerProfiles.userId, userId))
+        .limit(1)
+        .then((rows) => rows[0]);
+
+      const [result] = await db.insert(jobListings).values({
+        ...jobData,
+        deadLine: new Date(jobData.deadLine),
+        employerId: employerProfile.employerId,
+        viewCount: 0,
+        createdDate: new Date(),
+        createdBy: userId,
+        updatedDate: new Date(),
+        updatedBy: userId,
+      });
+      return result.insertId;
+    } catch (err) {
+      console.error("Error inserting job listing:", err);
+      throw err; // Optionally re-throw the error after logging
+    }
   }
 
   static async updateJobListing(
@@ -293,11 +313,25 @@ class JobListingModel {
       >
     >
   ): Promise<boolean> {
-    await db
-      .update(jobListings)
-      .set({ ...jobData, updatedDate: new Date() })
-      .where(eq(jobListings.jobId, jobId));
-    return true;
+    const { createdBy, updatedBy, deadLine, deletedBy, ...rest } = jobData;
+
+    try {
+      await db
+        .update(jobListings)
+        .set({
+          ...rest,
+          deadLine: new Date(deadLine as string),
+          updatedDate: new Date(),
+        })
+        .where(eq(jobListings.jobId, jobId));
+      return true;
+    } catch (err) {
+      console.error(
+        "Error updating job listing:",
+        err.sql || err.message || err
+      );
+      throw err; // Optionally re-throw the error after logging
+    }
   }
 
   static async deleteJobListing(

@@ -5,6 +5,18 @@ import JobListingController from "../controllers/jobListing.controller.ts";
 
 const router = express.Router();
 
+router.get(
+  "/employer",
+  authenticate,
+  isEmployer,
+  JobListingController.getJobListingsByEmployerId
+);
+router.get(
+  "/employer/:employerId",
+  authenticate,
+  isAdminOrEmployer,
+  JobListingController.getJobListingsByEmployerId
+);
 // Public routes
 router.get("/", JobListingController.getAllJobListings);
 router.get("/search", JobListingController.getJobListings);
@@ -37,19 +49,7 @@ router.delete(
   isAdminOrEmployer,
   JobListingController.deleteJobListing
 );
-router.get(
-  "/employer/:employerId",
-  authenticate,
-  isAdminOrEmployer,
-  JobListingController.getJobListingsByEmployerId
-);
 
 // New route for getting jobs by the current employer with pagination
-router.get(
-  "/employer",
-  authenticate,
-  isEmployer,
-  JobListingController.getJobListingsByEmployerId
-);
 
 export default router;

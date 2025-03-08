@@ -125,10 +125,10 @@ class JobListingController {
         res.status(401).json(ErrorMessage.authRequired());
         return;
       }
-      const jobListing = await JobListingService.createJobListing({
-        ...req.body,
-        employerId: req.user.userId,
-      });
+      const jobListing = await JobListingService.createJobListing(
+        req.user.userId,
+        req.body
+      );
       res.status(201).json({ success: true, data: jobListing });
     } catch (error) {
       res.status(500).json(ErrorMessage.serverError());

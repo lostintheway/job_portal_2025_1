@@ -2,6 +2,7 @@ import axios, { AxiosInstance, AxiosResponse } from "axios";
 import { LoginResponse } from "./types";
 import { JobListingResponse, JobResponse } from "./JobListingResponse";
 import { ApplicationsResponse } from "./ApplicationsResponse";
+import { toast } from "sonner";
 export class Api {
   private baseUrl: string;
   private axiosInstance: AxiosInstance;
@@ -25,6 +26,28 @@ export class Api {
         return config;
       },
       (error) => {
+        return Promise.reject(error);
+      }
+    );
+
+    // Add a response interceptor to handle 401 and 403 errors
+    this.axiosInstance.interceptors.response.use(
+      (response) => response,
+      (error) => {
+        if (
+          error.response &&
+          (error.response.status === 401 || error.response.status === 403)
+        ) {
+          toast.error("TokenExpired: ", error.response.data.message);
+          localStorage.removeItem("token");
+          // if already in / or /login page, do not redirect
+          if (
+            window.location.pathname !== "/" &&
+            window.location.pathname !== "/login"
+          ) {
+            window.location.href = "/login";
+          }
+        }
         return Promise.reject(error);
       }
     );

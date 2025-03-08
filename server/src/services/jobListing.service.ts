@@ -108,6 +108,7 @@ class JobListingService {
   }
 
   static async createJobListing(
+    userId: number,
     jobData: Omit<
       JobListingSelect,
       | "jobId"
@@ -118,7 +119,7 @@ class JobListingService {
       | "viewCount"
     >
   ): Promise<number> {
-    return JobListingModel.createJobListing(jobData);
+    return JobListingModel.createJobListing(userId, jobData);
   }
 
   static async updateJobListing(

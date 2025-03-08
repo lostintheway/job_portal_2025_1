@@ -64,8 +64,8 @@ export default function EmployerDashboard() {
       setJobs(jobsResponse.data.data);
 
       // Ensure applications is an array and handle the response properly
-      const applications = Array.isArray(applicationsResponse.data.data)
-        ? (applicationsResponse.data.data as Application[])
+      const applications = Array.isArray(applicationsResponse.data.data.data)
+        ? (applicationsResponse.data.data.data as Application[])
         : [];
 
       // Calculate application statistics
@@ -120,7 +120,6 @@ export default function EmployerDashboard() {
   const activeJobs = jobs.filter(
     (job) => job.isActive && new Date(job.deadLine) > new Date()
   );
-  //   const expiredJobs = jobs.filter(job => !job.isActive || new Date(job.deadLine) <= new Date());
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -186,31 +185,31 @@ export default function EmployerDashboard() {
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-center">
             <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
               <p className="text-lg font-bold text-yellow-500">
-                {applicationStats.pending}
+                {applicationStats.pending || 0}
               </p>
               <p className="text-sm text-gray-500">Pending</p>
             </div>
             <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
               <p className="text-lg font-bold text-blue-500">
-                {applicationStats.shortlisted}
+                {applicationStats.shortlisted || 0}
               </p>
               <p className="text-sm text-gray-500">Shortlisted</p>
             </div>
             <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
               <p className="text-lg font-bold text-purple-500">
-                {applicationStats.interviewed}
+                {applicationStats.interviewed || 0}
               </p>
               <p className="text-sm text-gray-500">Interviewed</p>
             </div>
             <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
               <p className="text-lg font-bold text-green-500">
-                {applicationStats.accepted}
+                {applicationStats.accepted || 0}
               </p>
               <p className="text-sm text-gray-500">Accepted</p>
             </div>
             <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
               <p className="text-lg font-bold text-red-500">
-                {applicationStats.rejected}
+                {applicationStats.rejected || 0}
               </p>
               <p className="text-sm text-gray-500">Rejected</p>
             </div>

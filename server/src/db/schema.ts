@@ -7,7 +7,6 @@ import {
   mysqlEnum,
   boolean,
   text,
-  date,
 } from "drizzle-orm/mysql-core";
 import { sql } from "drizzle-orm";
 
@@ -98,7 +97,7 @@ export const jobListings = mysqlTable("job_listings", {
   employmentType: varchar("employment_type", { length: 50 }).notNull(),
   jobLocation: varchar("job_location", { length: 255 }).notNull(),
   offeredSalary: varchar("offered_salary", { length: 100 }),
-  deadLine: datetime("deadline").notNull(),
+  deadLine: timestamp("deadline").notNull(),
   educationLevel: varchar("education_level", { length: 100 }),
   experienceRequired: varchar("experience_required", { length: 100 }),
   otherSpecification: text("other_specification"),
