@@ -3,8 +3,13 @@ import { db } from "../config/db.ts";
 import { bookmarks, type BookmarkSelect } from "../db/schema.ts";
 
 class BookmarkModel {
-  static async getAllBookmarks(): Promise<BookmarkSelect[]> {
-    return db.select().from(bookmarks).where(eq(bookmarks.isDeleted, false));
+  static async getAllBookmarksByUserId(
+    userId: number
+  ): Promise<BookmarkSelect[]> {
+    return db
+      .select()
+      .from(bookmarks)
+      .where(and(eq(bookmarks.userId, userId), eq(bookmarks.isDeleted, false)));
   }
 
   static async getBookmarkById(

@@ -3,23 +3,29 @@ import UserService from "../services/user.service.ts";
 import ErrorMessage from "../models/errorMessage.model.ts";
 import type { UserSelect } from "../db/schema";
 import jwt from "jsonwebtoken";
-
+import HashPassword from "../middleware/HashPassword.ts";
 class UserController {
   //login
   static async login(req: Request, res: Response): Promise<void> {
     try {
       const { email, password: myPassword, role } = req.body;
+      // console.log({ email, myPassword, role });
       if (!email || !myPassword || !role)
         res.status(400).json(ErrorMessage.badRequest());
       const user = await UserService.getUserByEmail(email);
-
+      // console.log({ user });
       if (!user) {
         res.status(401).json(ErrorMessage.authFailed());
         return;
       }
 
-      // Check if the password matches
-      const isMatch = myPassword === user.password;
+      //salt and hash the password compare with the user.password
+      const isMatch = HashPassword.verifyPassword(
+        myPassword,
+        user.salt,
+        user.password
+      );
+      // console.log({ isMatch });
       if (!isMatch) {
         res.status(401).json(ErrorMessage.passwordDidntMatch());
         return;
@@ -50,7 +56,7 @@ class UserController {
         },
       });
     } catch (error: unknown) {
-      console.error("Login Error:", error);
+      // console.error("Login Error:", error);
       res.status(500).json({
         message:
           error instanceof Error

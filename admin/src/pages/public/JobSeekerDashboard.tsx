@@ -39,7 +39,7 @@ export default function JobSeekerDashboard() {
         api.getBookmarkedJobs(),
       ]);
 
-      setApplications(applicationsResponse.data.data);
+      setApplications(applicationsResponse.data.data.data);
       setBookmarkedJobs(bookmarksResponse.data.data);
     } catch (error) {
       console.error("Error fetching dashboard data:", error);
@@ -139,7 +139,7 @@ export default function JobSeekerDashboard() {
                         variant="outline"
                         size="sm"
                         onClick={() =>
-                          (window.location.href = `/public/jobs/${job.jobId}`)
+                          (window.location.href = `/jobs/${job.jobId}`)
                         }
                       >
                         View Job

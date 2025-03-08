@@ -3,9 +3,18 @@ import BookmarkService from "../services/bookmark.service.ts";
 import ErrorMessage from "../models/errorMessage.model.ts";
 
 class BookmarkController {
-  static async getAllBookmarks(req: Request, res: Response): Promise<void> {
+  static async getAllBookmarksByUserId(
+    req: Request,
+    res: Response
+  ): Promise<void> {
     try {
-      const bookmarks = await BookmarkService.getAllBookmarks();
+      const userId = req.user?.userId;
+      console.log({ userId });
+      if (!userId) {
+        res.status(401).json(ErrorMessage.authRequired());
+        return;
+      }
+      const bookmarks = await BookmarkService.getAllBookmarksByUserId(userId);
       res.status(200).json({ success: true, data: bookmarks });
     } catch (error: any) {
       res.status(500).json({ success: false, error: error.message });

@@ -193,6 +193,12 @@ class JobListingModel {
   static async getJobListingById(
     jobId: number
   ): Promise<JobListingSelect | undefined> {
+    // console.log({ jobId });
+    if (isNaN(jobId)) {
+      console.error(`Invalid jobId: ${jobId}`);
+      throw new Error(`Invalid jobId: ${jobId}`);
+    }
+
     return db
       .select()
       .from(jobListings)

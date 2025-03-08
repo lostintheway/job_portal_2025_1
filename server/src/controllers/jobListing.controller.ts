@@ -13,11 +13,17 @@ class JobListingController {
   }
 
   // getjobsbypage
-  static async getJobListingsByPageAndSize(req: Request, res: Response): Promise<void> {
+  static async getJobListingsByPageAndSize(
+    req: Request,
+    res: Response
+  ): Promise<void> {
     try {
       const page = parseInt(req.params.page);
       const size = parseInt(req.params.size);
-      const jobListings = await JobListingService.getJobListingsByPageAndSize(page, size);
+      const jobListings = await JobListingService.getJobListingsByPageAndSize(
+        page,
+        size
+      );
       res.status(200).json({ success: true, data: jobListings });
     } catch (error) {
       res.status(500).json(ErrorMessage.serverError());
@@ -26,17 +32,25 @@ class JobListingController {
 
   static async getJobListingById(req: Request, res: Response): Promise<void> {
     try {
-      const jobListingId = parseInt(req.params.jobListingId);
-      const jobListing = await JobListingService.getJobListingById(
-        jobListingId
-      );
+      const jobId = parseInt(req.params.jobId);
+      // console.log({ jobListingId: jobId });
+      const jobListing = await JobListingService.getJobListingById(jobId);
+      // console.log({ jobListing });
       if (!jobListing) {
         res.status(404).json(ErrorMessage.notFound());
         return;
       }
       res.status(200).json({ success: true, data: jobListing });
     } catch (error) {
-      res.status(500).json(ErrorMessage.serverError());
+      // console.log({ error });
+      res.status(500).json(
+        error instanceof Error
+          ? {
+              message: error.message,
+              success: false,
+            }
+          : ErrorMessage.serverError()
+      );
     }
   }
 

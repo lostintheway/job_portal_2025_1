@@ -1,6 +1,6 @@
 import axios, { AxiosInstance, AxiosResponse } from "axios";
 import { LoginResponse } from "./types";
-import { JobListingResponse } from "./JobListingResponse";
+import { JobListingResponse, JobResponse } from "./JobListingResponse";
 
 export class Api {
   private baseUrl: string;
@@ -67,7 +67,9 @@ export class Api {
   }
 
   getJobById(jobId: string) {
-    return this.axiosInstance.get(`/api/job-descriptions/${jobId}`);
+    return this.axiosInstance.get<JobResponse>(
+      `/api/job-descriptions/${jobId}`
+    );
   }
   // Get jobs by category
   getJobsByCategory(categoryId: string) {

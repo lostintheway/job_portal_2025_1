@@ -8,29 +8,16 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Loader2, Bookmark, BookmarkCheck } from "lucide-react";
 import { toast } from "sonner";
-
-interface Job {
-  jobId: string;
-  title: string;
-  company: string;
-  location: string;
-  description: string;
-  requirements: string;
-  responsibilities: string;
-  benefits: string;
-  salary: string;
-  jobType: string;
-  deadLine: string;
-  isBookmarked?: boolean;
-}
+import { ApplicationData, JobDetails } from "@/api/JobListingResponse";
 
 export default function JobDetailPage() {
   const { jobId } = useParams<{ jobId: string }>();
+  // console.log({ jobId });
   const navigate = useNavigate();
-  const [job, setJob] = useState<Job | null>(null);
+  const [job, setJob] = useState<JobDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [applying, setApplying] = useState(false);
-  const [application, setApplication] = useState({
+  const [application, setApplication] = useState<ApplicationData>({
     resumeUrl: "",
     coverLetter: "",
     expectedSalary: "",
@@ -43,17 +30,26 @@ export default function JobDetailPage() {
   }, [jobId]);
 
   const fetchJobDetails = async (id: string) => {
+    setLoading(true);
     try {
+      // Fetch job details
       const response = await api.getJobById(id);
-      const bookmarksResponse = await api.getBookmarkedJobs();
-      const bookmarkedJobIds = new Set(
-        bookmarksResponse.data.data.map((job: any) => job.jobId)
-      );
+      const jobResponse = response.data.data;
+      setJob(jobResponse);
+      // Fetch bookmarks to check if this job is bookmarked
+      // const bookmarksResponse = await api.getBookmarkedJobs();
+      // const bookmarksData = bookmarksResponse.data;
 
-      setJob({
-        ...response.data,
-        isBookmarked: bookmarkedJobIds.has(id),
-      });
+      // Check if this job is in the user's bookmarks
+      // const bookmarkedJobIds = new Set(
+      //   bookmarksData.data.data.map((bookmark) => bookmark.jobId)
+      // );
+
+      // Set job with bookmark status
+      // setJob({
+      //   ...jobResponse,
+      //   isBookmarked: bookmarkedJobIds.has(id),
+      // });
     } catch (error) {
       console.error("Error fetching job details:", error);
       toast.error("Failed to load job details");
@@ -80,7 +76,7 @@ export default function JobDetailPage() {
       setApplying(true);
       await api.applyForJob(jobId, application);
       toast.success("Application submitted successfully!");
-      navigate("/public/dashboard");
+      navigate("/applications");
     } catch (error) {
       console.error("Error applying for job:", error);
       toast.error("Failed to submit application");
@@ -131,6 +127,14 @@ export default function JobDetailPage() {
     );
   }
 
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
       <Card>
@@ -138,7 +142,7 @@ export default function JobDetailPage() {
           <div>
             <CardTitle className="text-2xl">{job.title}</CardTitle>
             <p className="text-gray-500 mt-1">
-              {job.company} • {job.location}
+              {job.employerName || "Company"} • {job.jobLocation}
             </p>
           </div>
           <Button
@@ -160,17 +164,29 @@ export default function JobDetailPage() {
             <div className="grid grid-cols-2 gap-4 mb-4">
               <div>
                 <p className="text-sm font-medium">Salary</p>
-                <p className="text-gray-500">{job.salary || "Not specified"}</p>
+                <p className="text-gray-500">
+                  {job.offeredSalary || "Not specified"}
+                </p>
               </div>
               <div>
                 <p className="text-sm font-medium">Job Type</p>
                 <p className="text-gray-500">{job.jobType}</p>
               </div>
               <div>
+                <p className="text-sm font-medium">Level</p>
+                <p className="text-gray-500">{job.level}</p>
+              </div>
+              <div>
+                <p className="text-sm font-medium">Vacancies</p>
+                <p className="text-gray-500">{job.vacancies}</p>
+              </div>
+              <div>
+                <p className="text-sm font-medium">Employment Type</p>
+                <p className="text-gray-500">{job.employmentType}</p>
+              </div>
+              <div>
                 <p className="text-sm font-medium">Application Deadline</p>
-                <p className="text-gray-500">
-                  {new Date(job.deadLine).toLocaleDateString()}
-                </p>
+                <p className="text-gray-500">{formatDate(job.deadLine)}</p>
               </div>
             </div>
           </div>
@@ -178,18 +194,9 @@ export default function JobDetailPage() {
           <div>
             <h3 className="text-lg font-semibold mb-2">Description</h3>
             <p className="text-gray-700 whitespace-pre-line">
-              {job.description}
+              {job.jobDescription}
             </p>
           </div>
-
-          {job.requirements && (
-            <div>
-              <h3 className="text-lg font-semibold mb-2">Requirements</h3>
-              <p className="text-gray-700 whitespace-pre-line">
-                {job.requirements}
-              </p>
-            </div>
-          )}
 
           {job.responsibilities && (
             <div>
@@ -197,6 +204,22 @@ export default function JobDetailPage() {
               <p className="text-gray-700 whitespace-pre-line">
                 {job.responsibilities}
               </p>
+            </div>
+          )}
+
+          {job.experienceRequired && (
+            <div>
+              <h3 className="text-lg font-semibold mb-2">
+                Experience Required
+              </h3>
+              <p className="text-gray-700">{job.experienceRequired}</p>
+            </div>
+          )}
+
+          {job.educationLevel && (
+            <div>
+              <h3 className="text-lg font-semibold mb-2">Education Required</h3>
+              <p className="text-gray-700">{job.educationLevel}</p>
             </div>
           )}
 

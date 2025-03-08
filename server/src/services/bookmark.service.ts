@@ -2,8 +2,10 @@ import type { BookmarkSelect } from "../db/schema";
 import BookmarkModel from "../models/bookmark.model.ts";
 
 class BookmarkService {
-  static async getAllBookmarks(): Promise<BookmarkSelect[]> {
-    return BookmarkModel.getAllBookmarks();
+  static async getAllBookmarksByUserId(
+    userId: number
+  ): Promise<BookmarkSelect[]> {
+    return BookmarkModel.getAllBookmarksByUserId(userId);
   }
 
   static async getBookmarkById(

@@ -52,7 +52,7 @@ export default function JobSearchPage() {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
-  const [pageSize] = useState(9); // Fixed page size
+  const pageSize = 10; // Fixed page size
 
   // Search and filter states
   const [filters, setFilters] = useState<FilterState>({
@@ -75,15 +75,15 @@ export default function JobSearchPage() {
         page?: string;
         size?: string;
       } = {};
-      
+
       if (filters.category && filters.category !== "all") {
         apiFilters.category = filters.category;
       }
-      
+
       if (filters.jobType && filters.jobType !== "all") {
         apiFilters.jobType = filters.jobType;
       }
-      
+
       // If we have filters, use searchJobs API, otherwise use pagination API
       let response;
       if (Object.keys(apiFilters).length > 0) {
@@ -93,7 +93,7 @@ export default function JobSearchPage() {
       } else {
         response = await api.getJobsByPageAndSize(page, pageSize);
       }
-      
+
       // Get bookmarked jobs to mark them in the UI
       const bookmarksResponse = await api.getBookmarkedJobs();
       const bookmarkedJobIds = new Set(
@@ -110,9 +110,13 @@ export default function JobSearchPage() {
 
       setJobs(jobsWithBookmarks);
       setTotal(response.data.data.total);
-      
+
       // Extract unique job types for the filter dropdown
-      const uniqueJobTypes = [...new Set(jobsWithBookmarks.map((job: JobListingModel) => job.jobType))];
+      const uniqueJobTypes = [
+        ...new Set(
+          jobsWithBookmarks.map((job: JobListingModel) => job.jobType)
+        ),
+      ];
       setJobTypes(uniqueJobTypes);
     } catch (error) {
       console.error("Error fetching jobs:", error);
@@ -128,7 +132,7 @@ export default function JobSearchPage() {
       const response = await api.getInstance().get("/api/categories");
       const categoriesData = response.data.data.map((category: any) => ({
         ...category,
-        categoryId: category.categoryId.toString()
+        categoryId: category.categoryId.toString(),
       }));
       setCategories(categoriesData);
     } catch (error) {
@@ -190,7 +194,7 @@ export default function JobSearchPage() {
 
   // Navigate to job details page
   const handleViewJob = (jobId: number) => {
-    navigate(`/public/jobs/${jobId}`);
+    navigate(`/jobs/${jobId}`);
   };
 
   // Loading state UI
@@ -278,14 +282,14 @@ export default function JobSearchPage() {
           </div>
         </div>
       </div>
-      
+
       {/* Results count */}
       <div className="mb-4">
         <p className="text-gray-500">
           {total} {total === 1 ? "job" : "jobs"} found
         </p>
       </div>
-      
+
       {/* Job listings */}
       {jobs.length === 0 ? (
         <Card>
@@ -357,7 +361,7 @@ export default function JobSearchPage() {
           ))}
         </div>
       )}
-      
+
       {/* Pagination */}
       {totalPages > 1 && (
         <div className="mt-8">
@@ -370,23 +374,21 @@ export default function JobSearchPage() {
                   className={page === 1 ? "pointer-events-none opacity-50" : ""}
                 />
               </PaginationItem>
-              
+
               {/* Show first page */}
               {page > 3 && (
                 <PaginationItem>
-                  <PaginationLink onClick={() => setPage(1)}>
-                    1
-                  </PaginationLink>
+                  <PaginationLink onClick={() => setPage(1)}>1</PaginationLink>
                 </PaginationItem>
               )}
-              
+
               {/* Show ellipsis if needed */}
               {page > 4 && (
                 <PaginationItem>
                   <PaginationEllipsis />
                 </PaginationItem>
               )}
-              
+
               {/* Show pages around current page */}
               {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
                 // Calculate the page number to display
@@ -401,7 +403,7 @@ export default function JobSearchPage() {
                   // Otherwise show 2 before and 2 after current page
                   pageNum = page - 2 + i;
                 }
-                
+
                 // Only show if the page number is valid
                 if (pageNum > 0 && pageNum <= totalPages) {
                   return (
@@ -417,14 +419,14 @@ export default function JobSearchPage() {
                 }
                 return null;
               })}
-              
+
               {/* Show ellipsis if needed */}
               {page < totalPages - 3 && (
                 <PaginationItem>
                   <PaginationEllipsis />
                 </PaginationItem>
               )}
-              
+
               {/* Show last page */}
               {page < totalPages - 2 && (
                 <PaginationItem>
@@ -433,12 +435,14 @@ export default function JobSearchPage() {
                   </PaginationLink>
                 </PaginationItem>
               )}
-              
+
               <PaginationItem>
                 <PaginationNext
                   onClick={() => setPage(Math.min(totalPages, page + 1))}
                   aria-disabled={page === totalPages}
-                  className={page === totalPages ? "pointer-events-none opacity-50" : ""}
+                  className={
+                    page === totalPages ? "pointer-events-none opacity-50" : ""
+                  }
                 />
               </PaginationItem>
             </PaginationContent>

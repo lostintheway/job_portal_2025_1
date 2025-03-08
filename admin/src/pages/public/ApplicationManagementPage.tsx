@@ -435,9 +435,7 @@ export default function ApplicationManagementPage() {
 
                 <div className="mt-4">
                   <Button
-                    onClick={() =>
-                      navigate(`/public/jobs/${selectedJob?.jobId}`)
-                    }
+                    onClick={() => navigate(`/jobs/${selectedJob?.jobId}`)}
                     className="w-full"
                   >
                     View Full Job Posting

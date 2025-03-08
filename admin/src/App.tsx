@@ -13,7 +13,7 @@ import EmployerDashboard from "./pages/employer/EmployerDashboard";
 import PostedJobsPage from "./pages/employer/PostedJobsPage";
 import CreateJobPage from "./pages/employer/CreateJobPage";
 import ApplicationsPage from "./pages/employer/ApplicationsPage";
-
+import BookmarksPage from "./pages/public/BookmarksPage";
 // import GalleryPage from "./pages/GalleryPage";Page";
 
 function App() {
@@ -39,10 +39,10 @@ function App() {
         <Route path="/" element={<Dashboard role="jobseeker" />}>
           <Route path="dashboard" element={<JobSeekerDashboard />} />
           <Route path="jobs" element={<JobSearchPage />} />
-          <Route path="jobs/:id" element={<JobDetailPage />} />
+          <Route path="jobs/:jobId" element={<JobDetailPage />} />
           <Route path="applications" element={<ApplicationManagementPage />} />
           <Route path="profile" element={<JobSeekerProfilePage />} />
-          <Route path="bookmarks" element={<JobListingPage />} />
+          <Route path="bookmarks" element={<BookmarksPage />} />
         </Route>
 
         <Route path="*" element={<LoginPage />} />
