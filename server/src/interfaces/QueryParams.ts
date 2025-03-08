@@ -3,20 +3,8 @@ export interface JobListingQueryParams {
   size?: number;
   sortBy?: string;
   sortOrder?: "asc" | "desc";
-  filters?: {
-    jobType?: string;
-    level?: string[];
-    location?: string;
-    category?: string;
-    employerId?: number;
-    isActive?: boolean;
-    isPremium?: boolean;
-    salaryRange?: {
-      min?: number;
-      max?: number;
-    };
-    deadline?: Date;
-  };
+  category?: string;
+  jobType?: string;
 }
 
 export interface ApplicationQueryParams {

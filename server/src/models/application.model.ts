@@ -8,6 +8,7 @@ import {
 } from "../db/schema.ts";
 import type { ResponseWithTotal } from "../interfaces/ResponseWithTotal.ts";
 import type { ApplicationQueryParams } from "../interfaces/QueryParams.ts";
+import type { Request } from "express";
 
 type ApplicationStatus =
   | "pending"
@@ -18,6 +19,17 @@ type ApplicationStatus =
 type SortableFields = keyof typeof applications;
 
 class ApplicationModel {
+  // getMyApplications
+  static async getMyApplications(userId: number): Promise<ApplicationSelect[]> {
+    console.log({ userId });
+    return db
+      .select()
+      .from(applications)
+      .where(
+        and(eq(applications.isDeleted, false), eq(applications.userId, userId))
+      );
+  }
+
   static async getApplications(
     params: ApplicationQueryParams
   ): Promise<ResponseWithTotal<ApplicationSelect[]>> {
@@ -58,8 +70,8 @@ class ApplicationModel {
     // Build order by clause
     const orderByClause =
       sortOrder === "desc"
-        ? desc(applications[sortBy as SortableFields])
-        : asc(applications[sortBy as SortableFields]);
+        ? desc(applications[sortBy as SortableFields] as any)
+        : asc(applications[sortBy as SortableFields] as any);
 
     // Get paginated data
     const data = await db
@@ -70,8 +82,7 @@ class ApplicationModel {
         jobLocation: jobListings.jobLocation,
         jobType: jobListings.jobType,
         offeredSalary: jobListings.offeredSalary,
-        jobDescription: jobListings.jobDescription,
-      })
+      } as any)
       .from(applications)
       .leftJoin(jobListings, eq(applications.jobId, jobListings.jobId))
       .where(and(...whereConditions))

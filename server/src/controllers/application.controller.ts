@@ -29,6 +29,22 @@ class ApplicationController {
     }
   }
 
+  // getMyApplications
+  static async getMyApplications(req: Request, res: Response): Promise<void> {
+    console.log("getMyApplications");
+    try {
+      const userId = req.user?.userId;
+      console.log({ userId });
+      if (!userId) {
+        res.status(401).json(ErrorMessage.authRequired());
+        return;
+      }
+      const applications = await ApplicationService.getMyApplications(userId);
+      res.status(200).json({ success: true, data: applications });
+    } catch (error: any) {
+      res.status(500).json({ success: false, error: error.message });
+    }
+  }
   static async getApplicationById(req: Request, res: Response): Promise<void> {
     try {
       const applicationId = parseInt(req.params.applicationId);

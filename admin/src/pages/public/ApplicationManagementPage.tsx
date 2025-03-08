@@ -4,25 +4,15 @@ import { api } from "../../api/api";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Filter, ArrowUpDown, Eye, FileText } from "lucide-react";
+import { Loader2, Eye, FileText } from "lucide-react";
 import { toast } from "sonner";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import ErrorBoundary from "@/components/ErrorBoundary";
-import { Pagination } from "@/components/ui/pagination";
 
 interface Application {
   applicationId: string;
@@ -37,102 +27,108 @@ interface Application {
   feedback?: string;
 }
 
-interface Job {
-  jobId: string;
+interface JobDetails {
+  jobId: number;
   title: string;
-  company: string;
-  location: string;
-  description: string;
-  requirements: string;
+  companyName: string;
+  jobLocation: string;
+  jobDescription: string;
+  experienceRequired: string;
   responsibilities: string;
   benefits: string;
-  salary: string;
+  offeredSalary: string;
   jobType: string;
   deadLine: string;
-}
-
-interface ApplicationsResponse {
-  data: Application[];
-  total: number;
-  page: number;
-  size: number;
-  totalPages: number;
 }
 
 export default function ApplicationManagementPage() {
   const navigate = useNavigate();
   const [applications, setApplications] = useState<Application[]>([]);
+  const [filteredApplications, setFilteredApplications] = useState<
+    Application[]
+  >([]);
   const [loading, setLoading] = useState(true);
-  const [statusFilter, setStatusFilter] = useState<string>("");
-  const [sortBy, setSortBy] = useState<string>("appliedDate");
-  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+  const [sortField, setSortField] = useState<"appliedDate" | "companyName">(
+    "appliedDate"
+  );
+  const [sortAsc, setSortAsc] = useState(false);
   const [selectedApplication, setSelectedApplication] =
     useState<Application | null>(null);
-  const [selectedJob, setSelectedJob] = useState<Job | null>(null);
+  const [selectedJob, setSelectedJob] = useState<JobDetails | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("application");
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize] = useState(10);
-  const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
     fetchApplications();
-  }, [currentPage, pageSize, statusFilter, sortBy, sortOrder]);
+  }, []);
+
+  useEffect(() => {
+    sortApplications();
+  }, [applications, sortField, sortAsc]);
 
   const fetchApplications = async () => {
     try {
       setLoading(true);
       const response = await api.getMyApplications();
-      const data = response.data as ApplicationsResponse;
-      setApplications(data.data);
-      setTotalPages(data.totalPages);
+      setApplications(response.data.data);
     } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : "Failed to load applications"
-      );
+      toast.error("Failed to load applications");
     } finally {
       setLoading(false);
     }
   };
 
-  const toggleSortOrder = () => {
-    setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+  const sortApplications = () => {
+    const sorted = [...applications].sort((a, b) => {
+      if (sortField === "appliedDate") {
+        return sortAsc
+          ? new Date(a.appliedDate).getTime() -
+              new Date(b.appliedDate).getTime()
+          : new Date(b.appliedDate).getTime() -
+              new Date(a.appliedDate).getTime();
+      }
+      return sortAsc
+        ? a.companyName.localeCompare(b.companyName)
+        : b.companyName.localeCompare(a.companyName);
+    });
+    setFilteredApplications(sorted);
   };
 
-  const resetFilters = () => {
-    setStatusFilter("");
-    setSortBy("appliedDate");
-    setSortOrder("desc");
-    setCurrentPage(1);
+  const handleSort = (field: "appliedDate" | "companyName") => {
+    if (field === sortField) {
+      setSortAsc(!sortAsc);
+    } else {
+      setSortField(field);
+      setSortAsc(true);
+    }
   };
 
   const viewApplicationDetails = async (application: Application) => {
     setSelectedApplication(application);
     try {
       const jobResponse = await api.getJobById(application.jobId);
-      setSelectedJob(jobResponse.data.data);
+      setSelectedJob(jobResponse.data);
       setIsDialogOpen(true);
     } catch (error) {
-      console.error("Error fetching job details:", error);
       toast.error("Failed to load job details");
     }
   };
 
-  const getStatusBadgeColor = (status: Application["status"]) => {
+  const getStatusColor = (status: Application["status"]) => {
     const colors = {
-      pending: "bg-yellow-500",
-      shortlisted: "bg-blue-500",
-      interviewed: "bg-purple-500",
-      rejected: "bg-red-500",
-      accepted: "bg-green-500",
+      pending: "#FFA500", // Orange
+      shortlisted: "#4169E1", // Royal Blue
+      interviewed: "#800080", // Purple
+      rejected: "#DC143C", // Crimson
+      accepted: "#228B22", // Forest Green
     };
-    return colors[status] || "bg-gray-500";
+    return colors[status] || "#666666";
   };
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("en-US", {
       year: "numeric",
-      month: "short",
+      month: "long",
       day: "numeric",
     });
   };
@@ -146,113 +142,73 @@ export default function ApplicationManagementPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">My Applications</h1>
-        <Button onClick={() => navigate("/jobs")} variant="outline">
-          Browse Jobs
-        </Button>
+    <div className="max-w-6xl mx-auto px-4 py-8">
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-3xl font-serif text-gray-800">My Applications</h1>
+        <div className="space-x-4">
+          <Button
+            onClick={() => handleSort("appliedDate")}
+            variant="outline"
+            className="border-gray-300 hover:border-gray-400"
+          >
+            Sort by Date {sortField === "appliedDate" && (sortAsc ? "↑" : "↓")}
+          </Button>
+          <Button
+            onClick={() => handleSort("companyName")}
+            variant="outline"
+            className="border-gray-300 hover:border-gray-400"
+          >
+            Sort by Company{" "}
+            {sortField === "companyName" && (sortAsc ? "↑" : "↓")}
+          </Button>
+        </div>
       </div>
 
-      {/* Filters and Sort */}
-      <Card className="mb-6">
-        <CardContent className="p-6">
-          <div className="grid gap-4 md:grid-cols-3">
-            <ErrorBoundary>
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Filter by Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="">All Statuses</SelectItem>
-                  <SelectItem value="pending">Pending</SelectItem>
-                  <SelectItem value="shortlisted">Shortlisted</SelectItem>
-                  <SelectItem value="interviewed">Interviewed</SelectItem>
-                  <SelectItem value="accepted">Accepted</SelectItem>
-                  <SelectItem value="rejected">Rejected</SelectItem>
-                </SelectContent>
-              </Select>
-            </ErrorBoundary>
-
-            <ErrorBoundary>
-              <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Sort By" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="appliedDate">Application Date</SelectItem>
-                  <SelectItem value="companyName">Company Name</SelectItem>
-                  <SelectItem value="jobTitle">Job Title</SelectItem>
-                </SelectContent>
-              </Select>
-            </ErrorBoundary>
-
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={toggleSortOrder}
-                className="flex-shrink-0"
-              >
-                <ArrowUpDown
-                  className={`h-4 w-4 ${
-                    sortOrder === "asc" ? "rotate-180" : ""
-                  }`}
-                />
-              </Button>
-              <Button
-                variant="outline"
-                onClick={resetFilters}
-                className="flex-grow"
-              >
-                <Filter className="h-4 w-4 mr-2" />
-                Reset Filters
-              </Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Applications List */}
-      {applications.length === 0 ? (
+      {filteredApplications.length === 0 ? (
         <Card>
-          <CardContent className="p-6 text-center">
-            <p className="text-gray-500 mb-4">
-              You haven't applied to any jobs yet.
-            </p>
-            <Button variant="outline" onClick={() => navigate("/jobs")}>
+          <CardContent className="p-8 text-center">
+            <p className="text-gray-600 text-lg mb-4">No applications found</p>
+            <Button
+              onClick={() => navigate("/jobs")}
+              className="bg-blue-600 hover:bg-blue-700 text-white"
+            >
               Browse Jobs
             </Button>
           </CardContent>
         </Card>
       ) : (
-        <div className="space-y-4">
-          {applications.map((application) => (
-            <Card key={application.applicationId} className="overflow-hidden">
+        <div className="space-y-6">
+          {filteredApplications.map((application) => (
+            <Card key={application.applicationId}>
               <CardContent className="p-6">
-                <div className="flex flex-col md:flex-row justify-between gap-4">
-                  <div className="flex-grow">
-                    <h3 className="text-lg font-semibold">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <h3 className="text-xl font-serif mb-2">
                       {application.jobTitle}
                     </h3>
-                    <p className="text-gray-600">{application.companyName}</p>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-gray-600 mb-1">
+                      {application.companyName}
+                    </p>
+                    <p className="text-gray-500 text-sm">
                       Applied on {formatDate(application.appliedDate)}
                     </p>
                   </div>
-                  <div className="flex flex-col items-end justify-between">
+                  <div className="flex flex-col items-end space-y-3">
                     <Badge
-                      className={`${getStatusBadgeColor(
-                        application.status
-                      )} text-white mb-2`}
+                      style={{
+                        backgroundColor: getStatusColor(application.status),
+                        color: "white",
+                        fontWeight: 500,
+                        padding: "4px 12px",
+                      }}
                     >
                       {application.status.charAt(0).toUpperCase() +
                         application.status.slice(1)}
                     </Badge>
                     <Button
-                      variant="outline"
-                      size="sm"
                       onClick={() => viewApplicationDetails(application)}
+                      variant="outline"
+                      className="border-gray-300 hover:border-gray-400"
                     >
                       <Eye className="h-4 w-4 mr-2" />
                       View Details
@@ -262,33 +218,6 @@ export default function ApplicationManagementPage() {
               </CardContent>
             </Card>
           ))}
-
-          {/* Pagination */}
-          <div className="mt-6 flex justify-center">
-            <Pagination>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                disabled={currentPage === 1}
-              >
-                Previous
-              </Button>
-              <span className="mx-2">
-                Page {currentPage} of {totalPages}
-              </span>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() =>
-                  setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-                }
-                disabled={currentPage === totalPages}
-              >
-                Next
-              </Button>
-            </Pagination>
-          </div>
         </div>
       )}
 
@@ -297,13 +226,8 @@ export default function ApplicationManagementPage() {
         <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-xl">
-              {selectedJob?.title} at {selectedJob?.company}
+              {selectedJob?.title} at {selectedJob?.companyName}
             </DialogTitle>
-            <DialogDescription>
-              Application submitted on{" "}
-              {selectedApplication &&
-                formatDate(selectedApplication.appliedDate)}
-            </DialogDescription>
           </DialogHeader>
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-4">
@@ -316,10 +240,14 @@ export default function ApplicationManagementPage() {
               <div className="flex justify-between items-center">
                 <h3 className="text-lg font-semibold">Application Status</h3>
                 <Badge
-                  className={`${
-                    selectedApplication &&
-                    getStatusBadgeColor(selectedApplication.status)
-                  } text-white`}
+                  style={{
+                    backgroundColor: getStatusColor(
+                      selectedApplication?.status
+                    ),
+                    color: "white",
+                    fontWeight: 500,
+                    padding: "4px 12px",
+                  }}
                 >
                   {selectedApplication?.status
                     ? selectedApplication.status.charAt(0).toUpperCase() +
@@ -374,7 +302,7 @@ export default function ApplicationManagementPage() {
                   <div>
                     <p className="text-sm font-medium">Salary</p>
                     <p className="text-gray-500">
-                      {selectedJob?.salary || "Not specified"}
+                      {selectedJob?.offeredSalary || "Not specified"}
                     </p>
                   </div>
                   <div>
@@ -383,7 +311,7 @@ export default function ApplicationManagementPage() {
                   </div>
                   <div>
                     <p className="text-sm font-medium">Location</p>
-                    <p className="text-gray-500">{selectedJob?.location}</p>
+                    <p className="text-gray-500">{selectedJob?.jobLocation}</p>
                   </div>
                   <div>
                     <p className="text-sm font-medium">Application Deadline</p>
@@ -398,17 +326,17 @@ export default function ApplicationManagementPage() {
                   <div>
                     <h4 className="text-lg font-semibold mb-2">Description</h4>
                     <p className="text-gray-700 whitespace-pre-line">
-                      {selectedJob?.description}
+                      {selectedJob?.jobDescription}
                     </p>
                   </div>
 
-                  {selectedJob?.requirements && (
+                  {selectedJob?.experienceRequired && (
                     <div>
                       <h4 className="text-lg font-semibold mb-2">
-                        Requirements
+                        Experience Required
                       </h4>
                       <p className="text-gray-700 whitespace-pre-line">
-                        {selectedJob.requirements}
+                        {selectedJob.experienceRequired}
                       </p>
                     </div>
                   )}

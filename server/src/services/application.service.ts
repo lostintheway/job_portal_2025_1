@@ -10,6 +10,10 @@ class ApplicationService {
     return ApplicationModel.getApplications(params);
   }
 
+  static async getMyApplications(userId: number): Promise<ApplicationSelect[]> {
+    return ApplicationModel.getMyApplications(userId);
+  }
+
   static async getApplicationById(
     applicationId: number
   ): Promise<ApplicationSelect | undefined> {

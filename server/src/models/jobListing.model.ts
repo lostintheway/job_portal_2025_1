@@ -30,10 +30,8 @@ class JobListingModel {
       size = "10",
       sortBy = "createdDate",
       sortOrder = "desc",
-      filters = {
-        jobType: "contract",
-        category: "1",
-      },
+      category,
+      jobType,
     } = queryParams;
     console.log({ queryParams });
 
@@ -42,16 +40,18 @@ class JobListingModel {
     // Build where conditions
     const whereConditions = [eq(jobListings.isDeleted, false)];
 
+    console.log({ jobType, category });
     // Apply filters
-    if (filters.jobType) {
-      whereConditions.push(eq(jobListings.jobType, filters.jobType as JobType));
+    if (jobType) {
+      whereConditions.push(eq(jobListings.jobType, jobType as JobType));
     }
 
-    if (filters.category) {
-      whereConditions.push(
-        eq(jobListings.categoryId, Number(filters.category))
-      );
+    if (category) {
+      const catId = Number(category);
+      whereConditions.push(eq(jobListings.categoryId, catId));
     }
+
+    console.log({ whereConditions });
 
     // Get total count
     const [total] = await db
@@ -84,8 +84,6 @@ class JobListingModel {
       .orderBy(orderByClause)
       .limit(Number(size))
       .offset(offset);
-
-    console.log({ data });
 
     return {
       data: data as unknown as JobListingSelect[],
@@ -137,11 +135,18 @@ class JobListingModel {
       .limit(size)
       .offset(offset);
 
+    type JoB = (JobListingSelect & {
+      employerName: string;
+      employerAddress: string;
+      employerIndustry: string;
+    })[];
+
     return {
-      data,
+      data: data as unknown as JoB,
       total: total.count,
       page,
       size,
+      totalPages: Math.ceil(Number(total.count) / Number(size)),
     };
   }
 

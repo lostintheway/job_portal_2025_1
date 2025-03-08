@@ -117,9 +117,11 @@ export default function JobSearchPage() {
           jobsWithBookmarks.map((job: JobListingModel) => job.jobType)
         ),
       ];
-      setJobTypes(uniqueJobTypes);
+      setJobTypes(uniqueJobTypes as string[]);
     } catch (error) {
-      toast.error("Failed to load jobs");
+      toast.error(
+        error instanceof Error ? error.message : "Failed to load jobs"
+      );
     } finally {
       setLoading(false);
     }
@@ -129,13 +131,17 @@ export default function JobSearchPage() {
   const fetchCategories = useCallback(async () => {
     try {
       const response = await api.getInstance().get("/api/categories");
-      const categoriesData = response.data.data.map((category: any) => ({
-        ...category,
-        categoryId: category.categoryId.toString(),
-      }));
+      const categoriesData = response.data.data.map(
+        (category: { categoryId: string; categoryName: string }) => ({
+          ...category,
+          categoryId: category.categoryId.toString(),
+        })
+      );
       setCategories(categoriesData);
     } catch (error) {
-      toast.error("Failed to load categories");
+      toast.error(
+        error instanceof Error ? error.message : "Failed to load categories"
+      );
     }
   }, []);
 
@@ -185,7 +191,9 @@ export default function JobSearchPage() {
         })
       );
     } catch (error) {
-      toast.error("Failed to update bookmark");
+      toast.error(
+        error instanceof Error ? error.message : "Failed to update bookmark"
+      );
     }
   };
 
@@ -232,7 +240,7 @@ export default function JobSearchPage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="mb-8">
+      <div className="mb-8 bg-transparent">
         <h1 className="text-3xl font-bold mb-6">Find Your Perfect Job</h1>
         <div className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
