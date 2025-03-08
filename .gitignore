@@ -1,7 +1,7 @@
 .git
 /node_modules
 .DS_Store
-.env
+
 Documentation*
 .env.local
 .env.development.local
