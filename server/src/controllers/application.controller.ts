@@ -31,10 +31,8 @@ class ApplicationController {
 
   // getMyApplications
   static async getMyApplications(req: Request, res: Response): Promise<void> {
-    console.log("i am at getMyApplications");
     try {
       const userId = req.user?.userId;
-      console.log({ userId });
       if (!userId) {
         res.status(401).json(ErrorMessage.authRequired());
         return;

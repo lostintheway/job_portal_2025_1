@@ -1,10 +1,16 @@
-import { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { api } from "../../api/api";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Eye, FileText } from "lucide-react";
+import {
+  Loader2,
+  Eye,
+  FileText,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 import { toast } from "sonner";
 import {
   Dialog,
@@ -13,33 +19,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-
-interface Application {
-  applicationId: string;
-  jobId: string;
-  status: "pending" | "shortlisted" | "interviewed" | "rejected" | "accepted";
-  jobTitle: string;
-  companyName: string;
-  appliedDate: string;
-  resumeUrl: string;
-  coverLetter: string;
-  expectedSalary: string;
-  feedback?: string;
-}
-
-interface JobDetails {
-  jobId: number;
-  title: string;
-  companyName: string;
-  jobLocation: string;
-  jobDescription: string;
-  experienceRequired: string;
-  responsibilities: string;
-  benefits: string;
-  offeredSalary: string;
-  jobType: string;
-  deadLine: string;
-}
+import { JobDetails } from "@/api/JobListingResponse";
+import { Application } from "@/api/ApplicationsResponse";
 
 export default function ApplicationManagementPage() {
   const navigate = useNavigate();
@@ -48,8 +29,8 @@ export default function ApplicationManagementPage() {
     Application[]
   >([]);
   const [loading, setLoading] = useState(true);
-  const [sortField, setSortField] = useState<"appliedDate" | "companyName">(
-    "appliedDate"
+  const [sortField, setSortField] = useState<"createdDate" | "companyName">(
+    "createdDate"
   );
   const [sortAsc, setSortAsc] = useState(false);
   const [selectedApplication, setSelectedApplication] =
@@ -58,29 +39,47 @@ export default function ApplicationManagementPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("application");
 
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+  const [totalPages, setTotalPages] = useState(1);
+
   useEffect(() => {
     fetchApplications();
   }, []);
 
   const sortApplications = useCallback(() => {
+    if (!applications || !applications.length) return;
     const sorted = [...applications].sort((a, b) => {
-      if (sortField === "appliedDate") {
+      if (sortField === "createdDate") {
+        const dateA = new Date(a.createdDate);
+        const dateB = new Date(b.createdDate);
         return sortAsc
-          ? new Date(a.appliedDate).getTime() -
-              new Date(b.appliedDate).getTime()
-          : new Date(b.appliedDate).getTime() -
-              new Date(a.appliedDate).getTime();
+          ? dateA.getTime() - dateB.getTime()
+          : dateB.getTime() - dateA.getTime();
       }
-      return sortAsc
-        ? a.companyName.localeCompare(b.companyName)
-        : b.companyName.localeCompare(a.companyName);
+      return 0;
     });
     setFilteredApplications(sorted);
-  }, [applications, sortField, sortAsc]);
+    setCurrentPage(1);
+    setTotalPages(Math.ceil(sorted.length / itemsPerPage));
+  }, [applications, sortField, sortAsc, itemsPerPage]);
 
   useEffect(() => {
     sortApplications();
   }, [applications, sortField, sortAsc, sortApplications]);
+
+  // Get current page items
+  const getCurrentPageItems = useCallback(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    return filteredApplications.slice(startIndex, endIndex);
+  }, [currentPage, filteredApplications]);
+
+  // Handle page change
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
 
   const fetchApplications = async () => {
     try {
@@ -94,7 +93,7 @@ export default function ApplicationManagementPage() {
     }
   };
 
-  const handleSort = (field: "appliedDate" | "companyName") => {
+  const handleSort = (field: "createdDate" | "companyName") => {
     if (field === sortField) {
       setSortAsc(!sortAsc);
     } else {
@@ -107,22 +106,23 @@ export default function ApplicationManagementPage() {
     setSelectedApplication(application);
     try {
       const jobResponse = await api.getJobById(application.jobId);
-      setSelectedJob(jobResponse.data);
+      setSelectedJob(jobResponse.data.data);
       setIsDialogOpen(true);
     } catch (error) {
-      toast.error("Failed to load job details");
+      toast.error(error instanceof Error ? error.message : "An error occurred");
     }
   };
 
-  const getStatusColor = (status: Application["status"]) => {
+  const getStatusColor = (status: Application["status"] | undefined) => {
+    if (!status) return "#666666";
     const colors = {
       pending: "#FFA500", // Orange
       shortlisted: "#4169E1", // Royal Blue
       interviewed: "#800080", // Purple
       rejected: "#DC143C", // Crimson
-      accepted: "#228B22", // Forest Green
-    };
-    return colors[status] || "#666666";
+      accepted: "#228B22" as const, // Forest Green
+    } as const;
+    return colors[status as keyof typeof colors] || "#666666";
   };
 
   const formatDate = (dateString: string) => {
@@ -147,19 +147,13 @@ export default function ApplicationManagementPage() {
         <h1 className="text-3xl font-serif text-gray-800">My Applications</h1>
         <div className="space-x-4">
           <Button
-            onClick={() => handleSort("appliedDate")}
+            onClick={() => handleSort("createdDate")}
             variant="outline"
             className="border-gray-300 hover:border-gray-400"
           >
-            Sort by Date {sortField === "appliedDate" && (sortAsc ? "↑" : "↓")}
-          </Button>
-          <Button
-            onClick={() => handleSort("companyName")}
-            variant="outline"
-            className="border-gray-300 hover:border-gray-400"
-          >
-            Sort by Company{" "}
-            {sortField === "companyName" && (sortAsc ? "↑" : "↓")}
+            Sort by Date{" "}
+            {sortField === "createdDate" &&
+              (sortAsc ? "↑ (Oldest)" : "↓ (Latest)")}
           </Button>
         </div>
       </div>
@@ -177,48 +171,84 @@ export default function ApplicationManagementPage() {
           </CardContent>
         </Card>
       ) : (
-        <div className="space-y-6">
-          {filteredApplications.map((application) => (
-            <Card key={application.applicationId}>
-              <CardContent className="p-6">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <h3 className="text-xl font-serif mb-2">
-                      {application.jobTitle}
-                    </h3>
-                    <p className="text-gray-600 mb-1">
-                      {application.companyName}
-                    </p>
-                    <p className="text-gray-500 text-sm">
-                      Applied on {formatDate(application.appliedDate)}
-                    </p>
+        <>
+          <div className="space-y-6">
+            {getCurrentPageItems().map((application) => (
+              <Card key={application.applicationId}>
+                <CardContent className="p-6">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h3 className="text-xl font-serif mb-2">
+                        {application.jobTitle}
+                      </h3>
+                      <p className="text-gray-600 mb-1">
+                        {application.jobLocation}
+                      </p>
+                      {/* offeredSalary */}
+                      <p className="text-gray-500 text-sm">
+                        {application.offeredSalary}
+                      </p>
+                      <p className="text-gray-500 text-sm">
+                        Applied on {formatDate(application.createdDate)}
+                      </p>
+                    </div>
+                    <div className="flex flex-col items-end space-y-3">
+                      <Badge
+                        style={{
+                          backgroundColor: getStatusColor(application.status),
+                          color: "white",
+                          fontWeight: 500,
+                          padding: "4px 12px",
+                        }}
+                      >
+                        {application.status.charAt(0).toUpperCase() +
+                          application.status.slice(1)}
+                      </Badge>
+                      <Button
+                        onClick={() => viewApplicationDetails(application)}
+                        variant="outline"
+                        className="border-gray-300 hover:border-gray-400"
+                      >
+                        <Eye className="h-4 w-4 mr-2" />
+                        View Details
+                      </Button>
+                    </div>
                   </div>
-                  <div className="flex flex-col items-end space-y-3">
-                    <Badge
-                      style={{
-                        backgroundColor: getStatusColor(application.status),
-                        color: "white",
-                        fontWeight: 500,
-                        padding: "4px 12px",
-                      }}
-                    >
-                      {application.status.charAt(0).toUpperCase() +
-                        application.status.slice(1)}
-                    </Badge>
-                    <Button
-                      onClick={() => viewApplicationDetails(application)}
-                      variant="outline"
-                      className="border-gray-300 hover:border-gray-400"
-                    >
-                      <Eye className="h-4 w-4 mr-2" />
-                      View Details
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          {/* Pagination */}
+          <div className="flex justify-center items-center gap-2 mt-6">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+              <Button
+                key={page}
+                variant={currentPage === page ? "default" : "outline"}
+                size="sm"
+                onClick={() => handlePageChange(page)}
+              >
+                {page}
+              </Button>
+            ))}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
+        </>
       )}
 
       {/* Application Details Dialog */}
@@ -226,7 +256,7 @@ export default function ApplicationManagementPage() {
         <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-xl">
-              {selectedJob?.title} at {selectedJob?.companyName}
+              {selectedJob?.title} at {selectedJob?.employerName}
             </DialogTitle>
           </DialogHeader>
 
@@ -255,15 +285,6 @@ export default function ApplicationManagementPage() {
                     : ""}
                 </Badge>
               </div>
-
-              {selectedApplication?.feedback && (
-                <div className="bg-gray-50 p-4 rounded-md">
-                  <h4 className="font-medium mb-2">Employer Feedback</h4>
-                  <p className="text-gray-700">
-                    {selectedApplication.feedback}
-                  </p>
-                </div>
-              )}
 
               <div>
                 <h4 className="font-medium mb-2">Resume</h4>
@@ -362,11 +383,13 @@ export default function ApplicationManagementPage() {
                   )}
                 </div>
 
-                <div className="mt-4">
-                  <Link to={`/jobs/${selectedJob?.jobId}`} className="w-full">
-                    View Full Job Posting
-                  </Link>
-                </div>
+                {selectedJob && (
+                  <div className="mt-4">
+                    <Link to={`/jobs/${selectedJob.jobId}`} className="w-full">
+                      View Full Job Posting
+                    </Link>
+                  </div>
+                )}
               </div>
             </TabsContent>
           </Tabs>

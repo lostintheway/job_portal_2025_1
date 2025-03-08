@@ -18,13 +18,28 @@ type ApplicationStatus =
   | "accepted";
 type SortableFields = keyof typeof applications;
 
+export type MyApplications = ApplicationSelect & {
+  jobDescription: string | null;
+  jobTitle: string | null;
+  jobLocation: string | null;
+  jobType: string | null;
+  offeredSalary: string | null;
+};
+
 class ApplicationModel {
   // getMyApplications
-  static async getMyApplications(userId: number): Promise<ApplicationSelect[]> {
-    console.log({ userId });
+  static async getMyApplications(userId: number): Promise<MyApplications[]> {
     return db
-      .select()
+      .select({
+        ...applications,
+        jobDescription: jobListings.jobDescription,
+        jobTitle: jobListings.title,
+        jobLocation: jobListings.jobLocation,
+        jobType: jobListings.jobType,
+        offeredSalary: jobListings.offeredSalary,
+      } as any)
       .from(applications)
+      .leftJoin(jobListings, eq(applications.jobId, jobListings.jobId))
       .where(
         and(eq(applications.isDeleted, false), eq(applications.userId, userId))
       );

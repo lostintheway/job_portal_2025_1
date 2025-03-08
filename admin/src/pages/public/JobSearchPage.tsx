@@ -241,7 +241,9 @@ export default function JobSearchPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8 bg-transparent">
-        <h1 className="text-3xl font-bold mb-6">Find Your Perfect Job</h1>
+        <h1 className="text-3xl font-serif mb-6 text-gray-800">
+          Find Your Perfect Job
+        </h1>
         <div className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <ErrorBoundary>
@@ -312,7 +314,9 @@ export default function JobSearchPage() {
           {jobs.map((job) => (
             <Card key={job.jobId} className="overflow-hidden">
               <CardHeader className="pb-2">
-                <CardTitle className="text-xl">{job.title}</CardTitle>
+                <CardTitle className="text-xl font-serif">
+                  {job.title}
+                </CardTitle>
                 <p className="text-gray-500 font-medium">{job.employerName}</p>
               </CardHeader>
 

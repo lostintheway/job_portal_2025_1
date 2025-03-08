@@ -1,7 +1,9 @@
 import type { ApplicationSelect } from "../db/schema";
 import type { ResponseWithTotal } from "../interfaces/ResponseWithTotal.ts";
 import type { ApplicationQueryParams } from "../interfaces/QueryParams.ts";
-import ApplicationModel from "../models/application.model.ts";
+import ApplicationModel, {
+  type MyApplications,
+} from "../models/application.model.ts";
 
 class ApplicationService {
   static async getApplications(
@@ -10,7 +12,7 @@ class ApplicationService {
     return ApplicationModel.getApplications(params);
   }
 
-  static async getMyApplications(userId: number): Promise<ApplicationSelect[]> {
+  static async getMyApplications(userId: number): Promise<MyApplications[]> {
     return ApplicationModel.getMyApplications(userId);
   }
 

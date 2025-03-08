@@ -1,7 +1,7 @@
 import axios, { AxiosInstance, AxiosResponse } from "axios";
 import { LoginResponse } from "./types";
 import { JobListingResponse, JobResponse } from "./JobListingResponse";
-
+import { ApplicationsResponse } from "./ApplicationsResponse";
 export class Api {
   private baseUrl: string;
   private axiosInstance: AxiosInstance;
@@ -66,7 +66,7 @@ export class Api {
     );
   }
 
-  getJobById(jobId: string) {
+  getJobById(jobId: number) {
     return this.axiosInstance.get<JobResponse>(
       `/api/job-descriptions/${jobId}`
     );
@@ -116,11 +116,15 @@ export class Api {
   }
   // Get applications submitted by the logged-in user (jobseeker only)
   getMyApplications() {
-    return this.axiosInstance.get("/api/applications/my-applications");
+    return this.axiosInstance.get<ApplicationsResponse>(
+      "/api/applications/my-applications"
+    );
   }
   //getApplicationsByUserId
   getApplicationsByUserId(userId: string) {
-    return this.axiosInstance.get(`/api/my-applications/${userId}`);
+    return this.axiosInstance.get<ApplicationsResponse>(
+      `/api/my-applications/${userId}`
+    );
   }
   // Get application by ID
   getApplicationById(applicationId: string) {
