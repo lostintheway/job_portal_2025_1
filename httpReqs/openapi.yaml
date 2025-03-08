@@ -1,0 +1,42 @@
+openapi: 3.0.0
+info:
+  title: User Registration API
+  version: 1.0.0
+servers:
+  - url: http://localhost:5222
+    description: Local development server
+paths:
+  /api/users/register:
+    post:
+      summary: Register a new user
+      description: Endpoint to register a new user with email, password, and other details.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: jobseeker1@example.com
+                password:
+                  type: string
+                  example: password123
+                full_name:
+                  type: string
+                  example: Job Seeker One
+                contact_number:
+                  type: string
+                  example: "123-456-7890"
+                address:
+                  type: string
+                  example: "123 Main St, Anytown"
+                role:
+                  type: string
+                  example: jobseeker
+      responses:
+        "201":
+          description: User successfully registered
+        "400":
+          description: Bad request, invalid input

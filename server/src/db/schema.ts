@@ -27,6 +27,7 @@ export const users = mysqlTable("users", {
   userId: int("user_id").primaryKey().autoincrement(),
   email: varchar("email", { length: 255 }).notNull().unique(),
   password: varchar("password", { length: 255 }).notNull(),
+  salt: varchar("salt", { length: 255 }).notNull(),
   fullName: varchar("full_name", { length: 255 }).notNull(),
   contactNumber: varchar("contact_number", { length: 20 }).notNull(),
   address: varchar("address", { length: 255 }).notNull(),
@@ -157,15 +158,6 @@ export const bookmarks = mysqlTable("bookmarks", {
   ...commonFields,
 });
 
-// list all the available table here in comment
-// 1 bookmarks
-// 2 applications
-// 3jobListings
-// 4employerProfiles
-// 5jobseekerProfiles
-// 6categories
-// 7users
-
 // Type definitions for TypeScript
 export type UserSelect = typeof users.$inferSelect;
 export type CategorySelect = typeof categories.$inferSelect;
@@ -182,21 +174,3 @@ export type BookmarkInsert = typeof bookmarks.$inferInsert;
 export type JobListingInsert = typeof jobListings.$inferInsert;
 export type EmployerProfileInsert = typeof employerProfiles.$inferInsert;
 export type JobSeekerProfileInsert = typeof jobseekerProfiles.$inferInsert;
-
-// Indexes
-export const jobListingsIndexes = {
-  employerIdIdx: sql`CREATE INDEX employer_id_idx ON job_listings (employer_id)`,
-  categoryIdIdx: sql`CREATE INDEX category_id_idx ON job_listings (category_id)`,
-  deadlineIdx: sql`CREATE INDEX deadline_idx ON job_listings (deadline)`,
-  isActiveIdx: sql`CREATE INDEX is_active_idx ON job_listings (is_active)`,
-};
-
-export const applicationsIndexes = {
-  jobIdIdx: sql`CREATE INDEX job_id_idx ON applications (job_id)`,
-  userIdIdx: sql`CREATE INDEX user_id_idx ON applications (user_id)`,
-  statusIdx: sql`CREATE INDEX status_idx ON applications (status)`,
-};
-
-export const bookmarksIndexes = {
-  userJobIdx: sql`CREATE INDEX user_job_idx ON bookmarks (user_id, job_id)`,
-};
