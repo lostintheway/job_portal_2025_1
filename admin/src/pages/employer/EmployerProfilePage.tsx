@@ -9,18 +9,25 @@ import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 interface EmployerProfile {
-  profileId: number;
+  employerId: number;
   userId: number;
   companyName: string;
-  industry: string;
+  companyAddress: string;
+  companyContact: string;
+  companyEmail: string;
+  companyLogo: string;
+  companyDescription: string;
+  industryType: string;
+  establishedDate: string;
   companySize: string;
-  founded: string;
-  website: string;
-  location: string;
-  about: string;
-  mission: string;
-  benefits: string;
-  logo: string;
+  companyWebsite: string;
+  createdBy: number;
+  createdDate: string;
+  updatedBy: number | null;
+  updatedDate: string | null;
+  deletedBy: number | null;
+  deletedDate: string | null;
+  isDeleted: boolean;
 }
 
 export default function EmployerProfilePage() {
@@ -68,11 +75,11 @@ export default function EmployerProfilePage() {
 
     try {
       setSaving(true);
-      if (profile.profileId) {
+      if (profile.employerId) {
         // Update existing profile
         await api
           .getInstance()
-          .put(`/api/employer-profile/${profile.profileId}`, profile);
+          .put(`/api/employer-profile/${profile.employerId}`, profile);
         toast.success("Company profile updated successfully");
       } else {
         // Create new profile
@@ -131,11 +138,11 @@ export default function EmployerProfilePage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="industry">Industry</Label>
+                <Label htmlFor="industryType">Industry Type</Label>
                 <Input
-                  id="industry"
-                  name="industry"
-                  value={profile?.industry || ""}
+                  id="industryType"
+                  name="industryType"
+                  value={profile?.industryType || ""}
                   onChange={handleInputChange}
                   placeholder="e.g. Technology, Healthcare, Finance"
                   required
@@ -154,33 +161,33 @@ export default function EmployerProfilePage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="founded">Founded</Label>
+                <Label htmlFor="establishedDate">Established Date</Label>
                 <Input
-                  id="founded"
-                  name="founded"
-                  value={profile?.founded || ""}
+                  id="establishedDate"
+                  name="establishedDate"
+                  value={profile?.establishedDate || ""}
                   onChange={handleInputChange}
                   placeholder="e.g. 2010"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="website">Website</Label>
+                <Label htmlFor="companyWebsite">Website</Label>
                 <Input
-                  id="website"
-                  name="website"
-                  value={profile?.website || ""}
+                  id="companyWebsite"
+                  name="companyWebsite"
+                  value={profile?.companyWebsite || ""}
                   onChange={handleInputChange}
                   placeholder="e.g. https://www.example.com"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="location">Location</Label>
+                <Label htmlFor="companyAddress">Location</Label>
                 <Input
-                  id="location"
-                  name="location"
-                  value={profile?.location || ""}
+                  id="companyAddress"
+                  name="companyAddress"
+                  value={profile?.companyAddress || ""}
                   onChange={handleInputChange}
                   placeholder="e.g. Sydney, Australia"
                   required
@@ -188,11 +195,11 @@ export default function EmployerProfilePage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="about">About Company</Label>
+                <Label htmlFor="companyDescription">About Company</Label>
                 <Textarea
-                  id="about"
-                  name="about"
-                  value={profile?.about || ""}
+                  id="companyDescription"
+                  name="companyDescription"
+                  value={profile?.companyDescription || ""}
                   onChange={handleInputChange}
                   placeholder="Describe your company, its history, and what it does"
                   className="min-h-[150px]"
@@ -201,35 +208,11 @@ export default function EmployerProfilePage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="mission">Company Mission</Label>
-                <Textarea
-                  id="mission"
-                  name="mission"
-                  value={profile?.mission || ""}
-                  onChange={handleInputChange}
-                  placeholder="What is your company's mission and vision?"
-                  className="min-h-[100px]"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="benefits">Benefits & Perks</Label>
-                <Textarea
-                  id="benefits"
-                  name="benefits"
-                  value={profile?.benefits || ""}
-                  onChange={handleInputChange}
-                  placeholder="List benefits and perks offered to employees"
-                  className="min-h-[100px]"
-                />
-              </div>
-
-              <div className="space-y-2">
                 <Label htmlFor="logo">Logo URL</Label>
                 <Input
                   id="logo"
                   name="logo"
-                  value={profile?.logo || ""}
+                  value={profile?.companyLogo || ""}
                   onChange={handleInputChange}
                   placeholder="URL to your company logo"
                 />
@@ -265,16 +248,16 @@ export default function EmployerProfilePage() {
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <h3 className="text-md font-semibold">Industry</h3>
-                  <p className="text-gray-700">{profile?.industry}</p>
+                  <h3 className="text-md font-semibold">Industry Type</h3>
+                  <p className="text-gray-700">{profile?.industryType}</p>
                 </div>
                 <div>
                   <h3 className="text-md font-semibold">Company Size</h3>
                   <p className="text-gray-700">{profile?.companySize}</p>
                 </div>
                 <div>
-                  <h3 className="text-md font-semibold">Founded</h3>
-                  <p className="text-gray-700">{profile?.founded}</p>
+                  <h3 className="text-md font-semibold">Established Date</h3>
+                  <p className="text-gray-700">{profile?.establishedDate}</p>
                 </div>
               </div>
 
@@ -282,47 +265,29 @@ export default function EmployerProfilePage() {
                 <div>
                   <h3 className="text-md font-semibold">Website</h3>
                   <p className="text-gray-700">
-                    {profile?.website && (
+                    {profile?.companyWebsite && (
                       <a
-                        href={profile.website}
+                        href={profile.companyWebsite}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-blue-600 hover:underline"
                       >
-                        {profile.website}
+                        {profile.companyWebsite}
                       </a>
                     )}
                   </p>
                 </div>
                 <div>
-                  <h3 className="text-md font-semibold">Location</h3>
-                  <p className="text-gray-700">{profile?.location}</p>
+                  <h3 className="text-md font-semibold">Company Address</h3>
+                  <p className="text-gray-700">{profile?.companyAddress}</p>
                 </div>
               </div>
 
-              {profile?.about && (
+              {profile?.companyDescription && (
                 <div>
                   <h3 className="text-lg font-semibold">About Company</h3>
                   <p className="text-gray-700 whitespace-pre-line">
-                    {profile.about}
-                  </p>
-                </div>
-              )}
-
-              {profile?.mission && (
-                <div>
-                  <h3 className="text-lg font-semibold">Company Mission</h3>
-                  <p className="text-gray-700 whitespace-pre-line">
-                    {profile.mission}
-                  </p>
-                </div>
-              )}
-
-              {profile?.benefits && (
-                <div>
-                  <h3 className="text-lg font-semibold">Benefits & Perks</h3>
-                  <p className="text-gray-700 whitespace-pre-line">
-                    {profile.benefits}
+                    {profile.companyDescription}
                   </p>
                 </div>
               )}

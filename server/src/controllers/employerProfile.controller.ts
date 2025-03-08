@@ -44,6 +44,7 @@ class EmployerProfileController {
         return;
       }
       const userId = req.user.userId;
+      console.log(userId);
       const employerProfile =
         await EmployerProfileService.getEmployerProfileByUserId(userId);
       if (!employerProfile) {

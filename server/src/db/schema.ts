@@ -63,7 +63,7 @@ export const employerProfiles = mysqlTable("employer_profiles", {
   companyLogo: varchar("company_logo", { length: 255 }),
   companyDescription: text("company_description"),
   industryType: varchar("industry_type", { length: 100 }),
-  establishedDate: date("established_date"),
+  establishedDate: varchar("established_date", { length: 10 }),
   companySize: varchar("company_size", { length: 50 }),
   companyWebsite: varchar("company_website", { length: 255 }),
   ...commonFields,

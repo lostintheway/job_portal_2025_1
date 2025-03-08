@@ -5,7 +5,13 @@ import EmployerProfileController from "../controllers/employerProfile.controller
 
 const router = express.Router();
 
-// Public routes
+router.get(
+  "/my-profile",
+  authenticate,
+  isEmployer,
+  EmployerProfileController.getEmployerProfileByUserId
+);
+
 router.get(
   "/",
   authenticate,
@@ -18,24 +24,17 @@ router.get(
   EmployerProfileController.getEmployerProfileById
 );
 
-// Protected routes for employers
-router.get(
-  "/my-profile",
+router.put(
+  "/:employerProfileId",
   authenticate,
   isEmployer,
-  EmployerProfileController.getEmployerProfileByUserId
+  EmployerProfileController.updateEmployerProfile
 );
 router.post(
   "/",
   authenticate,
   isEmployer,
   EmployerProfileController.createEmployerProfile
-);
-router.put(
-  "/:employerProfileId",
-  authenticate,
-  isEmployer,
-  EmployerProfileController.updateEmployerProfile
 );
 router.delete(
   "/:employerProfileId",

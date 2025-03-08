@@ -57,27 +57,34 @@ class EmployerProfileModel {
     profileData: Partial<
       Omit<
         EmployerProfileSelect,
-        | "employerId"
-        | "createdDate"
-        | "updatedDate"
-        | "deletedDate"
-        | "isDeleted"
+        "employerId" | "createdDate" | "updatedDate" | "deletedDate"
       >
     >,
     userId: number
   ): Promise<boolean> {
+    console.log("profileData", profileData);
+
     try {
       const {
         createdBy,
         updatedBy,
         deletedBy,
+        updatedDate,
         deletedDate,
-        isDeleted,
+        createdDate,
+        establishedDate,
         ...updateData
       } = profileData;
+      console.log("Type of establishedDate:", typeof establishedDate); // Log the type of establishedDate
+      const setData = {
+        ...updateData,
+        updatedDate: new Date(),
+        updatedBy: userId,
+      };
+      console.log({ setData });
       await db
         .update(employerProfiles)
-        .set({ ...updateData, updatedDate: new Date(), updatedBy: userId })
+        .set(setData)
         .where(eq(employerProfiles.employerId, employerId));
       return true;
     } catch (error) {
