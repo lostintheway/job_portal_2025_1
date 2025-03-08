@@ -287,21 +287,6 @@ export default function ApplicationManagementPage() {
               </div>
 
               <div>
-                <h4 className="font-medium mb-2">Resume</h4>
-                <div className="flex items-center">
-                  <FileText className="h-5 w-5 mr-2 text-blue-500" />
-                  <a
-                    href={selectedApplication?.resumeUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-500 hover:underline"
-                  >
-                    View Resume
-                  </a>
-                </div>
-              </div>
-
-              <div>
                 <h4 className="font-medium mb-2">Cover Letter</h4>
                 <div className="bg-gray-50 p-4 rounded-md whitespace-pre-line">
                   {selectedApplication?.coverLetter}

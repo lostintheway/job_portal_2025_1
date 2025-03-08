@@ -1,11 +1,16 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Menu, Moon, Sun } from "lucide-react";
-import { useTheme } from "./theme-provider";
-import { Outlet } from "react-router-dom";
+import { Menu, User } from "lucide-react";
+import { Outlet, useNavigate } from "react-router-dom";
 import AdminSidebar from "./sidebars/AdminSidebar";
 import EmployerSidebar from "./sidebars/EmployerSidebar";
 import JobSeekerSidebar from "./sidebars/JobSeekerSidebar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu";
 
 interface DashboardProps {
   role: "admin" | "employer" | "jobseeker";
@@ -13,7 +18,7 @@ interface DashboardProps {
 
 const Dashboard = ({ role }: DashboardProps) => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const { theme, setTheme } = useTheme();
+  const navigate = useNavigate();
 
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
 
@@ -34,18 +39,36 @@ const Dashboard = ({ role }: DashboardProps) => {
             {role.charAt(0).toUpperCase() + role.slice(1)} Dashboard
           </h1>
         </div>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-          className="text-white hover:bg-purple-600"
-        >
-          {theme === "dark" ? (
-            <Sun className="h-6 w-6" />
-          ) : (
-            <Moon className="h-6 w-6" />
-          )}
-        </Button>
+
+        {/* dropdown account with logout and view profile */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-gray hover:bg-purple-600"
+            >
+              <User className="h-6 w-6 text-gray-600" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuItem
+              onClick={() => {
+                navigate("/profile");
+              }}
+            >
+              View Profile
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => {
+                navigate("/login");
+                localStorage.removeItem("token");
+              }}
+            >
+              Logout
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </nav>
 
       {/* Main content area with sidebar */}

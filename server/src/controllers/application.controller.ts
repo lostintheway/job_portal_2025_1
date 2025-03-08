@@ -65,6 +65,21 @@ class ApplicationController {
         res.status(401).json(ErrorMessage.authRequired());
         return;
       }
+
+      // Check if user has already applied for this job
+      const hasApplied = await ApplicationService.hasUserAppliedToJob(
+        req.user.userId,
+        req.body.jobId
+      );
+
+      if (hasApplied) {
+        res.status(409).json({
+          success: false,
+          error: "You have already applied for this job",
+        });
+        return;
+      }
+
       const application = await ApplicationService.createApplication(
         req.user.userId,
         req.body

@@ -9,7 +9,11 @@ import { toast } from "sonner";
 interface Bookmark {
   bookmarkId: string;
   jobId: string;
-  notes: string;
+  jobTitle: string;
+  jobLocation: string;
+  jobType: string;
+  jobDescription: string;
+  jobSalary: string;
   // Add other bookmark properties if needed
 }
 
@@ -73,10 +77,24 @@ export default function BookmarksPage() {
             <CardContent className="p-6 flex justify-between items-center">
               <div>
                 <p className="text-normal">Job ID: {bookmark.jobId}</p>
-                <p className="text-sm text-gray-500 py-2">
-                  Note: {bookmark.notes}
+
+                <p className="text-sm text-gray-800 font-semibold">
+                  Job Title: {bookmark.jobTitle}
+                </p>
+                <p className="text-sm text-gray-500">
+                  Location: {bookmark.jobLocation}
+                </p>
+                <p className="text-sm text-gray-500">
+                  Type: {bookmark.jobType}
+                </p>
+                <p className="text-sm text-gray-500">
+                  Description: {bookmark.jobDescription}
+                </p>
+                <p className="text-sm text-gray-500">
+                  Salary: {bookmark.jobSalary}
                 </p>
                 <Button
+                  className="bg-green-500 hover:bg-green-600"
                   variant="outline"
                   onClick={() => viewJobDetails(bookmark.jobId)}
                 >

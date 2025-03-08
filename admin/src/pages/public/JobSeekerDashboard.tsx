@@ -16,10 +16,14 @@ interface Application {
 }
 
 interface BookmarkedJob {
-  notes: string;
   jobId: string;
   bookmarkId: string;
   createdDate: string;
+  jobTitle: string;
+  jobLocation: string;
+  jobType: string;
+  jobDescription: string;
+  jobSalary: string;
 }
 
 export default function JobSeekerDashboard() {
@@ -129,7 +133,22 @@ export default function JobSeekerDashboard() {
                   <div key={job.bookmarkId} className="border p-4">
                     <div className="flex justify-between items-start">
                       <div>
-                        <p className="text-sm text-gray-500">{job.notes}</p>
+                        <p className="text-sm text-gray-800 font-semibold">
+                          {job.jobTitle || "Digital Marketing Specialist"}
+                        </p>
+                        <p className="text-sm text-gray-500">
+                          {job.jobLocation || "Remote"}
+                        </p>
+                        <p className="text-sm text-gray-500">
+                          {job.jobType || "contract"}
+                        </p>
+                        <p className="text-sm text-gray-500">
+                          {job.jobDescription ||
+                            "We are hiring a Digital Marketing Specialist to drive our online marketing campaigns..."}
+                        </p>
+                        <p className="text-sm text-gray-500">
+                          {job.jobSalary || "$40 - $60 per hour"}
+                        </p>
                       </div>
                       <Button
                         variant="outline"

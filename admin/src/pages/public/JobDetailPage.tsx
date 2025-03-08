@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Loader2, Bookmark, BookmarkCheck } from "lucide-react";
 import { toast } from "sonner";
 import { ApplicationData, JobDetails } from "@/api/JobListingResponse";
+import { isAxiosError } from "axios";
 
 export default function JobDetailPage() {
   const { jobId } = useParams<{ jobId: string }>();
@@ -78,8 +79,13 @@ export default function JobDetailPage() {
       toast.success("Application submitted successfully!");
       navigate("/applications");
     } catch (error) {
+      console.log({ error });
       toast.error(
-        error instanceof Error ? error.message : "Failed to submit application"
+        isAxiosError(error)
+          ? error.response?.data.error
+          : error instanceof Error
+          ? error.message
+          : "Failed to submit application"
       );
     } finally {
       setApplying(false);

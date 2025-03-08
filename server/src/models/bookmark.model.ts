@@ -1,14 +1,31 @@
 import { eq, and } from "drizzle-orm";
 import { db } from "../config/db.ts";
-import { bookmarks, type BookmarkSelect } from "../db/schema.ts";
+import { bookmarks, jobListings, type BookmarkSelect } from "../db/schema.ts";
 
 class BookmarkModel {
-  static async getAllBookmarksByUserId(
-    userId: number
-  ): Promise<BookmarkSelect[]> {
+  static async getAllBookmarksByUserId(userId: number): Promise<
+    {
+      bookmarkId: number;
+      jobId: number;
+      jobTitle: string | null;
+      jobLocation: string | null;
+      jobType: string | null;
+      jobDescription: string | null;
+      jobSalary: string | null;
+    }[]
+  > {
     return db
-      .select()
+      .select({
+        bookmarkId: bookmarks.bookmarkId,
+        jobId: bookmarks.jobId,
+        jobTitle: jobListings.title,
+        jobLocation: jobListings.jobLocation,
+        jobType: jobListings.jobType,
+        jobDescription: jobListings.jobDescription,
+        jobSalary: jobListings.offeredSalary,
+      })
       .from(bookmarks)
+      .leftJoin(jobListings, eq(bookmarks.jobId, jobListings.jobId))
       .where(and(eq(bookmarks.userId, userId), eq(bookmarks.isDeleted, false)));
   }
 

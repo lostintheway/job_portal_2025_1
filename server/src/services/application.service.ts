@@ -73,6 +73,13 @@ class ApplicationService {
   ): Promise<boolean> {
     return ApplicationModel.deleteApplication(applicationId, deletedBy);
   }
+
+  static async hasUserAppliedToJob(
+    userId: number,
+    jobId: number
+  ): Promise<boolean> {
+    return ApplicationModel.hasUserAppliedToJob(userId, jobId);
+  }
 }
 
 export default ApplicationService;
