@@ -1,7 +1,6 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import "./App.css";
 import Dashboard from "./components/Dashboard";
-import JobListingPage from "./pages/public/JobListingPage";
 import RegisterPage from "./pages/auth/RegisterPage";
 import LoginPage from "./pages/auth/LoginPage";
 import JobSeekerDashboard from "./pages/public/JobSeekerDashboard";
@@ -14,6 +13,7 @@ import PostedJobsPage from "./pages/employer/PostedJobsPage";
 import CreateJobPage from "./pages/employer/CreateJobPage";
 import ApplicationsPage from "./pages/employer/ApplicationsPage";
 import BookmarksPage from "./pages/public/BookmarksPage";
+import EmployerProfilePage from "./pages/employer/EmployerProfilePage";
 // import GalleryPage from "./pages/GalleryPage";Page";
 
 function App() {
@@ -28,13 +28,11 @@ function App() {
           <Route path="job-postings" element={<PostedJobsPage />} />
           <Route path="create-job" element={<CreateJobPage />} />
           <Route path="applications" element={<ApplicationsPage />} />
-          <Route path="company-profile" element={<JobSeekerProfilePage />} />
+          <Route path="company-profile" element={<EmployerProfilePage />} />
         </Route>
         <Route path="/admin" element={<Dashboard role="admin" />}>
           <Route path="dashboard" element={<EmployerDashboard />} />
-          <Route path="users" element={<JobListingPage />} />
-          <Route path="job-listings" element={<JobListingPage />} />
-          <Route path="settings" element={<JobSeekerProfilePage />} />
+          <Route path="profile" element={<JobSeekerProfilePage />} />
         </Route>
         <Route path="/" element={<Dashboard role="jobseeker" />}>
           <Route path="dashboard" element={<JobSeekerDashboard />} />

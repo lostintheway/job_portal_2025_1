@@ -4,13 +4,7 @@ import { api } from "../../api/api";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import {
-  Loader2,
-  Eye,
-  FileText,
-  ChevronLeft,
-  ChevronRight,
-} from "lucide-react";
+import { Loader2, Eye, ChevronLeft, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 import {
   Dialog,

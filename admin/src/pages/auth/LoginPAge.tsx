@@ -60,7 +60,7 @@ export default function LoginPage() {
         } else if (res.user.role === "admin") {
           navigate("/admin");
         } else if (res.user.role === "employer") {
-          navigate("/employer");
+          navigate("/employer/dashboard");
         }
       }
     } catch (error) {
