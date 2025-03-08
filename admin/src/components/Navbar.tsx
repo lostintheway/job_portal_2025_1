@@ -15,12 +15,27 @@ interface NavbarProps {
 export function Navbar({ role }: NavbarProps) {
   const navigate = useNavigate();
 
+  const getProfilePath = () => {
+    switch (role) {
+      case "admin":
+        return "/admin/profile";
+      case "employer":
+        return "/employer/company-profile";
+      case "jobseeker":
+        return "/profile";
+      default:
+        return "/profile";
+    }
+  };
+
   return (
     <nav className="border-b bg-background">
       <div className="container mx-auto flex h-16 items-center px-4">
         <div className="flex items-center space-x-4">
           <Link to={`/${role}`}>
-            <h1 className="text-xl font-semibold">Job Portal Admin</h1>
+            <h1 className="text-xl font-semibold">
+              {role === "admin" ? "Job Portal Admin" : "Job Portal"}
+            </h1>
           </Link>
         </div>
 
@@ -34,7 +49,7 @@ export function Navbar({ role }: NavbarProps) {
             <DropdownMenuContent align="end">
               <DropdownMenuItem
                 onClick={() => {
-                  navigate("/profile");
+                  navigate(getProfilePath());
                 }}
               >
                 Profile

@@ -207,6 +207,14 @@ export class Api {
       "/api/users/all"
     );
   }
+  getMyProfile() {
+    return this.axiosInstance.get<{ success: boolean; data: User }>(
+      "/api/users/me"
+    );
+  }
+  updateUser(userId: string, data: Partial<User>) {
+    return this.axiosInstance.put(`/api/users/${userId}`, data);
+  }
 }
 
 export const api = new Api();

@@ -16,6 +16,7 @@ import BookmarksPage from "./pages/public/BookmarksPage";
 import EmployerProfilePage from "./pages/employer/EmployerProfilePage";
 import EmployerJobDetailPage from "./pages/employer/JobDetailPage";
 import UsersPage from "./pages/admin/UsersPage";
+import AdminProfilePage from "./pages/admin/AdminProfilePage";
 import AdminLayout from "./layouts/AdminLayout";
 import { Toaster } from "./components/ui/sonner";
 // import GalleryPage from "./pages/GalleryPage";Page";
@@ -38,6 +39,7 @@ function App() {
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<UsersPage />} />
           <Route path="users" element={<UsersPage />} />
+          <Route path="profile" element={<AdminProfilePage />} />
         </Route>
         <Route path="/" element={<Dashboard role="jobseeker" />}>
           <Route path="dashboard" element={<JobSeekerDashboard />} />
