@@ -5,22 +5,22 @@ import ApplicationController from "../controllers/application.controller.ts";
 
 const router = express.Router();
 
+router.get(
+  "/my-applications",
+  authenticate,
+  ApplicationController.getMyApplications
+);
+
 router.get("/", authenticate, ApplicationController.getApplications);
+
 router.get(
   "/:applicationId",
   authenticate,
   ApplicationController.getApplicationById
 );
-router.get(
-  "/my-applications",
-  authenticate,
-  (req, res, next) => {
-    console.log("Hit the /my-applications route");
-    next();
-  },
-  ApplicationController.getMyApplications
-);
+
 router.post("/", authenticate, ApplicationController.createApplication);
+
 router.put(
   "/:applicationId/status",
   authenticate,

@@ -31,7 +31,7 @@ class ApplicationController {
 
   // getMyApplications
   static async getMyApplications(req: Request, res: Response): Promise<void> {
-    console.log("getMyApplications");
+    console.log("i am at getMyApplications");
     try {
       const userId = req.user?.userId;
       console.log({ userId });

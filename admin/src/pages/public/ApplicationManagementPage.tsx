@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect, useCallback } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { api } from "../../api/api";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -62,23 +62,7 @@ export default function ApplicationManagementPage() {
     fetchApplications();
   }, []);
 
-  useEffect(() => {
-    sortApplications();
-  }, [applications, sortField, sortAsc]);
-
-  const fetchApplications = async () => {
-    try {
-      setLoading(true);
-      const response = await api.getMyApplications();
-      setApplications(response.data.data);
-    } catch (error) {
-      toast.error("Failed to load applications");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const sortApplications = () => {
+  const sortApplications = useCallback(() => {
     const sorted = [...applications].sort((a, b) => {
       if (sortField === "appliedDate") {
         return sortAsc
@@ -92,6 +76,22 @@ export default function ApplicationManagementPage() {
         : b.companyName.localeCompare(a.companyName);
     });
     setFilteredApplications(sorted);
+  }, [applications, sortField, sortAsc]);
+
+  useEffect(() => {
+    sortApplications();
+  }, [applications, sortField, sortAsc, sortApplications]);
+
+  const fetchApplications = async () => {
+    try {
+      setLoading(true);
+      const response = await api.getMyApplications();
+      setApplications(response.data.data);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "An error occurred");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleSort = (field: "appliedDate" | "companyName") => {
@@ -363,12 +363,9 @@ export default function ApplicationManagementPage() {
                 </div>
 
                 <div className="mt-4">
-                  <Button
-                    onClick={() => navigate(`/jobs/${selectedJob?.jobId}`)}
-                    className="w-full"
-                  >
+                  <Link to={`/jobs/${selectedJob?.jobId}`} className="w-full">
                     View Full Job Posting
-                  </Button>
+                  </Link>
                 </div>
               </div>
             </TabsContent>
