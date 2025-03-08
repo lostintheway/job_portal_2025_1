@@ -10,10 +10,10 @@ router.get("/", authenticate, BookmarkController.getAllBookmarksByUserId);
 // GET /api/bookmarks/:bookmarkId - Get bookmark by ID
 router.get("/:bookmarkId", authenticate, BookmarkController.getBookmarkById);
 
-// POST /api/bookmarks - Create a new bookmark
-router.post("/", authenticate, BookmarkController.createBookmark);
+// POST /api/bookmarks/:jobId - Add a bookmark
+router.post("/:jobId", authenticate, BookmarkController.createBookmark);
 
-// DELETE /api/bookmarks/:bookmarkId - Delete a bookmark
-router.delete("/:bookmarkId", authenticate, BookmarkController.deleteBookmark);
+// DELETE /api/bookmarks/:jobId - Remove a bookmark
+router.delete("/:jobId", authenticate, BookmarkController.deleteBookmark);
 
 export default router;

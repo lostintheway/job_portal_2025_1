@@ -57,7 +57,28 @@ class BookmarkController {
         res.status(401).json(ErrorMessage.authRequired());
         return;
       }
-      const bookmark = await BookmarkService.createBookmark(req.body);
+      const jobId = parseInt(req.params.jobId);
+      const userId = req.user.userId;
+
+      // Check if bookmark already exists
+      const exists = await BookmarkService.isJobBookmarkedByUser(userId, jobId);
+      if (exists) {
+        res
+          .status(400)
+          .json({ success: false, message: "Job already bookmarked" });
+        return;
+      }
+
+      const bookmark = await BookmarkService.createBookmark({
+        jobId,
+        userId,
+        createdBy: userId,
+        status: "saved",
+        notes: null,
+        reminderDate: null,
+        updatedBy: null,
+        deletedBy: null,
+      });
       res.status(201).json({ success: true, data: bookmark });
     } catch (error) {
       res.status(500).json(ErrorMessage.serverError());
@@ -70,16 +91,15 @@ class BookmarkController {
         res.status(401).json(ErrorMessage.authRequired());
         return;
       }
-      const bookmarkId = parseInt(req.params.bookmarkId);
-      const bookmark = await BookmarkService.deleteBookmark(
-        bookmarkId,
-        req.user.userId
-      );
-      if (!bookmark) {
+      const jobId = parseInt(req.params.jobId);
+      const userId = req.user.userId;
+
+      const success = await BookmarkService.deleteBookmark(jobId, userId);
+      if (!success) {
         res.status(404).json(ErrorMessage.notFound());
         return;
       }
-      res.status(200).json({ success: true, data: bookmark });
+      res.status(200).json({ success: true });
     } catch (error) {
       res.status(500).json(ErrorMessage.serverError());
     }

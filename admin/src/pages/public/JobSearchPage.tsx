@@ -43,9 +43,14 @@ interface FilterState {
   jobType?: string;
 }
 
+// Extend JobListingModel to include isBookmarked
+interface JobWithBookmark extends JobListingModel {
+  isBookmarked?: boolean;
+}
+
 export default function JobSearchPage() {
   const navigate = useNavigate();
-  const [jobs, setJobs] = useState<JobListingModel[]>([]);
+  const [jobs, setJobs] = useState<JobWithBookmark[]>([]);
   const [categories, setCategories] = useState<
     { categoryId: string; categoryName: string }[]
   >([]);
@@ -102,7 +107,7 @@ export default function JobSearchPage() {
 
       // Add isBookmarked flag to each job
       const jobsWithBookmarks = response.data.data.data.map(
-        (job: JobListingModel) => ({
+        (job: JobWithBookmark) => ({
           ...job,
           isBookmarked: bookmarkedJobIds.has(job.jobId),
         })
@@ -114,7 +119,7 @@ export default function JobSearchPage() {
       // Extract unique job types for the filter dropdown
       const uniqueJobTypes = [
         ...new Set(
-          jobsWithBookmarks.map((job: JobListingModel) => job.jobType)
+          jobsWithBookmarks.map((job: JobWithBookmark) => job.jobType)
         ),
       ];
       setJobTypes(uniqueJobTypes as string[]);
@@ -173,7 +178,9 @@ export default function JobSearchPage() {
   const toggleBookmark = async (jobId: number) => {
     try {
       const job = jobs.find((j) => j.jobId === jobId);
-      if (job?.isBookmarked) {
+      if (!job) return;
+
+      if (job.isBookmarked) {
         await api.removeBookmark(jobId.toString());
         toast.success("Job removed from bookmarks");
       } else {
@@ -182,13 +189,12 @@ export default function JobSearchPage() {
       }
 
       // Update local state to reflect bookmark change
-      setJobs(
-        jobs.map((job) => {
-          if (job.jobId === jobId) {
-            return { ...job, isBookmarked: !job.isBookmarked };
-          }
-          return job;
-        })
+      setJobs((prevJobs) =>
+        prevJobs.map((job) =>
+          job.jobId === jobId
+            ? { ...job, isBookmarked: !job.isBookmarked }
+            : job
+        )
       );
     } catch (error) {
       toast.error(

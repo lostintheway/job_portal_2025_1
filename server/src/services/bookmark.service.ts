@@ -58,9 +58,9 @@ class BookmarkService {
 
   static async deleteBookmark(
     bookmarkId: number,
-    deletedBy: number
+    userId: number
   ): Promise<boolean> {
-    return BookmarkModel.deleteBookmark(bookmarkId, deletedBy);
+    return BookmarkModel.deleteBookmark(bookmarkId, userId);
   }
 }
 

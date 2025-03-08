@@ -14,7 +14,6 @@ export const authenticate = async (
   res: Response,
   next: NextFunction
 ): Promise<void> => {
-  console.log("Authenticating user...");
   try {
     // Get token from Authorization header
     const authHeader = req.headers.authorization;
@@ -32,8 +31,6 @@ export const authenticate = async (
       token,
       process.env.JWT_SECRET || "mysecret_for_testing_dshajkdsadhsajkd"
     ) as JwtPayload;
-
-    console.log({ decoded });
 
     // Get user from database
     const user = await db
@@ -53,11 +50,8 @@ export const authenticate = async (
     // Attach user to request object without password
     const { password, ...userWithoutPassword } = user;
     (req as any).user = userWithoutPassword;
-    console.log("i am at authenticate 2");
-    console.log("Authentication successful", req.user);
     next();
   } catch (error) {
-    console.log("Authentication failed");
     res
       .status(401)
       .json({ success: false, message: "Invalid or expired token" });

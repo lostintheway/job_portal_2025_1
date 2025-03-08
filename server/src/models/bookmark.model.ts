@@ -69,7 +69,11 @@ class BookmarkModel {
       "bookmarkId" | "createdDate" | "updatedDate" | "deletedDate" | "isDeleted"
     >
   ): Promise<number> {
-    const [result] = await db.insert(bookmarks).values(bookmarkData);
+    const [result] = await db.insert(bookmarks).values({
+      ...bookmarkData,
+      createdDate: new Date(),
+      isDeleted: false,
+    });
     return result.insertId;
   }
 
@@ -93,14 +97,20 @@ class BookmarkModel {
     return true;
   }
 
-  static async deleteBookmark(
-    bookmarkId: number,
-    deletedBy: number
-  ): Promise<boolean> {
+  static async deleteBookmark(jobId: number, userId: number): Promise<boolean> {
     await db
       .update(bookmarks)
-      .set({ isDeleted: true, deletedBy, deletedDate: new Date() })
-      .where(eq(bookmarks.bookmarkId, bookmarkId));
+      .set({
+        isDeleted: true,
+        deletedDate: new Date(),
+      })
+      .where(
+        and(
+          eq(bookmarks.userId, userId),
+          eq(bookmarks.jobId, jobId),
+          eq(bookmarks.isDeleted, false)
+        )
+      );
     return true;
   }
 }

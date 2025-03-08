@@ -33,14 +33,12 @@ class JobListingModel {
       category,
       jobType,
     } = queryParams;
-    console.log({ queryParams });
 
     const offset = (Number(page) - 1) * Number(size);
 
     // Build where conditions
     const whereConditions = [eq(jobListings.isDeleted, false)];
 
-    console.log({ jobType, category });
     // Apply filters
     if (jobType) {
       whereConditions.push(eq(jobListings.jobType, jobType as JobType));
@@ -50,8 +48,6 @@ class JobListingModel {
       const catId = Number(category);
       whereConditions.push(eq(jobListings.categoryId, catId));
     }
-
-    console.log({ whereConditions });
 
     // Get total count
     const [total] = await db
