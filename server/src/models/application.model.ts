@@ -1,6 +1,11 @@
 import { eq, and, desc, asc, inArray, sql } from "drizzle-orm";
 import { db } from "../config/db.ts";
-import { applications, type ApplicationSelect } from "../db/schema.ts";
+import {
+  applications,
+  employerProfiles,
+  jobListings,
+  type ApplicationSelect,
+} from "../db/schema.ts";
 import type { ResponseWithTotal } from "../interfaces/ResponseWithTotal.ts";
 import type { ApplicationQueryParams } from "../interfaces/QueryParams.ts";
 
@@ -58,8 +63,17 @@ class ApplicationModel {
 
     // Get paginated data
     const data = await db
-      .select()
+      .select({
+        ...applications,
+        jobDescription: jobListings.jobDescription,
+        jobTitle: jobListings.title,
+        jobLocation: jobListings.jobLocation,
+        jobType: jobListings.jobType,
+        offeredSalary: jobListings.offeredSalary,
+        jobDescription: jobListings.jobDescription,
+      })
       .from(applications)
+      .leftJoin(jobListings, eq(applications.jobId, jobListings.jobId))
       .where(and(...whereConditions))
       .orderBy(orderByClause)
       .limit(size)

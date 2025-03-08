@@ -12,7 +12,6 @@ import { ApplicationData, JobDetails } from "@/api/JobListingResponse";
 
 export default function JobDetailPage() {
   const { jobId } = useParams<{ jobId: string }>();
-  // console.log({ jobId });
   const navigate = useNavigate();
   const [job, setJob] = useState<JobDetails | null>(null);
   const [loading, setLoading] = useState(true);
@@ -51,8 +50,9 @@ export default function JobDetailPage() {
       //   isBookmarked: bookmarkedJobIds.has(id),
       // });
     } catch (error) {
-      console.error("Error fetching job details:", error);
-      toast.error("Failed to load job details");
+      toast.error(
+        error instanceof Error ? error.message : "Failed to load job details"
+      );
     } finally {
       setLoading(false);
     }
@@ -78,7 +78,6 @@ export default function JobDetailPage() {
       toast.success("Application submitted successfully!");
       navigate("/applications");
     } catch (error) {
-      console.error("Error applying for job:", error);
       toast.error("Failed to submit application");
     } finally {
       setApplying(false);
@@ -102,7 +101,6 @@ export default function JobDetailPage() {
         isBookmarked: !job.isBookmarked,
       });
     } catch (error) {
-      console.error("Error toggling bookmark:", error);
       toast.error("Failed to update bookmark");
     }
   };

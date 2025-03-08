@@ -20,10 +20,3 @@ class HashPassword {
 }
 
 export default HashPassword;
-// Example usage
-// const { salt, hash } = HashPassword.saltPassword("mySecurePassword123");
-// console.log("Salt:", salt);
-// console.log("Hash:", hash);
-
-// const isValid = HashPassword.verifyPassword("mySecurePassword123", salt, hash);
-// console.log("Password valid:", isValid);

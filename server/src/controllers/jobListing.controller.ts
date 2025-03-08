@@ -12,6 +12,16 @@ class JobListingController {
     }
   }
 
+  // getJobListings
+  static async getJobListings(req: Request, res: Response): Promise<void> {
+    try {
+      const queryParams = req.query;
+      const jobListings = await JobListingService.getJobListings(queryParams);
+      res.status(200).json({ success: true, data: jobListings });
+    } catch (error) {
+      res.status(500).json(ErrorMessage.serverError());
+    }
+  }
   // getjobsbypage
   static async getJobListingsByPageAndSize(
     req: Request,
@@ -33,16 +43,13 @@ class JobListingController {
   static async getJobListingById(req: Request, res: Response): Promise<void> {
     try {
       const jobId = parseInt(req.params.jobId);
-      // console.log({ jobListingId: jobId });
       const jobListing = await JobListingService.getJobListingById(jobId);
-      // console.log({ jobListing });
       if (!jobListing) {
         res.status(404).json(ErrorMessage.notFound());
         return;
       }
       res.status(200).json({ success: true, data: jobListing });
     } catch (error) {
-      // console.log({ error });
       res.status(500).json(
         error instanceof Error
           ? {

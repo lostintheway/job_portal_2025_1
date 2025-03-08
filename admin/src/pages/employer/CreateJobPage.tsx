@@ -84,8 +84,9 @@ export default function CreateJobPage() {
       toast.success("Job posted successfully!");
       navigate("/employer/dashboard");
     } catch (error) {
-      console.error("Error posting job:", error);
-      toast.error("Failed to post job");
+      toast.error(
+        error instanceof Error ? error.message : "Failed to post job"
+      );
     } finally {
       setLoading(false);
     }

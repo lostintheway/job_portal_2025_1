@@ -7,7 +7,11 @@ const router = express.Router();
 
 // Public routes
 router.get("/", JobListingController.getAllJobListings);
-router.get("/page/:page/size/:size", JobListingController.getJobListingsByPageAndSize);
+router.get("/search", JobListingController.getJobListings);
+router.get(
+  "/page/:page/size/:size",
+  JobListingController.getJobListingsByPageAndSize
+);
 router.get("/:jobId", JobListingController.getJobListingById);
 router.get(
   "/category/:categoryId",

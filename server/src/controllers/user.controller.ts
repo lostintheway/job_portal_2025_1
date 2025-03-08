@@ -9,11 +9,9 @@ class UserController {
   static async login(req: Request, res: Response): Promise<void> {
     try {
       const { email, password: myPassword, role } = req.body;
-      // console.log({ email, myPassword, role });
       if (!email || !myPassword || !role)
         res.status(400).json(ErrorMessage.badRequest());
       const user = await UserService.getUserByEmail(email);
-      // console.log({ user });
       if (!user) {
         res.status(401).json(ErrorMessage.authFailed());
         return;
@@ -25,7 +23,6 @@ class UserController {
         user.salt,
         user.password
       );
-      // console.log({ isMatch });
       if (!isMatch) {
         res.status(401).json(ErrorMessage.passwordDidntMatch());
         return;
@@ -56,7 +53,6 @@ class UserController {
         },
       });
     } catch (error: unknown) {
-      // console.error("Login Error:", error);
       res.status(500).json({
         message:
           error instanceof Error

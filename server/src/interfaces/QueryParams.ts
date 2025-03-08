@@ -4,10 +4,10 @@ export interface JobListingQueryParams {
   sortBy?: string;
   sortOrder?: "asc" | "desc";
   filters?: {
-    jobType?: string[];
+    jobType?: string;
     level?: string[];
     location?: string;
-    categoryId?: number;
+    category?: string;
     employerId?: number;
     isActive?: boolean;
     isPremium?: boolean;

@@ -65,11 +65,6 @@ class ErrorBoundary extends React.Component<
     if (this.props.onError) {
       this.props.onError(error, errorInfo);
     }
-
-    console.error("Error caught by ErrorBoundary:", {
-      error,
-      errorInfo,
-    });
   }
 
   render(): React.ReactNode {

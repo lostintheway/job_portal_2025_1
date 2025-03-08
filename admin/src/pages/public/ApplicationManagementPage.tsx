@@ -87,8 +87,9 @@ export default function ApplicationManagementPage() {
       setApplications(data.data);
       setTotalPages(data.totalPages);
     } catch (error) {
-      console.error("Error fetching applications:", error);
-      toast.error("Failed to load applications");
+      toast.error(
+        error instanceof Error ? error.message : "Failed to load applications"
+      );
     } finally {
       setLoading(false);
     }
@@ -148,7 +149,7 @@ export default function ApplicationManagementPage() {
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">My Applications</h1>
-        <Button onClick={() => navigate("/public/jobs")} variant="outline">
+        <Button onClick={() => navigate("/jobs")} variant="outline">
           Browse Jobs
         </Button>
       </div>
@@ -219,7 +220,7 @@ export default function ApplicationManagementPage() {
             <p className="text-gray-500 mb-4">
               You haven't applied to any jobs yet.
             </p>
-            <Button variant="outline" onClick={() => navigate("/public/jobs")}>
+            <Button variant="outline" onClick={() => navigate("/jobs")}>
               Browse Jobs
             </Button>
           </CardContent>

@@ -69,7 +69,6 @@ export default function LoginPage() {
         return;
       }
       toast.error("Login failed");
-      console.error("Authentication error:", error);
     }
   };
 

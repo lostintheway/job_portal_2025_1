@@ -9,7 +9,6 @@ class BookmarkController {
   ): Promise<void> {
     try {
       const userId = req.user?.userId;
-      console.log({ userId });
       if (!userId) {
         res.status(401).json(ErrorMessage.authRequired());
         return;

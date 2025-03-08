@@ -51,7 +51,6 @@ export default function RegisterPage() {
     } catch (error: unknown) {
       if (error instanceof Error) {
         toast.error("Error: " + error.message);
-        console.error("Registration error:", error);
       } else if (isAxiosError(error)) {
         toast.error(error.response?.data?.message || "Registration failed");
       } else if (
@@ -66,10 +65,8 @@ export default function RegisterPage() {
         toast.error(
           axiosError.response?.data?.message || "Registration failed"
         );
-        console.error("Registration error:", error);
       } else {
         toast.error("Registration failed");
-        console.error("Unknown registration error:", error);
       }
     }
   };

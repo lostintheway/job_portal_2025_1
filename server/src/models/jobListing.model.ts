@@ -23,65 +23,34 @@ type JobType = "full-time" | "part-time" | "contract" | "internship" | "remote";
 
 class JobListingModel {
   static async getJobListings(
-    params: JobListingQueryParams
+    queryParams: JobListingQueryParams
   ): Promise<ResponseWithTotal<JobListingSelect[]>> {
     const {
-      page = 1,
-      size = 10,
+      page = "1",
+      size = "10",
       sortBy = "createdDate",
       sortOrder = "desc",
-      filters = {},
-    } = params;
+      filters = {
+        jobType: "contract",
+        category: "1",
+      },
+    } = queryParams;
+    console.log({ queryParams });
 
-    const offset = (page - 1) * size;
+    const offset = (Number(page) - 1) * Number(size);
 
     // Build where conditions
     const whereConditions = [eq(jobListings.isDeleted, false)];
 
     // Apply filters
-    if (filters.jobType?.length) {
+    if (filters.jobType) {
+      whereConditions.push(eq(jobListings.jobType, filters.jobType as JobType));
+    }
+
+    if (filters.category) {
       whereConditions.push(
-        inArray(jobListings.jobType, filters.jobType as JobType[])
+        eq(jobListings.categoryId, Number(filters.category))
       );
-    }
-    if (filters.level?.length) {
-      whereConditions.push(inArray(jobListings.level, filters.level));
-    }
-    if (filters.location) {
-      whereConditions.push(
-        like(jobListings.jobLocation, `%${filters.location}%`)
-      );
-    }
-    if (filters.categoryId) {
-      whereConditions.push(eq(jobListings.categoryId, filters.categoryId));
-    }
-    if (filters.employerId) {
-      whereConditions.push(eq(jobListings.employerId, filters.employerId));
-    }
-    if (filters.isActive !== undefined) {
-      whereConditions.push(eq(jobListings.isActive, filters.isActive));
-    }
-    if (filters.isPremium !== undefined) {
-      whereConditions.push(eq(jobListings.isPremium, filters.isPremium));
-    }
-    if (filters.salaryRange?.min) {
-      whereConditions.push(
-        gte(
-          sql`CAST(REPLACE(REPLACE(${jobListings.offeredSalary}, '$', ''), ',', '') AS DECIMAL)`,
-          filters.salaryRange.min
-        )
-      );
-    }
-    if (filters.salaryRange?.max) {
-      whereConditions.push(
-        lte(
-          sql`CAST(REPLACE(REPLACE(${jobListings.offeredSalary}, '$', ''), ',', '') AS DECIMAL)`,
-          filters.salaryRange.max
-        )
-      );
-    }
-    if (filters.deadline) {
-      whereConditions.push(gte(jobListings.deadLine, filters.deadline));
     }
 
     // Get total count
@@ -95,8 +64,8 @@ class JobListingModel {
     // Build order by clause
     const orderByClause =
       sortOrder === "desc"
-        ? desc(jobListings[sortBy as keyof typeof jobListings])
-        : asc(jobListings[sortBy as keyof typeof jobListings]);
+        ? desc(jobListings[sortBy as keyof typeof jobListings] as any)
+        : asc(jobListings[sortBy as keyof typeof jobListings] as any);
 
     // Get paginated data
     const data = await db
@@ -113,15 +82,17 @@ class JobListingModel {
       )
       .where(and(...whereConditions))
       .orderBy(orderByClause)
-      .limit(size)
+      .limit(Number(size))
       .offset(offset);
+
+    console.log({ data });
 
     return {
       data: data as unknown as JobListingSelect[],
       total: total.count,
-      page,
-      size,
-      totalPages: Math.ceil(total.count / size),
+      page: Number(page),
+      size: Number(size),
+      totalPages: Math.ceil(Number(total.count) / Number(size)),
     };
   }
 
@@ -193,9 +164,7 @@ class JobListingModel {
   static async getJobListingById(
     jobId: number
   ): Promise<JobListingSelect | undefined> {
-    // console.log({ jobId });
     if (isNaN(jobId)) {
-      console.error(`Invalid jobId: ${jobId}`);
       throw new Error(`Invalid jobId: ${jobId}`);
     }
 

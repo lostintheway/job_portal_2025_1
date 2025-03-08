@@ -52,7 +52,7 @@ export default function JobSearchPage() {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
-  const pageSize = 10; // Fixed page size
+  const pageSize = 9; // Fixed page size
 
   // Search and filter states
   const [filters, setFilters] = useState<FilterState>({
@@ -119,7 +119,6 @@ export default function JobSearchPage() {
       ];
       setJobTypes(uniqueJobTypes);
     } catch (error) {
-      console.error("Error fetching jobs:", error);
       toast.error("Failed to load jobs");
     } finally {
       setLoading(false);
@@ -136,7 +135,6 @@ export default function JobSearchPage() {
       }));
       setCategories(categoriesData);
     } catch (error) {
-      console.error("Error fetching categories:", error);
       toast.error("Failed to load categories");
     }
   }, []);
@@ -187,7 +185,6 @@ export default function JobSearchPage() {
         })
       );
     } catch (error) {
-      console.error("Error toggling bookmark:", error);
       toast.error("Failed to update bookmark");
     }
   };

@@ -1,10 +1,18 @@
 import type { JobListingSelect } from "../db/schema";
+import type { JobListingQueryParams } from "../interfaces/QueryParams.ts";
 import type { ResponseWithTotal } from "../interfaces/ResponseWithTotal.ts";
 import JobListingModel from "../models/jobListing.model.ts";
 
 class JobListingService {
   static async getAllJobListings(): Promise<JobListingSelect[]> {
     return JobListingModel.getAllJobListings();
+  }
+
+  // getJobListings
+  static async getJobListings(
+    queryParams: JobListingQueryParams
+  ): Promise<ResponseWithTotal<JobListingSelect[]>> {
+    return JobListingModel.getJobListings(queryParams);
   }
 
   static async getJobListingsByPageAndSize(

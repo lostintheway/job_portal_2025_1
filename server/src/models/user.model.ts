@@ -42,13 +42,6 @@ class UserModel {
       .limit(1)
       .then((rows) => rows[0]);
   }
-  //   Example usage
-  // const { salt, hash } = HashPassword.saltPassword("mySecurePassword123");
-  // console.log("Salt:", salt);
-  // console.log("Hash:", hash);
-
-  // const isValid = HashPassword.verifyPassword("mySecurePassword123", salt, hash);
-  // console.log("Password valid:", isValid);
 
   static async createUser(userData: UserSelect): Promise<number> {
     // hash

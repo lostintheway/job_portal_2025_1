@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 interface Application {
   applicationId: string;
@@ -11,14 +12,12 @@ interface Application {
   status: "pending" | "shortlisted" | "interviewed" | "rejected" | "accepted";
   jobTitle: string;
   companyName: string;
-  appliedDate: string;
+  createdDate: string;
 }
 
 interface BookmarkedJob {
+  notes: string;
   jobId: string;
-  title: string;
-  company: string;
-  location: string;
   bookmarkId: string;
   createdDate: string;
 }
@@ -42,7 +41,11 @@ export default function JobSeekerDashboard() {
       setApplications(applicationsResponse.data.data.data);
       setBookmarkedJobs(bookmarksResponse.data.data);
     } catch (error) {
-      console.error("Error fetching dashboard data:", error);
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Failed to fetch dashboard data"
+      );
     } finally {
       setLoading(false);
     }
@@ -81,10 +84,7 @@ export default function JobSeekerDashboard() {
                 <p className="text-gray-500">No applications yet</p>
               ) : (
                 applications.map((application) => (
-                  <div
-                    key={application.applicationId}
-                    className="border p-4 rounded-lg"
-                  >
+                  <div key={application.applicationId} className="border p-4">
                     <div className="flex justify-between items-start">
                       <div>
                         <h3 className="font-semibold">
@@ -96,7 +96,7 @@ export default function JobSeekerDashboard() {
                         <p className="text-xs text-gray-400">
                           Applied:{" "}
                           {new Date(
-                            application.appliedDate
+                            application.createdDate
                           ).toLocaleDateString()}
                         </p>
                       </div>
@@ -126,14 +126,10 @@ export default function JobSeekerDashboard() {
                 <p className="text-gray-500">No bookmarked jobs</p>
               ) : (
                 bookmarkedJobs.map((job) => (
-                  <div key={job.bookmarkId} className="border p-4 rounded-lg">
+                  <div key={job.bookmarkId} className="border p-4">
                     <div className="flex justify-between items-start">
                       <div>
-                        <h3 className="font-semibold">{job.title}</h3>
-                        <p className="text-sm text-gray-500">{job.company}</p>
-                        <p className="text-xs text-gray-400">
-                          Location: {job.location}
-                        </p>
+                        <p className="text-sm text-gray-500">{job.notes}</p>
                       </div>
                       <Button
                         variant="outline"

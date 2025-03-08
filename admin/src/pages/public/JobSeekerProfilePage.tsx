@@ -32,17 +32,22 @@ export default function JobSeekerProfilePage() {
 
   const fetchProfile = async () => {
     try {
-      const response = await api.getInstance().get('/api/jobseeker-profile/my-profile');
+      const response = await api
+        .getInstance()
+        .get("/api/jobseeker-profile/my-profile");
       setProfile(response.data.data);
     } catch (error) {
-      console.error("Error fetching profile:", error);
-      toast.error("Failed to load profile");
+      toast.error(
+        error instanceof Error ? error.message : "Failed to load profile"
+      );
     } finally {
       setLoading(false);
     }
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
     if (profile) {
       setProfile({
@@ -70,11 +75,15 @@ export default function JobSeekerProfilePage() {
       setSaving(true);
       if (profile.profileId) {
         // Update existing profile
-        await api.getInstance().put(`/api/jobseeker-profile/${profile.profileId}`, profile);
+        await api
+          .getInstance()
+          .put(`/api/jobseeker-profile/${profile.profileId}`, profile);
         toast.success("Profile updated successfully");
       } else {
         // Create new profile
-        const response = await api.getInstance().post('/api/jobseeker-profile', profile);
+        const response = await api
+          .getInstance()
+          .post("/api/jobseeker-profile", profile);
         setProfile(response.data.data);
         toast.success("Profile created successfully");
       }
@@ -107,7 +116,9 @@ export default function JobSeekerProfilePage() {
         <CardContent>
           {!profile && !isEditing ? (
             <div className="text-center py-8">
-              <p className="text-gray-500 mb-4">You haven't created a profile yet</p>
+              <p className="text-gray-500 mb-4">
+                You haven't created a profile yet
+              </p>
               <Button onClick={() => setIsEditing(true)}>Create Profile</Button>
             </div>
           ) : isEditing ? (
@@ -117,72 +128,72 @@ export default function JobSeekerProfilePage() {
                 <Input
                   id="headline"
                   name="headline"
-                  value={profile?.headline || ''}
+                  value={profile?.headline || ""}
                   onChange={handleInputChange}
                   placeholder="e.g. Senior Software Engineer with 5+ years experience"
                   required
                 />
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="summary">Professional Summary</Label>
                 <Textarea
                   id="summary"
                   name="summary"
-                  value={profile?.summary || ''}
+                  value={profile?.summary || ""}
                   onChange={handleInputChange}
                   placeholder="Brief overview of your professional background and career goals"
                   className="min-h-[100px]"
                 />
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="experience">Work Experience</Label>
                 <Textarea
                   id="experience"
                   name="experience"
-                  value={profile?.experience || ''}
+                  value={profile?.experience || ""}
                   onChange={handleInputChange}
                   placeholder="List your work experience"
                   className="min-h-[150px]"
                 />
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="education">Education</Label>
                 <Textarea
                   id="education"
                   name="education"
-                  value={profile?.education || ''}
+                  value={profile?.education || ""}
                   onChange={handleInputChange}
                   placeholder="List your educational background"
                   className="min-h-[100px]"
                 />
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="skills">Skills</Label>
                 <Textarea
                   id="skills"
                   name="skills"
-                  value={profile?.skills || ''}
+                  value={profile?.skills || ""}
                   onChange={handleInputChange}
                   placeholder="List your key skills"
                   className="min-h-[100px]"
                 />
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="languages">Languages</Label>
                 <Input
                   id="languages"
                   name="languages"
-                  value={profile?.languages || ''}
+                  value={profile?.languages || ""}
                   onChange={handleInputChange}
                   placeholder="e.g. English (Fluent), Spanish (Intermediate)"
                 />
               </div>
-              
+
               <div className="flex items-center space-x-2">
                 <input
                   type="checkbox"
@@ -192,9 +203,11 @@ export default function JobSeekerProfilePage() {
                   onChange={handleCheckboxChange}
                   className="h-4 w-4 rounded border-gray-300"
                 />
-                <Label htmlFor="isPublic">Make profile public to employers</Label>
+                <Label htmlFor="isPublic">
+                  Make profile public to employers
+                </Label>
               </div>
-              
+
               <div className="flex space-x-4">
                 <Button type="submit" disabled={saving}>
                   {saving ? (
@@ -206,9 +219,9 @@ export default function JobSeekerProfilePage() {
                     "Save Profile"
                   )}
                 </Button>
-                <Button 
-                  type="button" 
-                  variant="outline" 
+                <Button
+                  type="button"
+                  variant="outline"
                   onClick={() => setIsEditing(false)}
                   disabled={saving}
                 >
@@ -222,46 +235,58 @@ export default function JobSeekerProfilePage() {
                 <h3 className="text-lg font-semibold">Professional Headline</h3>
                 <p className="text-gray-700">{profile?.headline}</p>
               </div>
-              
+
               {profile?.summary && (
                 <div>
-                  <h3 className="text-lg font-semibold">Professional Summary</h3>
-                  <p className="text-gray-700 whitespace-pre-line">{profile.summary}</p>
+                  <h3 className="text-lg font-semibold">
+                    Professional Summary
+                  </h3>
+                  <p className="text-gray-700 whitespace-pre-line">
+                    {profile.summary}
+                  </p>
                 </div>
               )}
-              
+
               {profile?.experience && (
                 <div>
                   <h3 className="text-lg font-semibold">Work Experience</h3>
-                  <p className="text-gray-700 whitespace-pre-line">{profile.experience}</p>
+                  <p className="text-gray-700 whitespace-pre-line">
+                    {profile.experience}
+                  </p>
                 </div>
               )}
-              
+
               {profile?.education && (
                 <div>
                   <h3 className="text-lg font-semibold">Education</h3>
-                  <p className="text-gray-700 whitespace-pre-line">{profile.education}</p>
+                  <p className="text-gray-700 whitespace-pre-line">
+                    {profile.education}
+                  </p>
                 </div>
               )}
-              
+
               {profile?.skills && (
                 <div>
                   <h3 className="text-lg font-semibold">Skills</h3>
-                  <p className="text-gray-700 whitespace-pre-line">{profile.skills}</p>
+                  <p className="text-gray-700 whitespace-pre-line">
+                    {profile.skills}
+                  </p>
                 </div>
               )}
-              
+
               {profile?.languages && (
                 <div>
                   <h3 className="text-lg font-semibold">Languages</h3>
                   <p className="text-gray-700">{profile.languages}</p>
                 </div>
               )}
-              
+
               <div>
                 <h3 className="text-lg font-semibold">Profile Visibility</h3>
                 <p className="text-gray-700">
-                  {profile?.isPublic ? "Public - Visible to employers" : "Private - Not visible to employers"}
+                  {profile?.isPublic
+                    ? "Public - Visible to employers"
+                    : "Private - Not visible to employers"}
                 </p>
               </div>
             </div>
