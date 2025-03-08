@@ -14,6 +14,7 @@ import CreateJobPage from "./pages/employer/CreateJobPage";
 import ApplicationsPage from "./pages/employer/ApplicationsPage";
 import BookmarksPage from "./pages/public/BookmarksPage";
 import EmployerProfilePage from "./pages/employer/EmployerProfilePage";
+import EmployerJobDetailPage from "./pages/employer/JobDetailPage";
 // import GalleryPage from "./pages/GalleryPage";Page";
 
 function App() {
@@ -26,6 +27,7 @@ function App() {
         <Route path="/employer" element={<Dashboard role="employer" />}>
           <Route path="dashboard" element={<EmployerDashboard />} />
           <Route path="job-postings" element={<PostedJobsPage />} />
+          <Route path="jobs/:jobId" element={<EmployerJobDetailPage />} />
           <Route path="create-job" element={<CreateJobPage />} />
           <Route path="applications" element={<ApplicationsPage />} />
           <Route path="company-profile" element={<EmployerProfilePage />} />

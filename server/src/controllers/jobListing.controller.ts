@@ -70,11 +70,34 @@ class JobListingController {
         res.status(401).json(ErrorMessage.authRequired());
         return;
       }
-      const employerId = req.user.userId;
-      const jobListings = await JobListingService.getJobListingsByEmployerId(
-        employerId
-      );
-      res.status(200).json({ success: true, data: jobListings });
+
+      // Ensure employerId is a number
+      const employerId = req.params.employerId
+        ? parseInt(req.params.employerId)
+        : req.user.userId;
+
+      // Get pagination parameters
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 10;
+      const status = (req.query.status as string) || "all";
+
+      // Get job listings with pagination
+      const result =
+        await JobListingService.getJobListingsByEmployerIdPaginated(
+          employerId,
+          page,
+          limit,
+          status
+        );
+
+      res.status(200).json({
+        success: true,
+        data: result.data,
+        total: result.total,
+        page: result.page,
+        size: result.size,
+        totalPages: result.totalPages,
+      });
     } catch (error) {
       res.status(500).json(ErrorMessage.serverError());
     }
@@ -118,15 +141,29 @@ class JobListingController {
         res.status(401).json(ErrorMessage.authRequired());
         return;
       }
-      const jobListingId = parseInt(req.params.jobListingId);
+
+      // Use jobId parameter from the route
+      const jobId = parseInt(req.params.jobId);
+
+      // Check if jobId is a valid number
+      if (isNaN(jobId)) {
+        res.status(400).json({
+          success: false,
+          message: `Invalid jobId: ${req.params.jobId}`,
+        });
+        return;
+      }
+
       const jobListing = await JobListingService.updateJobListing(
-        jobListingId,
+        jobId,
         req.body
       );
+
       if (!jobListing) {
         res.status(404).json(ErrorMessage.notFound());
         return;
       }
+
       res.status(200).json({ success: true, data: jobListing });
     } catch (error) {
       res.status(500).json(ErrorMessage.serverError());
@@ -139,15 +176,29 @@ class JobListingController {
         res.status(401).json(ErrorMessage.authRequired());
         return;
       }
-      const jobListingId = parseInt(req.params.jobListingId);
+
+      // Use jobId parameter from the route
+      const jobId = parseInt(req.params.jobId);
+
+      // Check if jobId is a valid number
+      if (isNaN(jobId)) {
+        res.status(400).json({
+          success: false,
+          message: `Invalid jobId: ${req.params.jobId}`,
+        });
+        return;
+      }
+
       const jobListing = await JobListingService.deleteJobListing(
-        jobListingId,
+        jobId,
         req.user.userId
       );
+
       if (!jobListing) {
         res.status(404).json(ErrorMessage.notFound());
         return;
       }
+
       res.status(200).json({ success: true, data: jobListing });
     } catch (error) {
       res.status(500).json(ErrorMessage.serverError());

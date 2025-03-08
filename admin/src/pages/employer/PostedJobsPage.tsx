@@ -39,14 +39,6 @@ interface Job {
   createdAt: string;
 }
 
-interface PaginationResponse {
-  data: Job[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
-}
-
 export default function PostedJobsPage() {
   const navigate = useNavigate();
   const [jobs, setJobs] = useState<Job[]>([]);
@@ -83,7 +75,7 @@ export default function PostedJobsPage() {
         .getInstance()
         .get(`/api/jobs/employer?${params.toString()}`);
 
-      const paginationData = response.data as PaginationResponse;
+      const paginationData = response.data;
 
       setJobs(paginationData.data);
       setTotalPages(paginationData.totalPages);
@@ -105,7 +97,7 @@ export default function PostedJobsPage() {
   };
 
   const handleViewJob = (jobId: string) => {
-    navigate(`/jobs/${jobId}`);
+    navigate(`/employer/jobs/${jobId}`);
   };
 
   const handleViewApplications = (jobId: string) => {
@@ -121,6 +113,18 @@ export default function PostedJobsPage() {
     if (!jobToDelete) return;
 
     try {
+      // Ensure jobId is a number if it's stored as a string
+      const jobId =
+        typeof jobToDelete.jobId === "string"
+          ? parseInt(jobToDelete.jobId)
+          : jobToDelete.jobId;
+
+      // Check if jobId is a valid number
+      if (isNaN(jobId)) {
+        toast.error("Invalid job ID");
+        return;
+      }
+
       await api.deleteJob(jobToDelete.jobId);
       setJobs(jobs.filter((job) => job.jobId !== jobToDelete.jobId));
       toast.success("Job posting deleted successfully");

@@ -56,26 +56,22 @@ export class Api {
   }
   // Jobs
   getJobs() {
-    return this.axiosInstance.get("/api/job-descriptions");
+    return this.axiosInstance.get("/api/jobs");
   }
 
   // Get jobs by page and size
   getJobsByPageAndSize(page: number, size: number) {
     return this.axiosInstance.get<JobListingResponse>(
-      `/api/job-descriptions/page/${page}/size/${size}`
+      `/api/jobs/page/${page}/size/${size}`
     );
   }
 
   getJobById(jobId: number) {
-    return this.axiosInstance.get<JobResponse>(
-      `/api/job-descriptions/${jobId}`
-    );
+    return this.axiosInstance.get<JobResponse>(`/api/jobs/${jobId}`);
   }
   // Get jobs by category
   getJobsByCategory(categoryId: string) {
-    return this.axiosInstance.get(
-      `/api/job-descriptions/category/${categoryId}`
-    );
+    return this.axiosInstance.get(`/api/jobs/category/${categoryId}`);
   }
   // Search jobs with filters
   searchJobs(filters: {
@@ -85,22 +81,24 @@ export class Api {
     jobType?: string;
     salary?: string;
   }) {
-    return this.axiosInstance.get("/api/job-descriptions/search", {
+    return this.axiosInstance.get("/api/jobs/search", {
       params: filters,
     });
   }
   createJob(data: any) {
-    return this.axiosInstance.post("/api/job-descriptions", data);
+    return this.axiosInstance.post("/api/jobs", data);
   }
   updateJob(jobId: string, data: any) {
-    return this.axiosInstance.put(`/api/job-descriptions/${jobId}`, data);
+    return this.axiosInstance.put(`/api/jobs/${jobId}`, data);
   }
-  deleteJob(jobId: string) {
-    return this.axiosInstance.delete(`/api/job-descriptions/${jobId}`);
+  deleteJob(jobId: string | number) {
+    // Ensure jobId is a string for the URL
+    const id = jobId.toString();
+    return this.axiosInstance.delete(`/api/jobs/${id}`);
   }
   // Get jobs posted by the logged-in employer
   getMyJobs() {
-    return this.axiosInstance.get("/api/job-descriptions/employer/me");
+    return this.axiosInstance.get("/api/jobs/employer");
   }
   // Applications
   applyForJob(data: any) {

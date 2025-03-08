@@ -18,6 +18,16 @@ interface Job {
   isActive: boolean;
 }
 
+interface Application {
+  applicationId: string;
+  jobId: string;
+  userId: string;
+  status: "pending" | "shortlisted" | "interviewed" | "accepted" | "rejected";
+  applicantName: string;
+  applicantEmail: string;
+  createdAt: string;
+}
+
 interface ApplicationStats {
   total: number;
   pending: number;
@@ -48,28 +58,34 @@ export default function EmployerDashboard() {
     try {
       const [jobsResponse, applicationsResponse] = await Promise.all([
         api.getJobs(),
-        api.getApplicationsByEmployerId(),
+        api.getInstance().get("/api/applications"),
       ]);
 
       setJobs(jobsResponse.data.data);
 
       // Ensure applications is an array and handle the response properly
-      const applications = Array.isArray(applicationsResponse.data)
-        ? applicationsResponse.data
+      const applications = Array.isArray(applicationsResponse.data.data)
+        ? (applicationsResponse.data.data as Application[])
         : [];
 
       // Calculate application statistics
       const stats = {
         total: applications.length,
-        pending: applications.filter((app) => app.status === "pending").length,
-        shortlisted: applications.filter((app) => app.status === "shortlisted")
-          .length,
-        interviewed: applications.filter((app) => app.status === "interviewed")
-          .length,
-        accepted: applications.filter((app) => app.status === "accepted")
-          .length,
-        rejected: applications.filter((app) => app.status === "rejected")
-          .length,
+        pending: applications.filter(
+          (app: Application) => app.status === "pending"
+        ).length,
+        shortlisted: applications.filter(
+          (app: Application) => app.status === "shortlisted"
+        ).length,
+        interviewed: applications.filter(
+          (app: Application) => app.status === "interviewed"
+        ).length,
+        accepted: applications.filter(
+          (app: Application) => app.status === "accepted"
+        ).length,
+        rejected: applications.filter(
+          (app: Application) => app.status === "rejected"
+        ).length,
       };
       setApplicationStats(stats);
     } catch (error) {
@@ -210,7 +226,7 @@ export default function EmployerDashboard() {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => navigate("/employer/posted-jobs")}
+              onClick={() => navigate("/employer/job-postings")}
             >
               View All
             </Button>

@@ -57,8 +57,7 @@ app.use("/api/bookmarks", bookmarkRoutes);
 app.use("/api/jobseeker-profile", jobSeekerProfileRoutes);
 app.use("/api/employer-profile", employerProfileRoutes);
 app.use("/api/job-listings", jobListingRoutes);
-app.use("/api/job-seeker-profile", jobSeekerProfileRoutes);
-app.use("/api/employer-profile", employerProfileRoutes);
+app.use("/api/jobs", jobListingRoutes); // Main jobs endpoint
 
 app.get("/", (req: Request, res: Response) => {
   res.send("Job Application System API is running!");

@@ -40,6 +40,51 @@ class JobListingService {
     return JobListingModel.getJobListingsByEmployerId(employerId);
   }
 
+  static async getJobListingsByEmployerIdPaginated(
+    employerId: number,
+    page: number = 1,
+    limit: number = 10,
+    status: string = "all"
+  ): Promise<ResponseWithTotal<JobListingSelect[]>> {
+    // Convert employerId to number if it's a string
+    const empId =
+      typeof employerId === "string" ? parseInt(employerId) : employerId;
+
+    // Get all jobs by employer
+    const allJobs = await JobListingModel.getJobListingsByEmployerId(empId);
+
+    // Filter by status if needed
+    let filteredJobs = allJobs;
+    if (status !== "all") {
+      const now = new Date();
+      if (status === "active") {
+        filteredJobs = allJobs.filter(
+          (job) => job.isActive && new Date(job.deadLine) > now
+        );
+      } else if (status === "expired") {
+        filteredJobs = allJobs.filter(
+          (job) => !job.isActive || new Date(job.deadLine) <= now
+        );
+      }
+    }
+
+    // Calculate pagination
+    const total = filteredJobs.length;
+    const totalPages = Math.ceil(total / limit);
+    const offset = (page - 1) * limit;
+
+    // Get paginated data
+    const data = filteredJobs.slice(offset, offset + limit);
+
+    return {
+      data,
+      total,
+      page,
+      size: limit,
+      totalPages,
+    };
+  }
+
   static async getJobListingsByEmployerUserId(
     userId: number
   ): Promise<JobListingSelect[]> {

@@ -44,4 +44,12 @@ router.get(
   JobListingController.getJobListingsByEmployerId
 );
 
+// New route for getting jobs by the current employer with pagination
+router.get(
+  "/employer",
+  authenticate,
+  isEmployer,
+  JobListingController.getJobListingsByEmployerId
+);
+
 export default router;

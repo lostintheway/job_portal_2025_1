@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { api } from "../../api/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -48,13 +48,21 @@ const jobFormSchema = z.object({
   responsibilities: z.string(),
   benefits: z.string(),
   isPremium: z.boolean(),
+  categoryId: z.number().default(1),
 });
 
 type JobFormValues = z.infer<typeof jobFormSchema>;
 
 export default function CreateJobPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [loading, setLoading] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [jobId, setJobId] = useState<string | null>(null);
+  const [initialLoading, setInitialLoading] = useState(false);
+  const [categories, setCategories] = useState<
+    { categoryId: number; categoryName: string }[]
+  >([]);
 
   const form = useForm<JobFormValues>({
     resolver: zodResolver(jobFormSchema),
@@ -74,29 +82,126 @@ export default function CreateJobPage() {
       responsibilities: "",
       benefits: "",
       isPremium: false,
+      categoryId: 1,
     },
   });
+
+  // Fetch categories when component mounts
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  // Parse query parameters to check for edit mode
+  useEffect(() => {
+    const queryParams = new URLSearchParams(location.search);
+    const editJobId = queryParams.get("edit");
+
+    if (editJobId) {
+      setIsEditMode(true);
+      setJobId(editJobId);
+      fetchJobDetails(editJobId);
+    }
+  }, [location.search]);
+
+  // Fetch categories
+  const fetchCategories = async () => {
+    try {
+      const response = await api.getInstance().get("/api/categories");
+      setCategories(response.data.data || []);
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+      toast.error("Failed to load job categories");
+    }
+  };
+
+  // Fetch job details when in edit mode
+  const fetchJobDetails = async (id: string) => {
+    try {
+      setInitialLoading(true);
+      const response = await api.getInstance().get(`/api/jobs/${id}`);
+      const jobData = response.data.data;
+
+      // Format the date to YYYY-MM-DD for the date input
+      const formattedDeadline = jobData.deadLine
+        ? new Date(jobData.deadLine).toISOString().split("T")[0]
+        : "";
+
+      // Map the API response to form fields
+      form.reset({
+        title: jobData.title || "",
+        jobType: jobData.jobType || "full-time",
+        level: jobData.level || "",
+        vacancies: jobData.vacancies || 1,
+        employmentType: jobData.employmentType || "",
+        jobLocation: jobData.jobLocation || "",
+        offeredSalary: jobData.offeredSalary || "",
+        deadLine: formattedDeadline,
+        educationLevel: jobData.educationLevel || "",
+        experienceRequired: jobData.experienceRequired || "",
+        otherSpecification: jobData.otherSpecification || "",
+        jobDescription: jobData.jobDescription || "",
+        responsibilities: jobData.responsibilities || "",
+        benefits: jobData.benefits || "",
+        isPremium: jobData.isPremium || false,
+        categoryId: jobData.categoryId || 1,
+      });
+    } catch (error) {
+      console.error("Error fetching job details:", error);
+      toast.error("Failed to load job details");
+    } finally {
+      setInitialLoading(false);
+    }
+  };
 
   async function onSubmit(data: JobFormValues) {
     try {
       setLoading(true);
-      await api.createJob(data);
-      toast.success("Job posted successfully!");
-      navigate("/employer/dashboard");
+
+      // Prepare data with correct field names for the API
+      const jobData = {
+        ...data,
+        // Don't include description field as it will conflict with jobDescription
+        jobDescription: data.jobDescription,
+        // Format the date to ISO format for the API
+        deadLine: new Date(data.deadLine).toISOString(),
+      };
+
+      if (isEditMode && jobId) {
+        // Update existing job
+        await api.updateJob(jobId, jobData);
+        toast.success("Job updated successfully!");
+      } else {
+        // Create new job
+        await api.createJob(jobData);
+        toast.success("Job posted successfully!");
+      }
+
+      navigate("/employer/job-postings");
     } catch (error) {
+      console.error("Error saving job:", error);
       toast.error(
-        error instanceof Error ? error.message : "Failed to post job"
+        error instanceof Error ? error.message : "Failed to save job"
       );
     } finally {
       setLoading(false);
     }
   }
 
+  if (initialLoading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
   return (
     <div className="container mx-auto px-4 py-8">
       <Card>
         <CardHeader>
-          <CardTitle>Post a New Job</CardTitle>
+          <CardTitle>
+            {isEditMode ? "Edit Job Posting" : "Post a New Job"}
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <Form {...form}>
@@ -126,6 +231,7 @@ export default function CreateJobPage() {
                         <Select
                           onValueChange={field.onChange}
                           defaultValue={field.value}
+                          value={field.value}
                         >
                           <FormControl>
                             <SelectTrigger>
@@ -149,6 +255,46 @@ export default function CreateJobPage() {
 
                   <FormField
                     control={form.control}
+                    name="categoryId"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Job Category</FormLabel>
+                        <Select
+                          onValueChange={(value) =>
+                            field.onChange(parseInt(value))
+                          }
+                          value={field.value.toString()}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select job category" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {categories.map((category) => (
+                              <SelectItem
+                                key={category.categoryId}
+                                value={category.categoryId.toString()}
+                              >
+                                {category.categoryName}
+                              </SelectItem>
+                            ))}
+                            {categories.length === 0 && (
+                              <SelectItem value="1">
+                                Default Category
+                              </SelectItem>
+                            )}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
                     name="level"
                     render={({ field }) => (
                       <FormItem>
@@ -163,9 +309,7 @@ export default function CreateJobPage() {
                       </FormItem>
                     )}
                   />
-                </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <FormField
                     control={form.control}
                     name="vacancies"
@@ -186,7 +330,9 @@ export default function CreateJobPage() {
                       </FormItem>
                     )}
                   />
+                </div>
 
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <FormField
                     control={form.control}
                     name="employmentType"
@@ -203,9 +349,7 @@ export default function CreateJobPage() {
                       </FormItem>
                     )}
                   />
-                </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <FormField
                     control={form.control}
                     name="jobLocation"
@@ -219,7 +363,9 @@ export default function CreateJobPage() {
                       </FormItem>
                     )}
                   />
+                </div>
 
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <FormField
                     control={form.control}
                     name="offeredSalary"
@@ -236,9 +382,7 @@ export default function CreateJobPage() {
                       </FormItem>
                     )}
                   />
-                </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <FormField
                     control={form.control}
                     name="deadLine"
@@ -252,7 +396,9 @@ export default function CreateJobPage() {
                       </FormItem>
                     )}
                   />
+                </div>
 
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <FormField
                     control={form.control}
                     name="educationLevel"
@@ -269,24 +415,24 @@ export default function CreateJobPage() {
                       </FormItem>
                     )}
                   />
-                </div>
 
-                <FormField
-                  control={form.control}
-                  name="experienceRequired"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Required Experience</FormLabel>
-                      <FormControl>
-                        <Input
-                          {...field}
-                          placeholder="e.g. 3+ years in similar role"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                  <FormField
+                    control={form.control}
+                    name="experienceRequired"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Required Experience</FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            placeholder="e.g. 3+ years in similar role"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
 
                 <FormField
                   control={form.control}
@@ -295,7 +441,11 @@ export default function CreateJobPage() {
                     <FormItem>
                       <FormLabel>Job Description</FormLabel>
                       <FormControl>
-                        <Textarea {...field} className="min-h-[100px]" />
+                        <Textarea
+                          {...field}
+                          className="min-h-[150px]"
+                          placeholder="Provide a detailed description of the job"
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -309,7 +459,11 @@ export default function CreateJobPage() {
                     <FormItem>
                       <FormLabel>Responsibilities</FormLabel>
                       <FormControl>
-                        <Textarea {...field} className="min-h-[100px]" />
+                        <Textarea
+                          {...field}
+                          className="min-h-[150px]"
+                          placeholder="List the key responsibilities of the role"
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -326,10 +480,34 @@ export default function CreateJobPage() {
                         <Textarea
                           {...field}
                           className="min-h-[100px]"
-                          placeholder="List the benefits and perks offered with this position"
+                          placeholder="List the benefits offered with this position"
                         />
                       </FormControl>
                       <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="isPremium"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                      <FormControl>
+                        <input
+                          type="checkbox"
+                          checked={field.value}
+                          onChange={field.onChange}
+                          className="h-4 w-4 rounded border-gray-300"
+                        />
+                      </FormControl>
+                      <div className="space-y-1 leading-none">
+                        <FormLabel>Premium Job Listing</FormLabel>
+                        <p className="text-sm text-gray-500">
+                          Premium job listings appear at the top of search
+                          results and get more visibility.
+                        </p>
+                      </div>
                     </FormItem>
                   )}
                 />
@@ -353,8 +531,7 @@ export default function CreateJobPage() {
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={() => navigate("/employer/dashboard")}
-                  disabled={loading}
+                  onClick={() => navigate("/employer/job-postings")}
                 >
                   Cancel
                 </Button>
@@ -362,10 +539,10 @@ export default function CreateJobPage() {
                   {loading ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Posting...
+                      {isEditMode ? "Updating..." : "Posting..."}
                     </>
                   ) : (
-                    "Post Job"
+                    <>{isEditMode ? "Update Job" : "Post Job"}</>
                   )}
                 </Button>
               </div>
