@@ -200,7 +200,6 @@ export default function JobSearchPage() {
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-6">Find Your Perfect Job</h1>
 
-        {JSON.stringify({ jobs })}
         <div className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <ErrorBoundary>
