@@ -20,6 +20,10 @@ class UserService {
   ): Promise<boolean> {
     return UserModel.updateUser(userId, userData);
   }
+
+  static async getAllUsers(): Promise<UserSelect[]> {
+    return UserModel.getAllUsers();
+  }
 }
 
 export default UserService;

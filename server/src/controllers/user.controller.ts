@@ -4,6 +4,7 @@ import ErrorMessage from "../models/errorMessage.model.ts";
 import type { UserSelect } from "../db/schema";
 import jwt from "jsonwebtoken";
 import HashPassword from "../middleware/HashPassword.ts";
+
 class UserController {
   //login
   static async login(req: Request, res: Response): Promise<void> {
@@ -148,6 +149,19 @@ class UserController {
       res
         .status(200)
         .json({ success: true, message: "User updated successfully" });
+    } catch (error) {
+      res.status(500).json(ErrorMessage.serverError());
+    }
+  }
+
+  static async getAllUsers(req: Request, res: Response): Promise<void> {
+    try {
+      const users = await UserService.getAllUsers();
+      // Remove password and salt from response
+      const usersWithoutSensitiveData = users.map(
+        ({ password, salt, ...user }) => user
+      );
+      res.status(200).json({ success: true, data: usersWithoutSensitiveData });
     } catch (error) {
       res.status(500).json(ErrorMessage.serverError());
     }

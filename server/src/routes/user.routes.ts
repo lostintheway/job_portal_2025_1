@@ -10,13 +10,16 @@ router.post("/register", UserController.createUser);
 router.post("/login", UserController.login);
 
 // Protected routes
-router.get("/profile", authenticate, UserController.getMyProfile);
+router.get("/me", authenticate, UserController.getMyProfile);
+router.get("/all", authenticate, isAdmin, UserController.getAllUsers);
+
 router.get(
   "/:userId",
   authenticate,
   isAdminOrOwner("userId"),
   UserController.getUserById
 );
+
 router.put(
   "/:userId",
   authenticate,

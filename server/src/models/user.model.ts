@@ -62,6 +62,10 @@ class UserModel {
       .where(eq(users.userId, userId));
     return true;
   }
+
+  static async getAllUsers(): Promise<UserSelect[]> {
+    return db.select().from(users);
+  }
 }
 
 export default UserModel;

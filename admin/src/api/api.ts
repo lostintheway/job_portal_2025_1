@@ -1,5 +1,5 @@
 import axios, { AxiosInstance, AxiosResponse } from "axios";
-import { LoginResponse } from "./types";
+import { LoginResponse, User } from "./types";
 import { JobListingResponse, JobResponse } from "./JobListingResponse";
 import { ApplicationsResponse } from "./ApplicationsResponse";
 import { toast } from "sonner";
@@ -201,6 +201,11 @@ export class Api {
   }
   getInstance() {
     return this.axiosInstance;
+  }
+  getAllUsers() {
+    return this.axiosInstance.get<{ success: boolean; data: User[] }>(
+      "/api/users/all"
+    );
   }
 }
 
