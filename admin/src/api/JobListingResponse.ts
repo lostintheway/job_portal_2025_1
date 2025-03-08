@@ -102,7 +102,7 @@ export interface JobDetails {
 }
 
 export interface ApplicationData {
-  resumeUrl: string;
+  jobId: number;
   coverLetter: string;
   expectedSalary: string;
 }

@@ -129,9 +129,9 @@ export const applications = mysqlTable("applications", {
   ])
     .notNull()
     .default("pending"),
-  resumeUrl: varchar("resume_url", { length: 255 }).notNull(),
-  coverLetter: text("cover_letter"),
-  expectedSalary: varchar("expected_salary", { length: 100 }),
+  resumeUrl: varchar("resume_url", { length: 255 }).default(""),
+  coverLetter: text("cover_letter").default(""),
+  expectedSalary: varchar("expected_salary", { length: 100 }).default(""),
   applicationDate: datetime("application_date")
     .notNull()
     .default(sql`CURRENT_TIMESTAMP`),

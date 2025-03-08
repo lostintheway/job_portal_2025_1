@@ -1,9 +1,16 @@
-import { Request, Response } from "express";
-import { authenticate } from "../middleware/auth";
-import { isAdmin, isJobSeeker } from "../middleware/roleAuth";
-import JobSeekerProfileController from "../controllers/jobSeekerProfile.controller";
+import { authenticate } from "../middleware/auth.ts";
+import { isAdmin, isJobSeeker } from "../middleware/roleAuth.ts";
+import JobSeekerProfileController from "../controllers/jobSeekerProfile.controller.ts";
+import express from "express";
 
-const router = require("express").Router();
+const router = express.Router();
+// Protected routes for job seekers
+router.get(
+  "/my-profile",
+  authenticate,
+  isJobSeeker,
+  JobSeekerProfileController.getJobSeekerProfileByUserId
+);
 
 // Public routes
 router.get(
@@ -18,19 +25,13 @@ router.get(
   JobSeekerProfileController.getJobSeekerProfileById
 );
 
-// Protected routes for job seekers
-router.get(
-  "/my-profile",
-  authenticate,
-  isJobSeeker,
-  JobSeekerProfileController.getJobSeekerProfileByUserId
-);
 router.post(
   "/",
   authenticate,
   isJobSeeker,
   JobSeekerProfileController.createJobSeekerProfile
 );
+
 router.put(
   "/:jobSeekerProfileId",
   authenticate,

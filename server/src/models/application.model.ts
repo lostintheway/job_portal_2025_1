@@ -182,6 +182,7 @@ class ApplicationModel {
   }
 
   static async createApplication(
+    userId: number,
     applicationData: Omit<
       ApplicationSelect,
       | "applicationId"
@@ -192,13 +193,19 @@ class ApplicationModel {
       | "applicationDate"
     >
   ): Promise<number> {
-    const [result] = await db.insert(applications).values({
-      ...applicationData,
-      applicationDate: new Date(),
-    });
-    // Generated SQL:
-    // INSERT INTO `applications` (`job_id`, `user_id`, `status`, `resume_url`, `cover_letter`, `expected_salary`, `application_date`, `interview_date`, `interview_notes`, `rejection_reason`, `created_by`, `created_date`, `updated_by`, `updated_date`, `deleted_by`, `deleted_date`, `is_deleted`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    return result.insertId;
+    const { jobId, ...rest } = applicationData;
+    try {
+      const [result] = await db.insert(applications).values({
+        ...rest,
+        jobId,
+        userId,
+        createdBy: userId,
+        createdDate: new Date(),
+      });
+      return result.insertId;
+    } catch (error) {
+      throw new Error("Failed to create application");
+    }
   }
 
   // update application status

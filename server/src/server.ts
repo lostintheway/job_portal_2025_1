@@ -5,9 +5,10 @@ import categoryRoutes from "./routes/category.routes.ts";
 import applicationRoutes from "./routes/application.routes.ts";
 import bookmarkRoutes from "./routes/bookmark.routes.ts";
 import jobListingRoutes from "./routes/jobListing.routes.ts";
-// import JobSeekerProfileRoutes from "./routes/";
 
 import cors from "cors";
+import jobSeekerProfileRoutes from "./routes/jobSeekerProfile.routes.ts";
+import employerProfileRoutes from "./routes/employerProfile.routes.ts";
 
 const app: Application = express();
 
@@ -53,6 +54,11 @@ app.use("/api/categories", categoryRoutes);
 app.use("/api/job-descriptions", jobListingRoutes);
 app.use("/api/applications", applicationRoutes);
 app.use("/api/bookmarks", bookmarkRoutes);
+app.use("/api/jobseeker-profile", jobSeekerProfileRoutes);
+app.use("/api/employer-profile", employerProfileRoutes);
+app.use("/api/job-listings", jobListingRoutes);
+app.use("/api/job-seeker-profile", jobSeekerProfileRoutes);
+app.use("/api/employer-profile", employerProfileRoutes);
 
 app.get("/", (req: Request, res: Response) => {
   res.send("Job Application System API is running!");

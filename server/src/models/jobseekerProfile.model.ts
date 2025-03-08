@@ -1,7 +1,10 @@
 import { eq, and } from "drizzle-orm";
-import { db } from "../config/db";
-import { jobseekerProfiles, JobSeekerProfileSelect } from "../db/schema";
-import { CommonFields } from "../interfaces/CommonFields";
+import { db } from "../config/db.ts";
+import {
+  jobseekerProfiles,
+  type JobSeekerProfileSelect,
+} from "../db/schema.ts";
+import type { CommonFields } from "../interfaces/CommonFields.ts";
 
 class JobSeekerProfileModel {
   static async getAllProfiles(): Promise<JobSeekerProfileSelect[]> {
@@ -64,13 +67,35 @@ class JobSeekerProfileModel {
         | "deletedDate"
         | "isDeleted"
       >
-    >
+    >,
+    userId: number
   ): Promise<boolean> {
-    await db
-      .update(jobseekerProfiles)
-      .set({ ...profileData, updatedDate: new Date() })
-      .where(eq(jobseekerProfiles.profileId, profileId));
-    return true;
+    try {
+      const {
+        isPublic,
+        createdBy,
+        createdDate,
+        updatedBy,
+        updatedDate,
+        deletedBy,
+        deletedDate,
+        isDeleted,
+        ...updateData
+      } = profileData;
+      await db
+        .update(jobseekerProfiles)
+        .set({ ...updateData, updatedDate: new Date(), updatedBy: userId })
+        .where(
+          and(
+            eq(jobseekerProfiles.profileId, profileId),
+            eq(jobseekerProfiles.userId, userId)
+          )
+        );
+      return true;
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      return false;
+    }
   }
 
   static async deleteProfile(

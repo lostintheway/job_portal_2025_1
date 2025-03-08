@@ -65,7 +65,10 @@ class ApplicationController {
         res.status(401).json(ErrorMessage.authRequired());
         return;
       }
-      const application = await ApplicationService.createApplication(req.body);
+      const application = await ApplicationService.createApplication(
+        req.user.userId,
+        req.body
+      );
       res.status(201).json({ success: true, data: application });
     } catch (error) {
       res.status(500).json(ErrorMessage.serverError());

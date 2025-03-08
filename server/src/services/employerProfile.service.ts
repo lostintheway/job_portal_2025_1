@@ -1,5 +1,5 @@
-import { EmployerProfileSelect } from "../db/schema";
-import EmployerProfileModel from "../models/employerProfile.model";
+import type { EmployerProfileSelect } from "../db/schema.ts";
+import EmployerProfileModel from "../models/employerProfile.model.ts";
 
 class EmployerProfileService {
   static async getAllEmployerProfiles(): Promise<EmployerProfileSelect[]> {
@@ -38,9 +38,14 @@ class EmployerProfileService {
         | "deletedDate"
         | "isDeleted"
       >
-    >
+    >,
+    userId: number
   ): Promise<boolean> {
-    return EmployerProfileModel.updateEmployerProfile(employerId, profileData);
+    return EmployerProfileModel.updateEmployerProfile(
+      employerId,
+      profileData,
+      userId
+    );
   }
 
   static async deleteEmployerProfile(

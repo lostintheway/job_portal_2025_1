@@ -23,6 +23,7 @@ class ApplicationService {
   }
 
   static async createApplication(
+    userId: number,
     applicationData: Omit<
       ApplicationSelect,
       | "applicationId"
@@ -32,7 +33,7 @@ class ApplicationService {
       | "isDeleted"
     >
   ): Promise<number> {
-    return ApplicationModel.createApplication(applicationData);
+    return ApplicationModel.createApplication(userId, applicationData);
   }
 
   static async updateApplication(

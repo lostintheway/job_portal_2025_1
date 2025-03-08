@@ -17,7 +17,7 @@ export default function JobDetailPage() {
   const [loading, setLoading] = useState(true);
   const [applying, setApplying] = useState(false);
   const [application, setApplication] = useState<ApplicationData>({
-    resumeUrl: "",
+    jobId: Number(jobId),
     coverLetter: "",
     expectedSalary: "",
   });
@@ -32,7 +32,7 @@ export default function JobDetailPage() {
     setLoading(true);
     try {
       // Fetch job details
-      const response = await api.getJobById(id);
+      const response = await api.getJobById(Number(id));
       const jobResponse = response.data.data;
       setJob(jobResponse);
       // Fetch bookmarks to check if this job is bookmarked
@@ -74,11 +74,13 @@ export default function JobDetailPage() {
 
     try {
       setApplying(true);
-      await api.applyForJob(jobId, application);
+      await api.applyForJob(application);
       toast.success("Application submitted successfully!");
       navigate("/applications");
     } catch (error) {
-      toast.error("Failed to submit application");
+      toast.error(
+        error instanceof Error ? error.message : "Failed to submit application"
+      );
     } finally {
       setApplying(false);
     }
@@ -101,7 +103,9 @@ export default function JobDetailPage() {
         isBookmarked: !job.isBookmarked,
       });
     } catch (error) {
-      toast.error("Failed to update bookmark");
+      toast.error(
+        error instanceof Error ? error.message : "Failed to update bookmark"
+      );
     }
   };
 
@@ -235,17 +239,6 @@ export default function JobDetailPage() {
               Apply for this position
             </h3>
             <form onSubmit={handleApply} className="space-y-4">
-              <div>
-                <Label htmlFor="resumeUrl">Resume URL</Label>
-                <Input
-                  id="resumeUrl"
-                  name="resumeUrl"
-                  placeholder="Link to your resume"
-                  value={application.resumeUrl}
-                  onChange={handleInputChange}
-                  required
-                />
-              </div>
               <div>
                 <Label htmlFor="coverLetter">Cover Letter</Label>
                 <Textarea

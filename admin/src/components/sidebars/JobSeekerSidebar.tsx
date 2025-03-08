@@ -1,6 +1,12 @@
 import { Link } from "react-router-dom";
 import { Button } from "../ui/button";
-import { LayoutDashboard, Search, FileText, Bookmark } from "lucide-react";
+import {
+  LayoutDashboard,
+  Search,
+  FileText,
+  Bookmark,
+  User,
+} from "lucide-react";
 
 export default function JobSeekerSidebar({
   sidebarOpen,
@@ -56,6 +62,17 @@ export default function JobSeekerSidebar({
               >
                 <Bookmark className="mr-2 h-4 w-4" />
                 Bookmarks
+              </Button>
+            </Link>
+          </li>
+          <li>
+            <Link to="/profile">
+              <Button
+                variant="ghost"
+                className="w-full justify-start hover:bg-purple-100 dark:hover:bg-purple-900"
+              >
+                <User className="mr-2 h-4 w-4" />
+                Profile
               </Button>
             </Link>
           </li>

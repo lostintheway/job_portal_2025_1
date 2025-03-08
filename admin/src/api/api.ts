@@ -103,8 +103,8 @@ export class Api {
     return this.axiosInstance.get("/api/job-descriptions/employer/me");
   }
   // Applications
-  applyForJob(jobId: string, data: any) {
-    return this.axiosInstance.post(`/api/applications/${jobId}`, data);
+  applyForJob(data: any) {
+    return this.axiosInstance.post(`/api/applications`, data);
   }
   // Get all applications (admin only)
   getApplications() {

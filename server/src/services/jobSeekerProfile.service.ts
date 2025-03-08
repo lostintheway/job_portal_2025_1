@@ -1,5 +1,5 @@
-import { JobSeekerProfileSelect } from "../db/schema";
-import JobSeekerProfileModel from "../models/jobseekerProfile.model";
+import type { JobSeekerProfileSelect } from "../db/schema.ts";
+import JobSeekerProfileModel from "../models/jobseekerProfile.model.ts";
 
 class JobSeekerProfileService {
   static async getAllProfiles(): Promise<JobSeekerProfileSelect[]> {
@@ -38,9 +38,10 @@ class JobSeekerProfileService {
         | "deletedDate"
         | "isDeleted"
       >
-    >
+    >,
+    userId: number
   ): Promise<boolean> {
-    return JobSeekerProfileModel.updateProfile(profileId, profileData);
+    return JobSeekerProfileModel.updateProfile(profileId, profileData, userId);
   }
 
   static async deleteProfile(

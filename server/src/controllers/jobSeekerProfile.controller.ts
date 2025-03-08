@@ -1,6 +1,6 @@
-import { Request, Response } from "express";
-import JobSeekerProfileService from "../services/jobSeekerProfile.service";
-import ErrorMessage from "../models/errorMessage.model";
+import type { Request, Response } from "express";
+import JobSeekerProfileService from "../services/jobSeekerProfile.service.ts";
+import ErrorMessage from "../models/errorMessage.model.ts";
 
 class JobSeekerProfileController {
   static async getAllJobSeekerProfiles(
@@ -38,6 +38,7 @@ class JobSeekerProfileController {
     req: Request,
     res: Response
   ): Promise<void> {
+    console.log("getJobSeekerProfileByUserId");
     try {
       if (!req.user) {
         res.status(401).json(ErrorMessage.authRequired());
@@ -86,9 +87,11 @@ class JobSeekerProfileController {
         return;
       }
       const jobSeekerProfileId = parseInt(req.params.jobSeekerProfileId);
+      const userId = req.user?.userId;
       const jobSeekerProfile = await JobSeekerProfileService.updateProfile(
         jobSeekerProfileId,
-        req.body
+        req.body,
+        userId
       );
       if (!jobSeekerProfile) {
         res.status(404).json(ErrorMessage.notFound());

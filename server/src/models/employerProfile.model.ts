@@ -1,6 +1,6 @@
 import { and, eq } from "drizzle-orm";
-import { db } from "../config/db";
-import { employerProfiles, EmployerProfileSelect } from "../db/schema";
+import { db } from "../config/db.ts";
+import { employerProfiles, type EmployerProfileSelect } from "../db/schema.ts";
 
 class EmployerProfileModel {
   static async getAllEmployerProfiles(): Promise<EmployerProfileSelect[]> {
@@ -63,13 +63,27 @@ class EmployerProfileModel {
         | "deletedDate"
         | "isDeleted"
       >
-    >
+    >,
+    userId: number
   ): Promise<boolean> {
-    await db
-      .update(employerProfiles)
-      .set({ ...profileData, updatedDate: new Date() })
-      .where(eq(employerProfiles.employerId, employerId));
-    return true;
+    try {
+      const {
+        createdBy,
+        updatedBy,
+        deletedBy,
+        deletedDate,
+        isDeleted,
+        ...updateData
+      } = profileData;
+      await db
+        .update(employerProfiles)
+        .set({ ...updateData, updatedDate: new Date(), updatedBy: userId })
+        .where(eq(employerProfiles.employerId, employerId));
+      return true;
+    } catch (error) {
+      console.error("Error updating employer profile:", error);
+      return false;
+    }
   }
 
   static async deleteEmployerProfile(

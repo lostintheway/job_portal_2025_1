@@ -1,6 +1,6 @@
-import { Request, Response } from "express";
-import EmployerProfileService from "../services/employerProfile.service";
-import ErrorMessage from "../models/errorMessage.model";
+import type { Request, Response } from "express";
+import EmployerProfileService from "../services/employerProfile.service.ts";
+import ErrorMessage from "../models/errorMessage.model.ts";
 
 class EmployerProfileController {
   static async getAllEmployerProfiles(
@@ -89,7 +89,8 @@ class EmployerProfileController {
       const employerProfile =
         await EmployerProfileService.updateEmployerProfile(
           employerProfileId,
-          req.body
+          req.body,
+          req.user.userId
         );
       if (!employerProfile) {
         res.status(404).json(ErrorMessage.notFound());
