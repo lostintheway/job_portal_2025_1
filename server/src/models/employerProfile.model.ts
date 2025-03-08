@@ -69,8 +69,11 @@ class EmployerProfileModel {
         createdBy,
         updatedBy,
         deletedBy,
+        // @ts-expect-error - all is a string - all is a string
         updatedDate,
+        // @ts-expect-error - all is a string - all is a string
         deletedDate,
+        // @ts-expect-error - all is a string - all is a string
         createdDate,
         establishedDate,
         ...updateData

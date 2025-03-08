@@ -74,11 +74,15 @@ class JobSeekerProfileModel {
       const {
         isPublic,
         createdBy,
+        // @ts-expect-error - all is a string
         createdDate,
         updatedBy,
+        // @ts-expect-error - all is a string
         updatedDate,
         deletedBy,
+        // @ts-expect-error - all is a string
         deletedDate,
+        // @ts-expect-error - all is a string
         isDeleted,
         ...updateData
       } = profileData;

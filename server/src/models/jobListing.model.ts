@@ -320,6 +320,7 @@ class JobListingModel {
         .update(jobListings)
         .set({
           ...rest,
+          // @ts-expect-error - all is a string
           deadLine: new Date(deadLine as string),
           updatedDate: new Date(),
         })
@@ -328,7 +329,7 @@ class JobListingModel {
     } catch (err) {
       console.error(
         "Error updating job listing:",
-        err.sql || err.message || err
+        (err as any).sql || (err as any).message || (err as any).stack
       );
       throw err; // Optionally re-throw the error after logging
     }

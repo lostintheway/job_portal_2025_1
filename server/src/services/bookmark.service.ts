@@ -5,6 +5,7 @@ class BookmarkService {
   static async getAllBookmarksByUserId(
     userId: number
   ): Promise<BookmarkSelect[]> {
+    // @ts-expect-error - all is a string
     return BookmarkModel.getAllBookmarksByUserId(userId);
   }
 

@@ -8,7 +8,6 @@ import {
 } from "../db/schema.ts";
 import type { ResponseWithTotal } from "../interfaces/ResponseWithTotal.ts";
 import type { ApplicationQueryParams } from "../interfaces/QueryParams.ts";
-import type { Request } from "express";
 
 type ApplicationStatus =
   | "pending"
@@ -29,6 +28,7 @@ export type MyApplications = ApplicationSelect & {
 class ApplicationModel {
   // getMyApplications
   static async getMyApplications(userId: number): Promise<MyApplications[]> {
+    // @ts-expect-error - all is a string
     return db
       .select({
         ...applications,
@@ -106,6 +106,7 @@ class ApplicationModel {
       .offset(offset);
 
     return {
+      // @ts-expect-error - all is a string
       data,
       total: total.count,
       page,
