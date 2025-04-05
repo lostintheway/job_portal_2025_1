@@ -41,9 +41,22 @@ Before you begin, ensure you have met the following requirements:
      EXIT;
      ```
 
+## Restore from JobPortalDump20250308.sql File which creates job_portal_db and tables
+
+username: jobseeker1@gmail.com
+username: jobseeker2@gmail.com
+username: employer1@gmail.com
+username: employer2@gmail.com
+username: admin1@gmail.com
+
+password for all usernames is
+
+password : password123
+
 ## Installation
 
 1. **Clone the repository**:
+
    ```bash
    git clone https://github.com/lostintheway/job-portal.git
    cd job-portal
@@ -51,11 +64,13 @@ Before you begin, ensure you have met the following requirements:
 
 2. **Install dependencies**:
    Use pnpm to install the project dependencies:
+
    ```bash
    pnpm install
    ```
 
 3. **Start the development server**:
+
    ```bash
    pnpm dev
    ```
